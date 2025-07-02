@@ -99,24 +99,38 @@
       margin-bottom: 8px;
     }
 
-    .timeline {
+    .timeline-exp {
       position: relative;
+      margin: 0;
       padding-left: 30px;
       border-left: 3px solid #004e92;
     }
-    .timeline::before {
+    .timeline-exp::before {
       content: '';
       position: absolute;
-      left: -7px;
       top: 0;
-      bottom: 0;
-      width: 14px;
+      left: -10px;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
       background: #004e92;
+      border: 2px solid #fff;
     }
-    .timeline h5 {
-      margin-top: 20px;
-      color: #000;
+    .job-entry {
+      margin-bottom: 30px;
+      padding-left: 10px;
+    }
+    .job-entry h4 {
+      font-size: 1.1rem;
+      color: #222;
+    }
+    .job-entry span {
+      font-size: 0.9rem;
+      color: #666;
+    }
+    .job-entry ul {
+      list-style: disc;
+      padding-left: 20px;
     }
 
     .projects a, .travel-history a {
@@ -167,19 +181,45 @@
     </ul>
   </div>
 
-  <div class="section timeline" data-aos="fade-up">
+  <div class="section timeline-exp" data-aos="fade-up">
     <h2>Professional Experience</h2>
-    <h5>MIS Specialist — CARE Bangladesh <small>(Sep 2021 – Present)</small></h5>
-    <ul><li>Led centralized MIS and dashboards, managed reporting frameworks.</li></ul>
 
-    <h5>MIS Officer — Save the Children <small>(Feb 2018 – Sep 2021)</small></h5>
-    <ul><li>Built enterprise reporting and managed stakeholder reporting flow.</li></ul>
+    <div class="job-entry">
+      <h4>MIS Specialist — CARE Bangladesh</h4>
+      <span>Since Sep 2021</span>
+      <ul>
+        <li>Led centralized MIS and dashboards, managed reporting frameworks.</li>
+        <li>Coordinated with cross-functional teams and donors.</li>
+        <li>Ensured program data accuracy and timely delivery.</li>
+      </ul>
+    </div>
 
-    <h5>Software Engineer — ADDIE Soft Ltd. <small>(Oct 2016 – Jan 2018)</small></h5>
-    <ul><li>Engineered backend systems and mentored junior developers.</li></ul>
+    <div class="job-entry">
+      <h4>MIS Officer — Save the Children</h4>
+      <span>Feb 2018 – Sep 2021</span>
+      <ul>
+        <li>Built enterprise reporting and managed stakeholder reporting flow.</li>
+        <li>Led real-time dashboard development and performance reporting.</li>
+      </ul>
+    </div>
 
-    <h5>Jr. Software Developer — EasyTech BD <small>(Jun 2014 – Feb 2016)</small></h5>
-    <ul><li>Built educational software and interfaces with documentation.</li></ul>
+    <div class="job-entry">
+      <h4>Software Engineer — ADDIE Soft Ltd.</h4>
+      <span>Oct 2016 – Jan 2018</span>
+      <ul>
+        <li>Developed scalable web-based solutions and business automation tools.</li>
+        <li>Mentored junior developers, reviewed codebase for quality and efficiency.</li>
+      </ul>
+    </div>
+
+    <div class="job-entry">
+      <h4>Jr. Software Developer — EasyTech BD</h4>
+      <span>Jun 2014 – Feb 2016</span>
+      <ul>
+        <li>Developed school management applications and reporting tools.</li>
+        <li>Collaborated on UI/UX improvements and documentation.</li>
+      </ul>
+    </div>
   </div>
 
   <div class="section projects" data-aos="fade-up">
@@ -194,8 +234,8 @@
   <div class="section" data-aos="fade-up">
     <h2>Education</h2>
     <ul>
-      <li><strong>MSc in Computer Science</strong> — AIUB, CGPA 3.77 (2021)</li>
-      <li><strong>BSc in CSE</strong> — National University, CGPA 3.07 (2013)</li>
+      <li><strong>MSc in Computer Science</strong> — AIUB</li>
+      <li><strong>BSc in CSE</strong> — National University</li>
     </ul>
   </div>
 
