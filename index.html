@@ -2,137 +2,247 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Md. Maruf Billah | Portfolio</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Md. Maruf Billah | CV</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome & AOS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+  <!-- Custom Styles -->
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: #f2f2f2;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #333;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #eef2f3, #8e9eab);
+      color: #222;
     }
+
     header {
-      background: linear-gradient(to right, #004e92, #000428);
+      height: 100vh;
+      background: linear-gradient(120deg, #004e92, #000428);
       color: white;
-      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       text-align: center;
+      padding: 40px 20px;
+      position: relative;
     }
+    header h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+    header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    .social-icons {
+      margin-top: 15px;
+    }
+    .social-icons a {
+      color: white;
+      margin: 0 10px;
+      font-size: 1.5rem;
+    }
+
+    .scroll-down {
+      position: absolute;
+      bottom: 20px;
+      font-size: 2rem;
+      color: #fff;
+      cursor: pointer;
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(10px); }
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
     .section {
-      background: white;
-      margin: 20px auto;
+      background: rgba(255, 255, 255, 0.9);
+      margin-bottom: 30px;
       padding: 30px;
       border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      max-width: 1000px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(8px);
     }
-    h2 {
+
+    .section h2 {
+      margin-bottom: 15px;
+      font-weight: 600;
+      color: #004e92;
       border-bottom: 2px solid #004e92;
       padding-bottom: 5px;
-      margin-bottom: 20px;
     }
+
+    ul li {
+      margin-bottom: 8px;
+    }
+
     .highlight {
-      background: #eaf4ff;
-      padding: 5px 10px;
-      border-radius: 4px;
+      background-color: #e3f2fd;
+      padding: 4px 8px;
+      border-radius: 6px;
       display: inline-block;
+      font-weight: 500;
+      margin-bottom: 8px;
     }
+
+    .timeline {
+      position: relative;
+      padding-left: 30px;
+      border-left: 3px solid #004e92;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: -7px;
+      top: 0;
+      bottom: 0;
+      width: 14px;
+      border-radius: 50%;
+      background: #004e92;
+    }
+    .timeline h5 {
+      margin-top: 20px;
+      color: #000;
+    }
+
+    .projects a, .travel-history a {
+      display: block;
+      margin-bottom: 10px;
+      color: #007bff;
+      text-decoration: none;
+    }
+
     footer {
       text-align: center;
       padding: 20px;
       font-size: 14px;
-      background: #ddd;
-      margin-top: 40px;
+      background: #1a1a1a;
+      color: #eee;
     }
   </style>
 </head>
 <body>
 
-<header>
+<header data-aos="fade-down">
   <h1>Md. Maruf Billah</h1>
-  <p><i class="fas fa-map-marker-alt"></i> Titas Road, South Badda, Dhaka | <i class="fas fa-phone"></i> +8801710181448 | <i class="fas fa-envelope"></i> maruf_cse@ymail.com</p>
+  <p><i class="fas fa-map-marker-alt"></i> South Badda, Dhaka | <i class="fas fa-phone"></i> +8801710181448 | <i class="fas fa-envelope"></i> maruf_cse@ymail.com</p>
+  <div class="social-icons">
+    <a href="https://www.linkedin.com/in/marufbillah/" target="_blank"><i class="fab fa-linkedin"></i></a>
+    <a href="https://aiub.academia.edu/MarufBillah" target="_blank"><i class="fas fa-graduation-cap"></i></a>
+  </div>
+  <div class="scroll-down" onclick="document.getElementById('summary').scrollIntoView({ behavior: 'smooth' })">
+    <i class="fas fa-mobile-alt"></i>
+  </div>
 </header>
 
-<div class="section">
-  <h2>Summary</h2>
-  <p>Results-driven MIS, project management, and data analytics professional with over 10 years of experience enabling evidence-based decision-making. Specialized in monitoring systems, dashboards, and digital MIS tools. Adept in business intelligence, software development, and stakeholder collaboration.</p>
-</div>
+<div class="container">
 
-<div class="section">
-  <h2>Technical Skills & Tools</h2>
-  <ul>
-    <li><strong>Core:</strong> Data Analytics, Business Intelligence, Reporting, Database Design, UAT, QA, Stakeholder Management</li>
-    <li><strong>Tools:</strong> Power BI, Tableau, Excel, Google Data Studio, MS SQL, PostgreSQL, Oracle</li>
-    <li><strong>Programming:</strong> C#, ASP.NET Core, Angular, Python</li>
-    <li><strong>Others:</strong> Jira, Trello, Selenium, Git</li>
-  </ul>
-</div>
+  <div id="summary" class="section" data-aos="fade-up">
+    <h2>Summary</h2>
+    <p>Results-driven MIS and data analytics expert with 10+ years in global NGOs and tech. Specializes in digital transformation, MIS systems, business intelligence, and strategic reporting to boost organizational performance.</p>
+  </div>
 
-<div class="section">
-  <h2>Experience</h2>
-  <h5>MIS Specialist — CARE Bangladesh (Sep 2021 – Present)</h5>
-  <ul>
-    <li>Lead centralized MIS system and real-time dashboards</li>
-    <li>Coordinated across departments and vendors</li>
-  </ul>
-  <h5>MIS Officer — Save the Children (Feb 2018 – Sep 2021)</h5>
-  <ul>
-    <li>Developed enterprise MIS and led data reporting processes</li>
-  </ul>
-  <h5>Software Engineer — ADDIE Soft Ltd. (Oct 2016 – Jan 2018)</h5>
-  <ul><li>Led backend development and mentored junior developers</li></ul>
-  <h5>Jr. Software Developer — EasyTech BD (Jun 2014 – Feb 2016)</h5>
-  <ul><li>Prototyped applications, maintained documentation</li></ul>
-</div>
+  <div class="section" data-aos="fade-up">
+    <h2>Technical Skills</h2>
+    <ul>
+      <li><strong>Analytics:</strong> Power BI, Tableau, Google Data Studio</li>
+      <li><strong>Languages:</strong> C#, ASP.NET Core, Angular, Python</li>
+      <li><strong>Databases:</strong> MS SQL, PostgreSQL, Oracle</li>
+      <li><strong>PM Tools:</strong> Jira, Trello, Asana</li>
+      <li><strong>QA:</strong> Selenium, JMeter | <strong>VCS:</strong> Git, Bitbucket</li>
+    </ul>
+  </div>
 
-<div class="section">
-  <h2>Major Projects</h2>
-  <ul>
-    <li><span class="highlight">CARE Central MIS</span> — Modular data system for project tracking</li>
-    <li><span class="highlight">CARE BI Dashboard</span> — Real-time visual dashboard for KPIs</li>
-    <li><span class="highlight">BI Tool for Bank</span> — Analytics platform with CBS integration</li>
-    <li><span class="highlight">e-Primary School EMIS</span> — National database for 70k+ schools</li>
-    <li><span class="highlight">Online Case Management System</span> — Child protection data system</li>
-    <li><span class="highlight">Education ERP (Odhyyon)</span> — ERP for academic institutions</li>
-  </ul>
-</div>
+  <div class="section timeline" data-aos="fade-up">
+    <h2>Professional Experience</h2>
+    <h5>MIS Specialist — CARE Bangladesh <small>(Sep 2021 – Present)</small></h5>
+    <ul><li>Led centralized MIS and dashboards, managed reporting frameworks.</li></ul>
 
-<div class="section">
-  <h2>Training</h2>
-  <ul>
-    <li>C#, ASP.NET, MS SQL Server — EasyTech BD</li>
-    <li>Android Development — BASIS</li>
-    <li>ArcGIS — Save the Children</li>
-  </ul>
-</div>
+    <h5>MIS Officer — Save the Children <small>(Feb 2018 – Sep 2021)</small></h5>
+    <ul><li>Built enterprise reporting and managed stakeholder reporting flow.</li></ul>
 
-<div class="section">
-  <h2>Education</h2>
-  <ul>
-    <li><strong>Master's in Computer Science</strong> — AIUB, CGPA: 3.77 (2021)</li>
-    <li><strong>BSc. in CSE</strong> — National University, CGPA: 3.07 (2013)</li>
-  </ul>
-</div>
+    <h5>Software Engineer — ADDIE Soft Ltd. <small>(Oct 2016 – Jan 2018)</small></h5>
+    <ul><li>Engineered backend systems and mentored junior developers.</li></ul>
 
-<div class="section">
-  <h2>Publications</h2>
-  <ul>
-    <li><a href="https://www.ijser.org/onlineResearchPaperViewer.aspx?Easy-Education-Management-System.pdf" target="_blank">IJSER - Easy Education Management System</a></li>
-    <li><a href="https://www.researchgate.net/publication/361163236_Easy_Education_Management_System" target="_blank">ResearchGate Link</a></li>
-  </ul>
-</div>
+    <h5>Jr. Software Developer — EasyTech BD <small>(Jun 2014 – Feb 2016)</small></h5>
+    <ul><li>Built educational software and interfaces with documentation.</li></ul>
+  </div>
 
-<div class="section">
-  <h2>References</h2>
-  <ul>
-    <li><strong>Mohammad Samawat Ullah</strong> — Assistant Professor, AIUB | samawat@aiub.edu</li>
-    <li><strong>Toufique Ahmed</strong> — Lead - M&E, CARE Bangladesh | toufique.ahmed@care.org</li>
-  </ul>
+  <div class="section projects" data-aos="fade-up">
+    <h2>Projects</h2>
+    <a href="projects/care-central-mis.html">CARE Central MIS – Modular tracking system</a>
+    <a href="projects/bank-bi-tool.html">BI Tool for Bank – Real-time CBS analytics</a>
+    <a href="projects/emis.html">e-Primary EMIS – National school database</a>
+    <a href="projects/ocms.html">Online Case Management – Child Protection</a>
+    <a href="projects/erp.html">Odhyyon ERP – Education management suite</a>
+  </div>
+
+  <div class="section" data-aos="fade-up">
+    <h2>Education</h2>
+    <ul>
+      <li><strong>MSc in Computer Science</strong> — AIUB, CGPA 3.77 (2021)</li>
+      <li><strong>BSc in CSE</strong> — National University, CGPA 3.07 (2013)</li>
+    </ul>
+  </div>
+
+  <div class="section" data-aos="fade-up">
+    <h2>Travel History</h2>
+    <div class="travel-history">
+      <a href="travel/nepal.html"><i class="fas fa-mountain"></i> Nepal — Mountains, Momos, Pokhara</a>
+      <a href="travel/thailand.html"><i class="fas fa-umbrella-beach"></i> Thailand — Beaches, Thai Curry, Bangkok</a>
+      <a href="travel/srilanka.html"><i class="fas fa-water"></i> Sri Lanka — Temples, Tea, Seafood</a>
+    </div>
+  </div>
+
+  <div class="section" data-aos="fade-up">
+    <h2>Training & Certifications</h2>
+    <ul>
+      <li>C# & ASP.NET — EasyTech BD</li>
+      <li>Mobile App Dev (Android) — BASIS</li>
+      <li>ArcGIS — Save the Children</li>
+    </ul>
+  </div>
+
+  <div class="section" data-aos="fade-up">
+    <h2>Publications</h2>
+    <ul>
+      <li><a href="https://www.ijser.org/onlineResearchPaperViewer.aspx?Easy-Education-Management-System.pdf" target="_blank">Education Management System — IJSER</a></li>
+      <li><a href="https://www.researchgate.net/publication/361163236_Easy_Education_Management_System" target="_blank">ResearchGate</a></li>
+    </ul>
+  </div>
+
+  <div class="section" data-aos="fade-up">
+    <h2>References</h2>
+    <ul>
+      <li><strong>Mohammad Samawat Ullah</strong> – Assistant Professor, AIUB | samawat@aiub.edu</li>
+      <li><strong>Toufique Ahmed</strong> – Lead M&E, CARE Bangladesh | toufique.ahmed@care.org</li>
+    </ul>
+  </div>
 </div>
 
 <footer>
-  &copy; 2025 Md. Maruf Billah | Portfolio Website powered by GitHub Pages
+  &copy; 2025 Md. Maruf Billah | Portfolio Website 
 </footer>
+
+<!-- AOS JS -->
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script>
+  AOS.init({ duration: 800 });
+</script>
 
 </body>
 </html>
