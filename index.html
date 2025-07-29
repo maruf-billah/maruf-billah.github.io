@@ -36,6 +36,81 @@
       color: var(--dark);
       line-height: 1.6;
       scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+
+    /* Floating Tools Container */
+    .tools-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+    
+    .tool-item {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      animation: float-tool 25s infinite linear;
+      transition: transform 0.3s ease;
+    }
+    
+    .tool-item:hover {
+      transform: scale(1.2);
+      z-index: 10;
+    }
+    
+    .tool-icon {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(5px);
+      border-radius: 15px;
+      font-size: 2rem;
+      color: white;
+      margin-bottom: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+    }
+    
+    .tool-label {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(5px);
+      padding: 5px 15px;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      color: white;
+      font-weight: 500;
+      white-space: nowrap;
+      opacity: 0.9;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    @keyframes float-tool {
+      0% {
+        transform: translateY(100px) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-1000px) rotate(360deg);
+        opacity: 0;
+      }
     }
 
     /* Header with Glass Morphism */
@@ -921,6 +996,16 @@
       .floating-nav {
         display: none;
       }
+      
+      .tool-item {
+        transform: scale(0.8);
+      }
+      
+      .tool-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+      }
     }
     
     @media (max-width: 576px) {
@@ -948,6 +1033,10 @@
       .pub-info a {
         justify-content: center;
       }
+      
+      .tool-item {
+        transform: scale(0.6);
+      }
     }
   </style>
 </head>
@@ -965,6 +1054,9 @@
   </div>
 
   <header id="header">
+    <!-- Floating Tools Container -->
+    <div class="tools-container" id="tools-container"></div>
+    
     <div class="profile-container">
       <img src="https://media.licdn.com/dms/image/v2/C4D03AQG-DbXwm8Ejtg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1654005407353?e=1756944000&v=beta&t=N-y1kvc4tYa3SCexabWMuXdk2mBdUAAWSqBTw0NG9xU" alt="Md. Maruf Billah" class="profile-image">
       <h1>Md. Maruf Billah</h1>
@@ -972,7 +1064,7 @@
       <div class="contact-info">
         <div class="contact-item">
           <i class="fas fa-map-marker-alt"></i>
-          <span>South Badda, Dhaka</span>
+          <span>Dhaka, Bangladesh</span>
         </div>
         <div class="contact-item">
           <i class="fas fa-phone"></i>
@@ -997,7 +1089,7 @@
     <div class="section" id="summary" data-aos="fade-up">
       <h2>Professional Summary</h2>
       <p class="summary-text">
-        <span class="highlight">Results-driven MIS and data analytics expert</span> with 10+ years of experience in global NGOs and technology sectors. Specializes in <span class="highlight">digital transformation</span>, <span class="highlight">MIS systems development</span>, <span class="highlight">business intelligence</span>, and strategic reporting to enhance organizational performance. Proven track record of designing data-driven solutions that bridge the gap between technology and business objectives.
+        <span class="highlight">Results-driven MIS and data analytics expert</span> with 11+ years of experience in global NGOs and technology sectors. Specializes in <span class="highlight">digital transformation</span>, <span class="highlight">MIS systems development</span>, <span class="highlight">business intelligence</span>, and strategic reporting to enhance organizational performance. Proven track record of designing data-driven solutions that bridge the gap between technology and business objectives.
       </p>
     </div>
 
@@ -1023,7 +1115,7 @@
           <div class="skill-tag"><i class="fab fa-angular"></i> Angular</div>
           <div class="skill-tag"><i class="fab fa-python"></i> Python</div>
           <div class="skill-tag"><i class="fas fa-server"></i> ASP.NET Core</div>
-          <div class="skill-tag"><i class="fas fa-mobile-alt"></i> Xamarin</div>
+          
         </div>
       </div>
       
@@ -1067,10 +1159,11 @@
             </div>
             <p class="exp-desc">Leading digital transformation initiatives for one of the largest international NGOs in Bangladesh.</p>
             <ul class="exp-highlights">
-              <li>Architected and implemented a centralized MIS framework serving 12 projects with 150+ users</li>
-              <li>Developed interactive Power BI dashboards that reduced reporting time by 60%</li>
-              <li>Established data governance protocols ensuring 99.8% data accuracy for donor reporting</li>
-              <li>Mentored 25+ staff members on data literacy and visualization best practices</li>
+              <li>Lead, coordinate, and strategically manage CARE Bangladesh's Central Management Information System</li>
+              <li>Lead centralized MIS development, ensuring data accuracy and compliance with program needs.</li>
+              <li>Coordinate cross-functional teams, vendors, and stakeholders, ensuring smooth project execution through effective communication and collaboration.</li>
+              <li>Design and deploy real-time dashboards and automated reporting for strategic insights.</li>
+              <li>Build and maintain strong relationships with internal and external stakeholders, including program teams, and partner organizations, to ensure project success.</li>
             </ul>
           </div>
         </div>
@@ -1086,10 +1179,12 @@
             </div>
             <p class="exp-desc">Drove data-driven decision making for humanitarian programs reaching 500,000+ beneficiaries.</p>
             <ul class="exp-highlights">
-              <li>Automated monthly reporting processes saving 120+ staff hours per month</li>
-              <li>Designed mobile data collection systems deployed across 45 field locations</li>
-              <li>Integrated GIS mapping with program data for spatial analysis</li>
-              <li>Received "Innovator of the Year" award for digital solutions in 2020</li>
+              <li>Developed data-driven solutions for program monitoring, supporting executive decision-making.</li>
+              <li>Designed and optimized enterprise-level databases to improve reporting accuracy.</li>
+              <li>Led automated reporting solutions for program teams, streamlining operational workflows.</li>
+              <li>Managed stakeholder communications, ensuring alignment between data systems and organizational goals.</li>
+              <li>Coordinate technical staff and vendors for effective solution delivery.</li>
+
             </ul>
           </div>
         </div>
@@ -1105,9 +1200,11 @@
             </div>
             <p class="exp-desc">Full-stack development for enterprise software solutions.</p>
             <ul class="exp-highlights">
-              <li>Led development of school management system serving 50+ educational institutions</li>
-              <li>Implemented role-based access control system with 15 permission levels</li>
-              <li>Optimized database queries improving system performance by 40%</li>
+              <li>Analyzed business requirements and translated them into technical solutions.</li>
+              <li>Designed and developed software systems, ensuring scalability and efficiency.</li>
+              <li>Fixed bugs and maintained existing systems for better functionality.</li>
+              <li>Supervised and mentored interns and junior developers, ensuring adherence to best practices.</li>
+              
             </ul>
           </div>
         </div>
@@ -1123,9 +1220,9 @@
             </div>
             <p class="exp-desc">Built foundational skills in software development lifecycle.</p>
             <ul class="exp-highlights">
-              <li>Developed inventory management modules for retail clients</li>
-              <li>Created technical documentation for 5+ software products</li>
-              <li>Participated in agile development processes with 2-week sprints</li>
+              <li>Prototype and user interface design.</li>
+              <li>Developed software solutions and features according to project requirements.</li>
+              <li>Prepared technical documents, including release notes, user manuals, and system diagrams.</li>
             </ul>
           </div>
         </div>
@@ -1141,7 +1238,7 @@
         <div class="degree-card">
           <h3 class="degree-title"><i class="fas fa-graduation-cap"></i> MSc in Computer Science</h3>
           <p class="degree-school">American International University-Bangladesh (AIUB)</p>
-          <p class="degree-details">Specialization in Data Analytics and Information Systems</p>
+          <p class="degree-details">Specialization in Information & Database Management</p>
           <span class="degree-gpa">CGPA: 3.77/4.00</span>
         </div>
         
@@ -1156,9 +1253,9 @@
           <h3 class="degree-title"><i class="fas fa-certificate"></i> Professional Certifications</h3>
           <ul class="exp-highlights">
             <li>Microsoft Power BI Data Analyst</li>
-            <li>Google Data Analytics Professional</li>
+            <li>Google Data Analytics</li>
             <li>Asp.NET Core Microservices</li>
-            <li>Azure Data Fundamentals</li>
+            
           </ul>
         </div>
         
@@ -1194,36 +1291,7 @@
       </div>
     </div>
 
-    <!-- References Section -->
-    <div class="section" id="references" data-aos="fade-up">
-      <h2>Professional References</h2>
-      
-      <div class="ref-card">
-        <p class="ref-quote">
-          Maruf has an exceptional ability to translate complex data into actionable insights. His work on our digital transformation initiative was instrumental in modernizing our monitoring systems.
-        </p>
-        <div class="ref-info">
-          <div class="ref-avatar">TA</div>
-          <div class="ref-details">
-            <h4>Toufique Ahmed</h4>
-            <p>Lead M&E, CARE Bangladesh | toufique.ahmed@care.org</p>
-          </div>
-        </div>
-      </div>
-      
-      <div class="ref-card">
-        <p class="ref-quote">
-          As a student, Maruf demonstrated remarkable analytical skills and creativity in solving complex problems. His research work was among the top 5% of his cohort.
-        </p>
-        <div class="ref-info">
-          <div class="ref-avatar">MS</div>
-          <div class="ref-details">
-            <h4>Mohammad Samawat Ullah</h4>
-            <p>Assistant Professor, AIUB | samawat@aiub.edu</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    
   </div>
 
   <footer>
@@ -1237,11 +1305,7 @@
         <a href="#" class="social-link"><i class="fas fa-envelope"></i></a>
       </div>
       <p class="copyright">© 2025 All Rights Reserved</p>
-      <div class="made-with">
-        <span>Made with</span>
-        <i class="fas fa-heart"></i>
-        <span>using HTML, CSS & JavaScript</span>
-      </div>
+      
     </div>
   </footer>
 
@@ -1293,6 +1357,83 @@
         behavior: 'smooth'
       });
     });
+    
+    // Tool icons generation
+    const toolsContainer = document.getElementById('tools-container');
+    const tools = [
+      { icon: 'fas fa-chart-bar', label: 'Power BI', color: '#f2c811' },
+      { icon: 'fab fa-microsoft', label: 'ASP.NET', color: '#512bd4' },
+      { icon: 'fab fa-angular', label: 'Angular', color: '#dd0031' },
+      { icon: 'fas fa-chart-pie', label: 'Tableau', color: '#e9762c' },
+      { icon: 'fas fa-database', label: 'SQL Server', color: '#c32d2d' },
+      { icon: 'fab fa-python', label: 'Python', color: '#3776ab' },
+      { icon: 'fas fa-cloud', label: 'Azure', color: '#0078d4' },
+      { icon: 'fas fa-map-marked-alt', label: 'GIS', color: '#34a853' },
+      { icon: 'fab fa-docker', label: 'Docker', color: '#2496ed' },
+      { icon: 'fab fa-git-alt', label: 'Git', color: '#f34f29' }
+    ];
+    
+    // Create tool items
+    function createToolItem() {
+      const tool = tools[Math.floor(Math.random() * tools.length)];
+      const toolItem = document.createElement('div');
+      toolItem.className = 'tool-item';
+      
+      const toolIcon = document.createElement('div');
+      toolIcon.className = 'tool-icon';
+      toolIcon.innerHTML = `<i class="${tool.icon}"></i>`;
+      toolIcon.style.backgroundColor = tool.color;
+      
+      const toolLabel = document.createElement('div');
+      toolLabel.className = 'tool-label';
+      toolLabel.textContent = tool.label;
+      
+      toolItem.appendChild(toolIcon);
+      toolItem.appendChild(toolLabel);
+      
+      // Random position
+      const left = Math.random() * 100;
+      toolItem.style.left = `${left}%`;
+      
+      // Random delay and duration
+      const delay = Math.random() * 15;
+      const duration = 15 + Math.random() * 15;
+      toolItem.style.animationDelay = `${delay}s`;
+      toolItem.style.animationDuration = `${duration}s`;
+      
+      // Random rotation
+      const rotate = Math.random() * 360;
+      toolItem.style.transform = `rotate(${rotate}deg)`;
+      
+      // Random scale
+      const scale = 0.7 + Math.random() * 0.6;
+      toolItem.style.transform += ` scale(${scale})`;
+      
+      toolsContainer.appendChild(toolItem);
+      
+      // Remove element after animation completes
+      setTimeout(() => {
+        toolItem.remove();
+      }, (delay + duration) * 1000);
+    }
+    
+    // Generate tools at intervals
+    function generateTools() {
+      // Initial burst of tools
+      for (let i = 0; i < 10; i++) {
+        setTimeout(createToolItem, i * 300);
+      }
+      
+      // Continuous generation
+      setInterval(() => {
+        if (toolsContainer.childElementCount < 15) {
+          createToolItem();
+        }
+      }, 1500);
+    }
+    
+    // Start generating tools
+    generateTools();
   </script>
 </body>
 </html>
