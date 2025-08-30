@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Md. Maruf Billah | Digital Transformation Expert</title>
+  <title>Md. Maruf Billah | Digital Transformation & Data Analytics Expert</title>
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
@@ -855,6 +855,85 @@
       font-size: 0.95rem;
       line-height: 1.6;
     }
+	
+	    /* Projects Section - Card Grid */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin-top: 30px;
+    }
+    
+    .project-card {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 1px solid rgba(0, 0, 0, 0.03);
+    }
+    
+    .project-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .project-image {
+      height: 200px;
+      overflow: hidden;
+    }
+    
+    .project-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    
+    .project-card:hover .project-image img {
+      transform: scale(1.1);
+    }
+    
+    .project-content {
+      padding: 25px;
+    }
+    
+    .project-title {
+      font-size: 1.3rem;
+      color: var(--dark);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    
+    .project-about {
+      color: var(--gray);
+      margin-bottom: 15px;
+      line-height: 1.6;
+    }
+    
+    .project-org {
+      color: var(--primary);
+      font-weight: 500;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+    }
+    
+    .project-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    
+    .project-link:hover {
+      color: var(--primary-light);
+      gap: 15px;
+    }
+	
+	
 
     /* Footer */
     footer {
@@ -1049,6 +1128,7 @@
     <div class="nav-dot" data-section="skills"></div>
     <div class="nav-dot" data-section="experience"></div>
     <div class="nav-dot" data-section="education"></div>
+	<div class="nav-dot" data-section="projects"></div>
     <div class="nav-dot" data-section="publications"></div>
     <div class="nav-dot" data-section="references"></div>
   </div>
@@ -1232,31 +1312,136 @@
 
     <!-- Education Section -->
     <div class="section" id="education" data-aos="fade-up">
-      <h2>Education & Credentials</h2>
+      <h2>Education</h2>
       <div class="education-grid">
         
         <div class="degree-card">
           <h3 class="degree-title"><i class="fas fa-graduation-cap"></i> MSc in Computer Science</h3>
           <p class="degree-school">American International University-Bangladesh (AIUB)</p>
           <p class="degree-details">Specialization in Information & Database Management</p>
-          <span class="degree-gpa">CGPA: 3.77/4.00</span>
+          
         </div>
         
-        <div class="degree-card">
-          <h3 class="degree-title"><i class="fas fa-university"></i> BSc in Computer Science</h3>
-          <p class="degree-school">National University, Bangladesh</p>
-          <p class="degree-details">Thesis on "Education Management Systems"</p>
-          <span class="degree-gpa">CGPA: 3.07/4.00</span>
+        
+        
+      </div>
+    </div>
+	
+	    <!-- Projects Section -->
+    <div class="section" id="projects" data-aos="fade-up">
+      <h2>Projects Portfolio</h2>
+      <div class="projects-grid">
+        
+        <div class="project-card">
+          <div class="project-image">
+            <img src="images/care_track.jpg" alt="Care Track System">
+          </div>
+          <div class="project-content">
+            <h3 class="project-title">Care Track System</h3>
+            <p class="project-about">A comprehensive management system for tracking healthcare services and patient outcomes.</p>
+            <p class="project-org">CARE Bangladesh</p>
+            <a href="https://maruf-billah.github.io/care_track_details.html" target="_blank" class="project-link">
+              View Details <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
         </div>
         
-        <div class="degree-card">
-          <h3 class="degree-title"><i class="fas fa-certificate"></i> Professional Certifications</h3>
-          <ul class="exp-highlights">
-            <li>Microsoft Power BI Data Analyst</li>
-            <li>Google Data Analytics</li>
-            <li>Asp.NET Core Microservices</li>
-            
-          </ul>
+        <div class="project-card">
+          <div class="project-image">
+            <img src="images/data_dashboard.jpg" alt="Real-time Data Dashboard">
+          </div>
+          <div class="project-content">
+            <h3 class="project-title">Real-time Data Dashboard</h3>
+            <p class="project-about">Interactive dashboard for monitoring program performance metrics in real-time.</p>
+            <p class="project-org">Save the Children</p>
+            <a href="https://maruf-billah.github.io/dashboard_details.html" target="_blank" class="project-link">
+              View Details <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div class="project-card">
+          <div class="project-image">
+            <img src="images/digital_transformation.jpg" alt="Digital Transformation Framework">
+          </div>
+          <div class="project-content">
+            <h3 class="project-title">Digital Transformation Framework</h3>
+            <p class="project-about">A strategic framework for implementing digital solutions across organizational departments.</p>
+            <p class="project-org">CARE International</p>
+            <a href="https://maruf-billah.github.io/digital_transformation_details.html" target="_blank" class="project-link">
+              View Details <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div class="project-card">
+          <div class="project-image">
+            <img src="images/automated_reporting.jpg" alt="Automated Reporting System">
+          </div>
+          <div class="project-content">
+            <h3 class="project-title">Automated Reporting System</h3>
+            <p class="project-about">System that automatically generates and distributes customized reports to stakeholders.</p>
+            <p class="project-org">Save the Children</p>
+            <a href="https://maruf-billah.github.io/automated_reporting_details.html" target="_blank" class="project-link">
+              View Details <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div class="project-card">
+          <div class="project-image">
+            <img src="images/gis_mapping.jpg" alt="GIS Mapping Solution">
+          </div>
+          <div class="project-content">
+            <h3 class="project-title">GIS Mapping Solution</h3>
+            <p class="project-about">Geographic information system for visualizing program coverage and impact areas.</p>
+            <p class="project-org">CARE Bangladesh</p>
+            <a href="https://maruf-billah.github.io/gis_mapping_details.html" target="_blank" class="project-link">
+              View Details <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div class="project-card">
+          <div class="project-image">
+            <img src="data_warehouse.jpg" alt="Data Warehouse Implementation">
+          </div>
+          <div class="project-content">
+            <h3 class="project-title">Data Warehouse Implementation</h3>
+            <p class="project-about">Centralized data repository integrating multiple program databases for holistic analysis.</p>
+            <p class="project-org">CARE Bangladesh</p>
+            <a href="https://maruf-billah.github.io/data_warehouse_details.html" target="_blank" class="project-link">
+              View Details <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div class="project-card">
+          <div class="project-image">
+            <img src="images/mobile_data_collection.jpg" alt="Mobile Data Collection App">
+          </div>
+          <div class="project-content">
+            <h3 class="project-title">Mobile Data Collection App</h3>
+            <p class="project-about">Offline-capable mobile application for field data collection in remote areas.</p>
+            <p class="project-org">Save the Children</p>
+            <a href="https://maruf-billah.github.io/mobile_data_details.html" target="_blank" class="project-link">
+              View Details <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div class="project-card">
+          <div class="project-image">
+            <img src="images/impact_assessment.jpg" alt="Impact Assessment Tool">
+          </div>
+          <div class="project-content">
+            <h3 class="project-title">Impact Assessment Tool</h3>
+            <p class="project-about">Analytical tool for measuring and visualizing program impact on target communities.</p>
+            <p class="project-org">CARE International</p>
+            <a href="https://maruf-billah.github.io/impact_assessment_details.html" target="_blank" class="project-link">
+              View Details <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
         </div>
         
       </div>
