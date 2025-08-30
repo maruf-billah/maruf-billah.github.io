@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CARE Track: Transforming Project Management for Greater Impact by CARE Bangladesh</title>
+
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<style>
+  :root{
+    --ink:#241E4E;
+    --plum:#5C2163;
+    --ink-70:#241E4Eb3;
+    --bg:#F6F4FB;
+    --card:#FFFFFF;
+    --muted:#6f6a86;
+    --accent:#B497D6;
+    --accent-2:#A17CCC;
+    --ring: 0 10px 30px rgba(36,30,78,.12);
+    --soft: 0 6px 18px rgba(36,30,78,.10);
+    --radius:16px;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;
+    color:var(--ink);
+    background:var(--bg);
+    line-height:1.55;
+  }
+
+  /* Header / Hero */
+  .hero{
+    position:relative;
+    overflow:hidden;
+    color:#fff;
+    background:
+      radial-gradient(1200px 600px at 100% -10%, rgba(180,151,214,.25), transparent 60%),
+      linear-gradient(135deg, var(--plum), var(--ink));
+  }
+  .hero-inner{
+    max-width:1200px;margin:0 auto;
+    padding:88px 24px 72px;
+    display:grid;grid-template-columns:1.15fr .85fr;gap:32px;align-items:center;
+  }
+  .brand-kicker{
+    display:inline-flex;align-items:center;gap:10px;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+    padding:8px 14px;border-radius:999px;font-weight:600;letter-spacing:.3px;
+    backdrop-filter:saturate(160%) blur(6px);
+  }
+  .brand-kicker i{opacity:.9}
+  h1{
+    font-family:'Montserrat', sans-serif;
+    font-size: clamp(28px, 4vw, 48px);
+    line-height:1.1;margin:14px 0 10px;
+    letter-spacing:-.5px;
+  }
+  .lead{
+    font-size: clamp(15px, 1.6vw, 18px);
+    color:#f3eefe;opacity:.95;max-width:58ch;
+  }
+  .hero-card{
+    background:#fff;color:var(--ink);border-radius:var(--radius);
+    box-shadow:var(--ring);padding:22px;display:grid;gap:14px;
+  }
+  .stat{
+    display:flex;align-items:center;gap:14px;background:#F5F1FB;border-radius:12px;padding:12px 14px;
+  }
+  .stat i{color:var(--plum)}
+  .stat .n{font-family:'Montserrat',sans-serif;font-weight:800;font-size:20px}
+  .stat .l{color:var(--muted);font-size:13px}
+
+  /* Sections */
+  .wrap{max-width:1200px;margin:0 auto;padding:56px 24px}
+  .section-head{
+    display:flex;align-items:center;gap:14px;margin-bottom:18px;
+  }
+  .section-head i{
+    background:linear-gradient(135deg, var(--accent), var(--accent-2));
+    color:#fff;border-radius:10px;width:40px;height:40px;display:grid;place-items:center;
+    box-shadow:0 6px 16px rgba(161,124,204,.35);
+  }
+  h2{
+    font-family:'Montserrat',sans-serif;font-size: clamp(22px, 2.6vw, 32px);margin:0;
+    letter-spacing:-.2px;color:var(--ink);
+  }
+  .sub{
+    margin:6px 0 24px;color:var(--muted);max-width:78ch;
+  }
+
+  /* Feature grid */
+  .grid{display:grid;gap:18px}
+  @media(min-width:680px){.grid.cols-3{grid-template-columns:repeat(3,1fr)}}
+  @media(min-width:880px){.grid.cols-4{grid-template-columns:repeat(4,1fr)}}
+
+  .card{
+    background:var(--card);border-radius:14px;padding:18px 16px;
+    box-shadow:var(--soft);border:1px solid #eee;transition:.25s transform, .25s box-shadow;
+  }
+  .card:hover{transform:translateY(-4px);box-shadow:0 14px 28px rgba(36,30,78,.12)}
+  .card .ic{
+    width:44px;height:44px;border-radius:10px;display:grid;place-items:center;
+    background:linear-gradient(135deg, #efe9fb, #f7f3ff);color:var(--plum);margin-bottom:10px;
+  }
+  .card h3{margin:0 0 6px;font-size:16.5px}
+  .card p{margin:0;color:#5b5575;font-size:14px}
+
+  /* Differentiators list */
+  .pill{
+    display:flex;align-items:flex-start;gap:12px;padding:14px 14px;border-radius:12px;
+    background:#FBFAFF;border:1px solid #eee;
+  }
+  .pill i{color:var(--plum);margin-top:2px}
+
+  /* Project badges */
+  .badges{display:flex;flex-wrap:wrap;gap:10px}
+  .badge{
+    background:linear-gradient(135deg, var(--accent), var(--accent-2));
+    color:#fff;border-radius:999px;padding:8px 12px;font-weight:600;font-size:13px;
+    box-shadow:0 6px 16px rgba(161,124,204,.35);
+  }
+  .badge.alt{background:linear-gradient(135deg, #9E3D3D, #D9534F)}
+
+  /* Process flow */
+  .flow{
+    position:relative;margin-top:6px;
+    background:#fff;border-radius:16px;border:1px solid #eee;box-shadow:var(--soft);
+    padding:20px;
+  }
+  .flow-rail{
+    position:relative;margin:8px 0 0 0;padding:8px 0;
+  }
+  .step{
+    position:relative;display:grid;gap:8px;padding:16px 16px 16px 56px;border-radius:12px;margin:8px 0;
+    background:linear-gradient(180deg, #fbf9ff, #fff);
+    border:1px solid #eee;
+  }
+  .step .dot{
+    position:absolute;left:18px;top:18px;width:22px;height:22px;border-radius:50%;
+    background:linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow:0 0 0 8px rgba(161,124,204,.18);
+    display:grid;place-items:center;color:#fff;font-size:12px;font-weight:700;
+  }
+  .step h4{margin:0;font-size:16px}
+  .step p{margin:0;color:#5b5575;font-size:14px}
+  .step .meta{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    background:#F3EEFF;border:1px dashed #d6c8f3;color:#3a2f6c;
+    border-radius:999px;padding:5px 10px;font-size:12px;font-weight:600;
+  }
+  .rail-line{
+    position:absolute;left:28px;top:0;bottom:0;width:2px;background:linear-gradient(#e6def7,#f0eaff);
+  }
+
+  /* Callout / closing */
+  .callout{
+    background:linear-gradient(135deg, var(--ink), var(--plum));
+    color:#fff;border-radius:16px;padding:26px;box-shadow:var(--ring);
+    display:grid;gap:10px;
+  }
+  .callout p{margin:0;color:#f3ecff}
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;background:#fff;color:var(--plum);
+    padding:10px 14px;border-radius:10px;font-weight:700;border:0;cursor:pointer;
+    box-shadow:0 10px 20px rgba(0,0,0,.08);
+  }
+
+  /* Footer */
+  footer{
+    background:#fff;border-top:1px solid #eee;color:#6c6786;
+    text-align:center;padding:18px;
+  }
+
+  /* Utilities */
+  .two{display:grid;gap:18px}
+  @media(min-width:880px){.two{grid-template-columns:1.1fr .9fr}}
+  .mt-6{margin-top:6px}.mt-12{margin-top:12px}.mt-18{margin-top:18px}.mt-24{margin-top:24px}
+
+  /* Print */
+  @media print{
+    .btn,.brand-kicker{display:none !important}
+    body{background:#fff}
+    .hero{color:#000;background:#fff}
+    .hero-card, .card, .flow, .callout{box-shadow:none;border:1px solid #ddd}
+    a::after{content:" (" attr(href) ")";font-size:10px;color:#555}
+  }
+</style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div>
+        <span class="brand-kicker"><i class="fa-solid fa-shield-heart"></i> CARE Bangladesh • Digital Program Excellence</span>
+        <h1>CARE Track: Transforming CARE Bangladesh’s Project Implementation and Service Delivery</h1>
+        <p class="lead">
+          In today’s fast-changing development and humanitarian landscape, data-driven decision-making is essential.
+          CARE Bangladesh has taken a bold step with <strong>CARE Track</strong>, a centralized and robust
+          <strong>Management Information System (MIS)</strong> that optimizes operations, strengthens service delivery, and turns information into action.
+          With more than <strong>20 specialized modules</strong>, CARE Track streamlines everything from data collection to reporting — a single, powerful platform for all projects.
+        </p>
+      </div>
+
+      <aside class="hero-card" aria-label="Impact at a glance">
+        <div class="stat">
+          <i class="fa-solid fa-diagram-project fa-lg"></i>
+          <div><div class="n">20+ Modules</div><div class="l">From survey to dashboards</div></div>
+        </div>
+        <div class="stat">
+          <i class="fa-solid fa-mobile-screen-button fa-lg"></i>
+          <div><div class="n">Web + Mobile</div><div class="l">Full offline capability</div></div>
+        </div>
+        <div class="stat">
+          <i class="fa-solid fa-gauge-high fa-lg"></i>
+          <div><div class="n">Real-Time</div><div class="l">Automated progress & indicators</div></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- HOW IT TRANSFORMS -->
+  <section class="wrap">
+    <div class="section-head">
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
+      <h2>How CARE Track Transforms Project Implementation</h2>
+    </div>
+    <p class="sub">
+      Before CARE Track, teams relied on fragmented tools and manual processes for data collection, tracking, and reporting — creating delays, inefficiencies, and limited visibility. CARE Track addresses these challenges by mainstreaming data across all projects, enabling real-time monitoring, delivering 100% progress tracking for faster decisions, and strengthening program quality with transparent, automated reporting. The result: faster service delivery with higher accountability and measurable impact.
+    </p>
+
+    <div class="grid cols-4">
+      <div class="card">
+        <div class="ic"><i class="fa-solid fa-layer-group"></i></div>
+        <h3>Mainstreamed Data Collection</h3>
+        <p>One unified system across all projects eliminates duplication and silos.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><i class="fa-solid fa-chart-line"></i></div>
+        <h3>Real-Time Monitoring</h3>
+        <p>Field data flows instantly to dashboards for proactive management.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><i class="fa-solid fa-bolt"></i></div>
+        <h3>100% Progress Tracking</h3>
+        <p>Automations reduce manual work and accelerate reporting cycles.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><i class="fa-solid fa-clipboard-check"></i></div>
+        <h3>Program Quality</h3>
+        <p>Transparent, auditable data with automated indicator calculations.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- KEY FEATURES -->
+  <section class="wrap">
+    <div class="section-head">
+      <i class="fa-solid fa-grid-2"></i>
+      <h2>Key Features of CARE Track</h2>
+    </div>
+    <p class="sub">
+      This isn’t an off-the-shelf tool. It’s a comprehensive ecosystem of interlinked modules built for both large and small projects, across developmental and humanitarian contexts.
+    </p>
+
+    <div class="grid cols-3">
+      <div class="card">
+        <div class="ic"><i class="fa-solid fa-poll"></i></div>
+        <h3>Survey & Data Collection</h3>
+        <p>Customizable forms (Kobo-like) fully integrated into the platform.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><i class="fa-solid fa-id-card-clip"></i></div>
+        <h3>Participant Enrollment</h3>
+        <p>Centralized beneficiary registration & profile management.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><i class="fa-solid fa-users-gear"></i></div>
+        <h3>Group & Stakeholder Management</h3>
+        <p>Manage CSG/CGs, YSLA groups, and wider stakeholder networks.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><i class="fa-solid fa-chalkboard-user"></i></div>
+        <h3>Training & Capacity Development</h3>
+        <p>Capture sessions, outcomes, and follow-up needs in one place.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><i class="fa-solid fa-timeline"></i></div>
+        <h3>DIP & IPTT Tracking</h3>
+        <p>Monitor planned vs actual progress with built-in logic.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><i class="fa-solid fa-book-open"></i></div>
+        <h3>KML</h3>
+        <p>Organize and share learning resources and evidence centrally.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><i class="fa-solid fa-headset"></i></div>
+        <h3>FAM / CFRM</h3>
+        <p>Collect complaints & feedback to strengthen accountability.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><i class="fa-solid fa-calendar-check"></i></div>
+        <h3>Event Tracker</h3>
+        <p>Document workshops, events, and key activities with ease.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><i class="fa-solid fa-boxes-stacked"></i></div>
+        <h3>Distribution (Cash/Kind)</h3>
+        <p>Track relief and resource distribution linked to beneficiaries.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><i class="fa-solid fa-chart-pie"></i></div>
+        <h3>Program Quality Dashboard</h3>
+        <p>Visualize outcomes, progress, and gaps in real time.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><i class="fa-solid fa-message"></i></div>
+        <h3>Messaging Suite</h3>
+        <p>SMS, Voice, and WhatsApp to reach participants directly.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+        <h3>Resource Mobilization</h3>
+        <p>Track proposals, donors, and funding pipelines.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIFFERENTIATORS -->
+  <section class="wrap">
+    <div class="section-head">
+      <i class="fa-solid fa-star"></i>
+      <h2>What Makes CARE Track Different</h2>
+    </div>
+    <p class="sub">Designed by CARE, for CARE — tailored to Bangladesh’s development and humanitarian realities.</p>
+
+    <div class="grid">
+      <div class="pill"><i class="fa-solid fa-circle-check"></i><div><strong>One system, all projects</strong> — big or small, humanitarian or development.</div></div>
+      <div class="pill"><i class="fa-solid fa-signal"></i><div><strong>Dual platform</strong> — Web + Mobile with full offline capability.</div></div>
+      <div class="pill"><i class="fa-solid fa-pen-ruler"></i><div><strong>Customizable forms</strong> — build what you need, when you need it.</div></div>
+      <div class="pill"><i class="fa-solid fa-diagram-successor"></i><div><strong>Data approval workflows</strong> — configurable review steps for accuracy.</div></div>
+      <div class="pill"><i class="fa-solid fa-database"></i><div><strong>Independent project databases</strong> — no cross-project interference.</div></div>
+      <div class="pill"><i class="fa-solid fa-display-chart-up"></i><div><strong>Role-based dashboards</strong> — from field teams to country office.</div></div>
+      <div class="pill"><i class="fa-solid fa-calculator"></i><div><strong>Automated calculations</strong> — achievements & indicators in real time.</div></div>
+      <div class="pill"><i class="fa-solid fa-clipboard-list"></i><div><strong>Comprehensive audit logs</strong> — transparency and accountability by design.</div></div>
+    </div>
+  </section>
+
+  <!-- WHERE IT'S USED -->
+  <section class="wrap">
+    <div class="section-head">
+      <i class="fa-solid fa-location-dot"></i>
+      <h2>Where CARE Track is Already Making a Difference</h2>
+    </div>
+    <p class="sub">Successfully rolled out across flagship initiatives and expanding rapidly.</p>
+
+    <div class="badges mt-6">
+      <span class="badge">CNHA (USAID)</span>
+      <span class="badge">Bijoyee (USAID)</span>
+      <span class="badge">NABAPALLAB (FCDO)</span>
+      <span class="badge alt">WLiE (AFD)</span>
+      <span class="badge alt">Centrality of Protection in Protracted Crises (DFAT)</span>
+    </div>
+    <p class="sub mt-12">These programs have already captured tens of thousands of beneficiary profiles and training records—proving CARE Track’s scalability and adaptability.</p>
+  </section>
+
+  <!-- OVERALL PROCESS (FLOW) -->
+  <section class="wrap">
+    <div class="section-head">
+      <i class="fa-solid fa-rotate-right"></i>
+      <h2>The Overall Process</h2>
+    </div>
+
+    <div class="flow" aria-label="CARE Track end-to-end flow">
+      <div class="flow-rail">
+        <div class="rail-line" aria-hidden="true"></div>
+
+        <div class="step">
+          <div class="dot">1</div>
+          <h4>Start with Accurate Profiles</h4>
+          <p>Beneficiary profile data is collected through the Survey & Data Collection module, establishing a clean source of truth from day one.</p>
+          <div class="meta">
+            <span class="chip"><i class="fa-solid fa-poll"></i> Survey</span>
+            <span class="chip"><i class="fa-solid fa-id-card-clip"></i> Enrollment</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="dot">2</div>
+          <h4>Enroll & Organize</h4>
+          <p>Individuals are formally enrolled into programs and organized into groups (e.g., CSGs, YSLAs) using Group Management—making participation structured and traceable.</p>
+          <div class="meta">
+            <span class="chip"><i class="fa-solid fa-users-gear"></i> Group Mgmt</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="dot">3</div>
+          <h4>Track Every Activity</h4>
+          <p>Trainings, capacity development, events, and distributions (cash/kind) are recorded in their dedicated modules—each entry linked back to participants and groups.</p>
+          <div class="meta">
+            <span class="chip"><i class="fa-solid fa-chalkboard-user"></i> Training</span>
+            <span class="chip"><i class="fa-solid fa-chart-line"></i> Capacity Dev</span>
+            <span class="chip"><i class="fa-solid fa-calendar-check"></i> Events</span>
+            <span class="chip"><i class="fa-solid fa-boxes-stacked"></i> Distribution</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="dot">4</div>
+          <h4>Close the Loop with Communities</h4>
+          <p>Feedback and complaints are logged through FAM/CFRM for responsive action, while knowledge and evidence are captured in KML for learning and adaptation.</p>
+          <div class="meta">
+            <span class="chip"><i class="fa-solid fa-headset"></i> FAM/CFRM</span>
+            <span class="chip"><i class="fa-solid fa-book-open"></i> KML</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="dot">5</div>
+          <h4>Unified Participants, Multiple Sources</h4>
+          <p>For any activity, participants can be pulled from the central enrollment list, existing groups, or directly from survey data—maximizing flexibility and coverage.</p>
+          <div class="meta">
+            <span class="chip"><i class="fa-solid fa-people-group"></i> Groups</span>
+            <span class="chip"><i class="fa-solid fa-database"></i> Central Registry</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="dot">6</div>
+          <h4>Automated Indicators & Reporting</h4>
+          <p>All activity data is mapped to indicators. CARE Track automatically calculates achievements for any period and compiles reports and dashboards—no manual crunching required.</p>
+          <div class="meta">
+            <span class="chip"><i class="fa-solid fa-timeline"></i> DIP/IPTT</span>
+            <span class="chip"><i class="fa-solid fa-chart-pie"></i> Dashboards</span>
+            <span class="chip"><i class="fa-solid fa-file-lines"></i> Reports</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOLD STEP -->
+  <section class="wrap two">
+    <div>
+      <div class="section-head">
+        <i class="fa-solid fa-rocket-launch"></i>
+        <h2>A Bold Step Forward</h2>
+      </div>
+      <p class="sub">
+        CARE Bangladesh’s investment in CARE Track is more than a technology upgrade — it is a strategic transformation in how projects are implemented and monitored.
+        By combining efficiency, accountability, and adaptability, CARE Track positions CARE Bangladesh as a leader in digital project management within the development and humanitarian sector.
+        This is not just an MIS. <strong>This is the future of project management.</strong>
+      </p>
+    </div>
+
+    <aside class="callout" aria-label="Why CARE Track matters">
+      <h3 style="margin:0;font-family:Montserrat, sans-serif;letter-spacing:-.2px">Why CARE Track?</h3>
+      <p>Eliminates duplication, provides real-time insights, ensures accountability to communities and donors, reduces reporting burden, and scales across projects and sectors.</p>
+      <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+        <i class="fa-solid fa-arrow-up"></i> Back to Top
+      </button>
+    </aside>
+  </section>
+
+  <footer>
+    © CARE Bangladesh • CARE Track — Branding colors #241E4E & #5C2163
+  </footer>
+
+</body>
+</html>
