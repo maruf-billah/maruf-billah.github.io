@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muzaif's Learning World</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --color-primary: #FF6B8B;
+            --color-secondary: #4ECDC4;
+            --color-accent: #FFD166;
+            --color-success: #06D6A0;
+            --color-info: #118AB2;
+            --color-dark: #2d3436;
+        }
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            min-height: 100vh;
+            color: var(--color-dark);
+            padding-bottom: 60px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center; padding: 20px; 
+            background: white; 
+            border-bottom: 5px solid var(--color-secondary);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo {
+            font-family: 'Fredoka One', cursive; font-size: 2.2rem;
+            color: var(--color-primary); text-shadow: 2px 2px 0px var(--color-accent);
+            cursor: pointer;
+        }
+
+        /* Fun Buttons */
+        .fun-bar {
+            display: flex; justify-content: center; gap: 15px; padding: 20px; flex-wrap: wrap;
+        }
+        .fun-btn {
+            border: none; padding: 10px 20px; border-radius: 50px;
+            font-family: 'Fredoka One'; font-size: 1rem; color: white; cursor: pointer;
+            transition: transform 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .fun-btn:active { transform: scale(0.95); }
+        .btn-dance { background: #FF6B6B; }
+        .btn-rainbow { background: #a29bfe; }
+        .btn-party { background: #00cec9; }
+
+        /* Progress */
+        .progress-wrapper { max-width: 600px; margin: 0 auto 20px; padding: 0 20px; text-align: center; }
+        .progress-track { height: 10px; background: #dfe6e9; border-radius: 10px; overflow: hidden; margin-top: 5px; }
+        .progress-fill { height: 100%; background: var(--color-success); width: 0%; transition: width 0.5s; }
+
+        /* Categories */
+        .category-nav {
+            display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; padding: 0 10px; margin-bottom: 20px;
+        }
+        .cat-btn {
+            padding: 12px 20px; border: none; border-radius: 15px; 
+            background: white; font-weight: 800; color: #636e72;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer;
+            display: flex; align-items: center; gap: 8px; font-size: 1rem;
+            transition: all 0.2s; border: 2px solid transparent;
+        }
+        .cat-btn.active {
+            background: var(--color-info); color: white; transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(17, 138, 178, 0.3);
+        }
+        .cat-btn:hover { transform: translateY(-2px); }
+
+        /* Content Area */
+        .content-box {
+            max-width: 1200px; margin: 0 auto; padding: 20px;
+            background: rgba(255,255,255,0.8); border-radius: 30px;
+            min-height: 400px; position: relative;
+        }
+
+        /* Language Toggle */
+        .lang-switch {
+            position: absolute; top: 20px; right: 20px;
+            background: white; padding: 5px; border-radius: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 10;
+        }
+        .lang-opt {
+            border: none; background: transparent; padding: 5px 12px;
+            border-radius: 20px; font-weight: bold; cursor: pointer; color: #b2bec3;
+        }
+        .lang-opt.active { background: var(--color-primary); color: white; }
+
+        .section-title {
+            text-align: center; font-family: 'Fredoka One'; font-size: 2rem;
+            color: var(--color-dark); margin-bottom: 30px;
+        }
+
+        /* Grid */
+        .grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px;
+        }
+        
+        .card {
+            background: white; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05); cursor: pointer;
+            transition: transform 0.2s; border: 3px solid transparent;
+            position: relative;
+        }
+        .card:hover { transform: translateY(-5px); border-color: var(--color-accent); }
+        .card.playing { border-color: var(--color-success); animation: bounce 0.5s; }
+
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        .img-wrap {
+            height: 160px; width: 100%; background: #f1f2f6;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .img-wrap img {
+            width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s;
+        }
+        .card:hover img { transform: scale(1.1); }
+
+        .card-info { padding: 15px; text-align: center; }
+        .txt-en { font-weight: 800; font-size: 1.2rem; color: #2d3436; margin-bottom: 5px; line-height: 1.2; }
+        .txt-bn { font-family: 'Nunito'; font-weight: 700; font-size: 1.3rem; color: var(--color-primary); }
+
+        /* Family Special */
+        .grid.family-mode { justify-content: center; display: flex; flex-wrap: wrap; }
+        .grid.family-mode .card { width: 260px; }
+        .grid.family-mode .img-wrap { height: 240px; }
+
+        /* Confetti */
+        .confetti { position: fixed; width: 10px; height: 10px; z-index: 999; pointer-events: none; }
+
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .img-wrap { height: 130px; }
+            .txt-en { font-size: 1rem; }
+            .txt-bn { font-size: 1.1rem; }
+            .cat-btn { padding: 8px 12px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo" onclick="say('Welcome Muzaif!')">Kids Learning Fun 🎨</div>
+    </div>
+
+    <div class="fun-bar">
+        <button class="fun-btn btn-dance" onclick="doDance()"><i class="fas fa-music"></i> Dance</button>
+        <button class="fun-btn btn-rainbow" onclick="doRainbow()"><i class="fas fa-rainbow"></i> Rainbow</button>
+        <button class="fun-btn btn-party" onclick="doParty()"><i class="fas fa-birthday-cake"></i> Party</button>
+    </div>
+
+    <div class="progress-wrapper">
+        <small>Words Learned: <b id="score">0</b></small>
+        <div class="progress-track"><div class="progress-fill" id="progress-bar"></div></div>
+    </div>
+
+    <div class="category-nav">
+        <button class="cat-btn" onclick="loadCat('animals', this)">🦁 Animals</button>
+        <button class="cat-btn" onclick="loadCat('fruits', this)">🍎 Fruits</button>
+        <button class="cat-btn" onclick="loadCat('veg', this)">🥕 Veggies</button>
+        <button class="cat-btn" onclick="loadCat('fish', this)">🐟 Fish</button>
+        <button class="cat-btn active" onclick="loadCat('flowers', this)">🌸 Flowers</button>
+        <button class="cat-btn" onclick="loadCat('body', this)">👀 Body</button>
+        <button class="cat-btn" onclick="loadCat('family', this)">🏠 Family</button>
+    </div>
+
+    <div class="content-box">
+        <div class="lang-switch">
+            <button class="lang-opt active" onclick="setLang('en', this)">EN</button>
+            <button class="lang-opt" onclick="setLang('bn', this)">BN</button>
+        </div>
+        
+        <h2 class="section-title" id="title-text">Flowers</h2>
+        <div class="grid" id="grid"></div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        // Image logic: Using loremflickr with keywords and locks to prevent blinking.
+        
+        const db = {
+            flowers: [
+                { en: "Rose", bn: "গোলাপ", img: "https://loremflickr.com/320/240/rose,flower?lock=1" },
+                { en: "Water Lily", bn: "শাপলা", img: "https://loremflickr.com/320/240/waterlily,flower?lock=2" },
+                { en: "Lotus", bn: "পদ্ম", img: "https://loremflickr.com/320/240/lotus,flower?lock=3" },
+                { en: "Sunflower", bn: "সূর্যমুখী", img: "https://loremflickr.com/320/240/sunflower?lock=4" },
+                { en: "Marigold", bn: "গাঁদা", img: "https://loremflickr.com/320/240/marigold,flower?lock=5" },
+                { en: "Hibiscus", bn: "জবা", img: "https://loremflickr.com/320/240/hibiscus,flower?lock=6" },
+                { en: "Jasmine", bn: "জুঁই", img: "https://loremflickr.com/320/240/jasmine,flower?lock=7" },
+                { en: "Tuberose (Rajanigandha)", bn: "রজনীগন্ধা", img: "https://loremflickr.com/320/240/tuberose,flower?lock=8" },
+                { en: "Frangipani (Champa)", bn: "কাঠগোলাপ / চাঁপা", img: "https://loremflickr.com/320/240/frangipani,flower?lock=9" },
+                { en: "Gardenia", bn: "গন্ধরাজ", img: "https://loremflickr.com/320/240/gardenia,flower?lock=10" },
+                { en: "Chrysanthemum", bn: "চন্দ্রমল্লিকা", img: "https://loremflickr.com/320/240/chrysanthemum,flower?lock=11" },
+                { en: "Tulip", bn: "টিউলিপ", img: "https://loremflickr.com/320/240/tulip,flower?lock=12" },
+                { en: "Orchid", bn: "অর্কিড", img: "https://loremflickr.com/320/240/orchid,flower?lock=13" },
+                { en: "Daisy", bn: "ডেইজি", img: "https://loremflickr.com/320/240/daisy,flower?lock=14" },
+                { en: "Lily", bn: "লিলি", img: "https://loremflickr.com/320/240/lily,flower?lock=15" },
+                { en: "Bougainvillea", bn: "বাগানবিলাস", img: "https://loremflickr.com/320/240/bougainvillea,flower?lock=16" },
+                { en: "Magnolia", bn: "ম্যাগনোলিয়া", img: "https://loremflickr.com/320/240/magnolia,flower?lock=17" },
+                { en: "Dahlia", bn: "ডালিয়া", img: "https://loremflickr.com/320/240/dahlia,flower?lock=18" },
+                { en: "Carnation", bn: "কার্নেশন", img: "https://loremflickr.com/320/240/carnation,flower?lock=19" },
+                { en: "Gerbera", bn: "জারবেরা", img: "https://loremflickr.com/320/240/gerbera,flower?lock=20" },
+                { en: "Lavender", bn: "ল্যাভেন্ডার", img: "https://loremflickr.com/320/240/lavender,flower?lock=21" },
+                { en: "Peony", bn: "পিওনি", img: "https://loremflickr.com/320/240/peony,flower?lock=22" },
+                { en: "Iris", bn: "আইরিস", img: "https://loremflickr.com/320/240/iris,flower?lock=23" },
+                { en: "Hydrangea", bn: "হাইড্রেঞ্জা", img: "https://loremflickr.com/320/240/hydrangea,flower?lock=24" },
+                { en: "Azalea", bn: "অ্যাজেলিয়া", img: "https://loremflickr.com/320/240/azalea,flower?lock=25" },
+                { en: "Poinsettia", bn: "পয়েনসেটিয়া", img: "https://loremflickr.com/320/240/poinsettia,flower?lock=26" },
+                { en: "Ranunculus", bn: "রানুনকুলাস", img: "https://loremflickr.com/320/240/ranunculus,flower?lock=27" }
+            ],
+            animals: [
+                { en: "Tiger", bn: "বাঘ", img: "https://loremflickr.com/320/240/tiger?lock=50" },
+                { en: "Lion", bn: "সিংহ", img: "https://loremflickr.com/320/240/lion?lock=51" },
+                { en: "Elephant", bn: "হাতি", img: "https://loremflickr.com/320/240/elephant?lock=52" },
+                { en: "Cow", bn: "গরু", img: "https://loremflickr.com/320/240/cow?lock=53" },
+                { en: "Goat", bn: "ছাগল", img: "https://loremflickr.com/320/240/goat?lock=54" },
+                { en: "Cat", bn: "বিড়াল", img: "https://loremflickr.com/320/240/cat?lock=55" },
+                { en: "Dog", bn: "কুকুর", img: "https://loremflickr.com/320/240/dog?lock=56" },
+                { en: "Monkey", bn: "বানর", img: "https://loremflickr.com/320/240/monkey?lock=57" },
+                { en: "Horse", bn: "ঘোড়া", img: "https://loremflickr.com/320/240/horse?lock=58" },
+                { en: "Rabbit", bn: "খরগোশ", img: "https://loremflickr.com/320/240/rabbit?lock=59" }
+            ],
+            fish: [
+                { en: "Hilsa (Ilish)", bn: "ইলিশ", img: "https://loremflickr.com/320/240/fish,hilsa?lock=100" },
+                { en: "Rohu (Rui)", bn: "রুই", img: "https://loremflickr.com/320/240/carp,fish?lock=101" },
+                { en: "Catla (Katla)", bn: "কাতলা", img: "https://loremflickr.com/320/240/fish,carp?lock=102" },
+                { en: "Prawn (Chingri)", bn: "চিংড়ি", img: "https://loremflickr.com/320/240/shrimp?lock=103" },
+                { en: "Mrigal", bn: "মৃগেল", img: "https://loremflickr.com/320/240/fish,river?lock=104" },
+                { en: "Pabda", bn: "পাবদা", img: "https://loremflickr.com/320/240/catfish?lock=105" },
+                { en: "Boal", bn: "বোয়াল", img: "https://loremflickr.com/320/240/fish,catfish?lock=106" },
+                { en: "Magur", bn: "মাগুর", img: "https://loremflickr.com/320/240/catfish,mud?lock=107" },
+                { en: "Shingi", bn: "শিং", img: "https://loremflickr.com/320/240/fish,sting?lock=108" },
+                { en: "Koi", bn: "কৈ", img: "https://loremflickr.com/320/240/perch,fish?lock=109" },
+                { en: "Barramundi (Bhetki)", bn: "ভেটকি", img: "https://loremflickr.com/320/240/barramundi?lock=110" },
+                { en: "Knifefish (Chital)", bn: "চিতল", img: "https://loremflickr.com/320/240/knifefish?lock=111" },
+                { en: "Kalibaush", bn: "কালিবাউশ", img: "https://loremflickr.com/320/240/fish,dark?lock=112" },
+                { en: "Aar", bn: "আইড়", img: "https://loremflickr.com/320/240/fish,river?lock=113" },
+                { en: "Bata", bn: "বাটা", img: "https://loremflickr.com/320/240/fish,silver?lock=114" },
+                { en: "Snakehead (Shoul)", bn: "শোল", img: "https://loremflickr.com/320/240/snakehead,fish?lock=115" },
+                { en: "Taki", bn: "টাকি", img: "https://loremflickr.com/320/240/snakehead?lock=116" },
+                { en: "Pomfret", bn: "রূপচাঁদা", img: "https://loremflickr.com/320/240/pomfret?lock=117" },
+                { en: "Eel (Baim)", bn: "বাইম", img: "https://loremflickr.com/320/240/eel?lock=118" },
+                { en: "Tengra", bn: "টেংরা", img: "https://loremflickr.com/320/240/small,fish?lock=119" },
+                { en: "Gozar", bn: "গজার", img: "https://loremflickr.com/320/240/snakehead,giant?lock=120" },
+                { en: "Pangas", bn: "পাঙ্গাস", img: "https://loremflickr.com/320/240/catfish,shark?lock=121" },
+                { en: "Mahseer (Mohashoul)", bn: "মহা‌শোল", img: "https://loremflickr.com/320/240/fish,golden?lock=122" },
+                { en: "Chapila", bn: "চাপিলা", img: "https://loremflickr.com/320/240/fish,shad?lock=123" }
+            ],
+            veg: [
+                { en: "Potato", bn: "আলু", img: "https://loremflickr.com/320/240/potato?lock=200" },
+                { en: "Eggplant", bn: "বেগুন", img: "https://loremflickr.com/320/240/eggplant?lock=201" },
+                { en: "Tomato", bn: "টমেটো", img: "https://loremflickr.com/320/240/tomato?lock=202" },
+                { en: "Cauliflower", bn: "ফুলকপি", img: "https://loremflickr.com/320/240/cauliflower?lock=203" },
+                { en: "Cabbage", bn: "বাঁধাকপি", img: "https://loremflickr.com/320/240/cabbage?lock=204" },
+                { en: "Pumpkin", bn: "মিষ্টি কুমড়া", img: "https://loremflickr.com/320/240/pumpkin?lock=205" },
+                { en: "Bottle Gourd", bn: "লাউ", img: "https://loremflickr.com/320/240/gourd?lock=206" },
+                { en: "Bitter Gourd", bn: "করলা", img: "https://loremflickr.com/320/240/bittergourd?lock=207" },
+                { en: "Okra", bn: "ঢেঁড়স", img: "https://loremflickr.com/320/240/okra?lock=208" },
+                { en: "Spinach", bn: "পালং শাক", img: "https://loremflickr.com/320/240/spinach?lock=209" },
+                { en: "Carrot", bn: "গাজর", img: "https://loremflickr.com/320/240/carrot?lock=210" },
+                { en: "Cucumber", bn: "শসা", img: "https://loremflickr.com/320/240/cucumber?lock=211" },
+                { en: "Radish", bn: "মুলা", img: "https://loremflickr.com/320/240/radish?lock=212" },
+                { en: "Bean", bn: "শিম", img: "https://loremflickr.com/320/240/greenbean?lock=213" },
+                { en: "Green Chili", bn: "কাঁচা মরিচ", img: "https://loremflickr.com/320/240/chili?lock=214" }
+            ],
+            fruits: [
+                { en: "Mango", bn: "আম", img: "https://loremflickr.com/320/240/mango?lock=250" },
+                { en: "Jackfruit", bn: "কাঁঠাল", img: "https://loremflickr.com/320/240/jackfruit?lock=251" },
+                { en: "Banana", bn: "কলা", img: "https://loremflickr.com/320/240/banana?lock=252" },
+                { en: "Apple", bn: "আপেল", img: "https://loremflickr.com/320/240/apple?lock=253" },
+                { en: "Orange", bn: "কমলা", img: "https://loremflickr.com/320/240/orange?lock=254" },
+                { en: "Litchi", bn: "লিচু", img: "https://loremflickr.com/320/240/litchi?lock=255" },
+                { en: "Guava", bn: "পেয়ারা", img: "https://loremflickr.com/320/240/guava?lock=256" },
+                { en: "Watermelon", bn: "তরমুজ", img: "https://loremflickr.com/320/240/watermelon?lock=257" },
+                { en: "Blackberry", bn: "জাম", img: "https://loremflickr.com/320/240/blackberry?lock=258" },
+                { en: "Sapodilla", bn: "সফেদা", img: "https://loremflickr.com/320/240/fruit,brown?lock=259" }
+            ],
+            body: [
+                { en: "Eye", bn: "চোখ", img: "https://loremflickr.com/320/240/eye?lock=280" },
+                { en: "Nose", bn: "নাক", img: "https://loremflickr.com/320/240/nose?lock=281" },
+                { en: "Ear", bn: "কান", img: "https://loremflickr.com/320/240/ear?lock=282" },
+                { en: "Hand", bn: "হাত", img: "https://loremflickr.com/320/240/hand?lock=283" },
+                { en: "Leg", bn: "পা", img: "https://loremflickr.com/320/240/leg?lock=284" }
+            ],
+            family: [
+                { en: "Muzaif", bn: "মুযাইফ", img: "https://img.freepik.com/free-vector/cute-boy-smiling-cartoon-icon-illustration_138676-2032.jpg" },
+                { en: "Father (Maruf)", bn: "বাবা (মারুফ)", img: "https://img.freepik.com/free-vector/man-profile-account-picture_24908-81754.jpg" },
+                { en: "Mother (Sanjida)", bn: "মা (সানজিদা)", img: "https://img.freepik.com/free-vector/woman-profile-account-picture_24908-81756.jpg" }
+            ]
+        };
+
+        // --- APP STATE ---
+        let currentLang = 'en';
+        let learned = new Set();
+        const synth = window.speechSynthesis;
+
+        // --- INIT ---
+        window.onload = () => loadCat('flowers', document.querySelector('.cat-btn.active'));
+
+        // --- FUNCTIONS ---
+        function loadCat(cat, btn) {
+            // UI Toggle
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+
+            // Set Title
+            const titles = {
+                animals: "🦁 Animals", fruits: "🍎 Fruits", veg: "🥕 Vegetables", 
+                fish: "🐟 Fish", flowers: "🌸 Flowers", body: "👀 Body Parts", family: "🏠 Family"
+            };
+            document.getElementById('title-text').innerText = titles[cat];
+
+            // Render Grid
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            
+            if(cat === 'family') {
+                grid.className = 'grid family-mode';
+            } else {
+                grid.className = 'grid';
+            }
+
+            db[cat].forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'card';
+                el.onclick = () => play(item, el);
+
+                // Safe image loading
+                el.innerHTML = `
+                    <div class="img-wrap">
+                        <img src="${item.img}" alt="${item.en}" onerror="this.src='https://via.placeholder.com/300?text=Image'">
+                    </div>
+                    <div class="card-info">
+                        <div class="txt-en">${item.en}</div>
+                        <div class="txt-bn">${item.bn}</div>
+                    </div>
+                `;
+                grid.appendChild(el);
+            });
+        }
+
+        function play(item, el) {
+            // Visual
+            el.classList.add('playing');
+            setTimeout(() => el.classList.remove('playing'), 500);
+            
+            // Audio
+            const txt = currentLang === 'en' ? item.en : item.bn;
+            say(txt, currentLang === 'bn');
+            
+            // Score
+            if(!learned.has(item.en)) {
+                learned.add(item.en);
+                updateScore(el);
+            }
+        }
+
+        function say(text, isBangla = false) {
+            synth.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = isBangla ? 'bn-BD' : 'en-US';
+            u.rate = 0.9;
+            synth.speak(u);
+        }
+
+        function setLang(l, btn) {
+            currentLang = l;
+            document.querySelectorAll('.lang-opt').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            say(l === 'en' ? "English Mode" : "বাংলা মোড", l === 'bn');
+        }
+
+        function updateScore(el) {
+            document.getElementById('score').innerText = learned.size;
+            document.getElementById('progress-bar').style.width = (learned.size * 2) + "%"; // rough progress
+            
+            // Confetti
+            const rect = el.getBoundingClientRect();
+            for(let i=0; i<15; i++) {
+                createConfetti(rect.left + rect.width/2, rect.top);
+            }
+        }
+
+        // --- FUN EFFECTS ---
+        function doDance() {
+            say("Let's Dance!");
+            document.querySelectorAll('.card').forEach((c, i) => {
+                c.style.transition = "transform 0.5s";
+                c.style.transform = i%2==0 ? "rotate(10deg) scale(1.1)" : "rotate(-10deg) scale(1.1)";
+            });
+            setTimeout(() => document.querySelectorAll('.card').forEach(c => c.style.transform = "none"), 1000);
+        }
+        function doRainbow() {
+            say("Rainbow Colors!");
+            const colors = ['#ff7675', '#fdcb6e', '#55efc4', '#74b9ff', '#a29bfe'];
+            document.querySelectorAll('.card').forEach((c, i) => {
+                c.style.borderColor = colors[i % colors.length];
+                c.style.borderWidth = "5px";
+            });
+            setTimeout(() => document.querySelectorAll('.card').forEach(c => {
+                c.style.borderColor = "transparent";
+                c.style.borderWidth = "3px";
+            }), 2000);
+        }
+        function doParty() {
+            say("Party Time!");
+            doDance();
+            doRainbow();
+            for(let i=0; i<30; i++) {
+                createConfetti(Math.random()*window.innerWidth, -10);
+            }
+        }
+
+        function createConfetti(x, y) {
+            const c = document.createElement('div');
+            c.className = 'confetti';
+            c.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
+            c.style.left = x + 'px';
+            c.style.top = y + 'px';
+            document.body.appendChild(c);
+
+            const destX = (Math.random() - 0.5) * 300;
+            const destY = Math.random() * 500 + 100;
+
+            const anim = c.animate([
+                { transform: `translate(0,0)`, opacity: 1 },
+                { transform: `translate(${destX}px, ${destY}px) rotate(720deg)`, opacity: 0 }
+            ], { duration: 1000 + Math.random()*1000, easing: 'ease-out' });
+
+            anim.onfinish = () => c.remove();
+        }
+    </script>
+</body>
+</html>
