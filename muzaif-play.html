@@ -2,258 +2,262 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muzaif's Learning World</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Muzaif's Complete Learning World</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* --- GLOBAL STYLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
         :root {
-            --color-primary: #FF6B8B;
-            --color-secondary: #4ECDC4;
-            --color-accent: #FFD166;
-            --color-success: #06D6A0;
-            --color-info: #118AB2;
-            --color-dark: #2d3436;
+            --primary: #FF6B8B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --success: #06D6A0;
+            --info: #118AB2;
+            --dark: #2d3436;
         }
         body {
             font-family: 'Nunito', sans-serif;
-            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            background: linear-gradient(45deg, #f3e7e9, #e3eeff, #e9f3e7, #fff5e6);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
             min-height: 100vh;
-            color: var(--color-dark);
-            padding-bottom: 60px;
+            color: var(--dark);
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        /* Header */
+        /* --- HEADER --- */
         .header {
-            text-align: center; padding: 20px; 
-            background: white; 
-            border-bottom: 5px solid var(--color-secondary);
+            text-align: center; padding: 15px; 
+            background: rgba(255,255,255,0.95); 
+            border-bottom: 5px solid var(--secondary);
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             position: sticky; top: 0; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
         }
         .logo {
-            font-family: 'Fredoka One', cursive; font-size: 2.2rem;
-            color: var(--color-primary); text-shadow: 2px 2px 0px var(--color-accent);
+            font-family: 'Fredoka One', cursive; font-size: 1.4rem;
+            color: var(--primary); text-shadow: 2px 2px 0px var(--accent);
             cursor: pointer;
         }
-
-        /* Fun Buttons */
-        .fun-bar {
-            display: flex; justify-content: center; gap: 15px; padding: 20px; flex-wrap: wrap;
+        
+        /* --- NAV SCROLLER --- */
+        .nav-scroller {
+            overflow-x: auto; white-space: nowrap; padding: 15px 10px;
+            -webkit-overflow-scrolling: touch; scrollbar-width: none;
+            background: rgba(255,255,255,0.5);
         }
-        .fun-btn {
-            border: none; padding: 10px 20px; border-radius: 50px;
-            font-family: 'Fredoka One'; font-size: 1rem; color: white; cursor: pointer;
-            transition: transform 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            display: flex; align-items: center; gap: 8px;
-        }
-        .fun-btn:active { transform: scale(0.95); }
-        .btn-dance { background: #FF6B6B; }
-        .btn-rainbow { background: #a29bfe; }
-        .btn-party { background: #00cec9; }
-
-        /* Progress */
-        .progress-wrapper { max-width: 600px; margin: 0 auto 20px; padding: 0 20px; text-align: center; }
-        .progress-track { height: 10px; background: #dfe6e9; border-radius: 10px; overflow: hidden; margin-top: 5px; }
-        .progress-fill { height: 100%; background: var(--color-success); width: 0%; transition: width 0.5s; }
-
-        /* Categories */
-        .category-nav {
-            display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; padding: 0 10px; margin-bottom: 20px;
-        }
+        .nav-scroller::-webkit-scrollbar { display: none; }
+        
         .cat-btn {
-            padding: 12px 20px; border: none; border-radius: 15px; 
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 16px; margin-right: 8px;
+            border: none; border-radius: 25px; 
             background: white; font-weight: 800; color: #636e72;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer;
-            display: flex; align-items: center; gap: 8px; font-size: 1rem;
-            transition: all 0.2s; border: 2px solid transparent;
+            font-size: 0.95rem; transition: all 0.2s;
         }
         .cat-btn.active {
-            background: var(--color-info); color: white; transform: translateY(-3px);
+            background: var(--info); color: white; transform: scale(1.05);
             box-shadow: 0 8px 15px rgba(17, 138, 178, 0.3);
         }
-        .cat-btn:hover { transform: translateY(-2px); }
 
-        /* Content Area */
+        /* --- MAIN CONTENT --- */
         .content-box {
-            max-width: 1200px; margin: 0 auto; padding: 20px;
-            background: rgba(255,255,255,0.8); border-radius: 30px;
-            min-height: 400px; position: relative;
+            max-width: 1200px; margin: 0 auto; padding: 10px 15px;
+            min-height: 400px;
         }
-
-        /* Language Toggle */
-        .lang-switch {
-            position: absolute; top: 20px; right: 20px;
-            background: white; padding: 5px; border-radius: 25px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 10;
-        }
-        .lang-opt {
-            border: none; background: transparent; padding: 5px 12px;
-            border-radius: 20px; font-weight: bold; cursor: pointer; color: #b2bec3;
-        }
-        .lang-opt.active { background: var(--color-primary); color: white; }
-
         .section-title {
-            text-align: center; font-family: 'Fredoka One'; font-size: 2rem;
-            color: var(--color-dark); margin-bottom: 30px;
+            text-align: center; font-family: 'Fredoka One'; font-size: 1.8rem;
+            color: var(--dark); margin: 20px 0;
         }
 
-        /* Grid */
         .grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px;
         }
         
         .card {
             background: white; border-radius: 20px; overflow: hidden;
             box-shadow: 0 10px 20px rgba(0,0,0,0.05); cursor: pointer;
-            transition: transform 0.2s; border: 3px solid transparent;
-            position: relative;
+            transition: transform 0.2s; border: 4px solid transparent;
+            position: relative; animation: popIn 0.3s ease-out;
         }
-        .card:hover { transform: translateY(-5px); border-color: var(--color-accent); }
-        .card.playing { border-color: var(--color-success); animation: bounce 0.5s; }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        
+        .card:active { transform: scale(0.95); }
+        .card.correct { border-color: #00b894; animation: bounce 0.5s; }
+        .card.shake { animation: shake 0.5s; border-color: #ff7675; }
 
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
         .img-wrap {
-            height: 160px; width: 100%; background: #f1f2f6;
+            height: 140px; width: 100%; background: #f1f2f6;
             display: flex; align-items: center; justify-content: center;
             overflow: hidden;
         }
-        .img-wrap img {
-            width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s;
+        .img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .card-info { padding: 10px; text-align: center; }
+        .txt-en { font-weight: 800; font-size: 1.1rem; color: #2d3436; margin-bottom: 2px; line-height: 1.2; }
+        .txt-bn { font-family: 'Nunito'; font-weight: 700; font-size: 1rem; color: var(--primary); }
+
+        /* --- SPECIAL MODES --- */
+        .quiz-overlay {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px; background: rgba(255,255,255,0.8); border-radius: 20px; margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-        .card:hover img { transform: scale(1.1); }
+        .quiz-active .quiz-overlay { display: flex; }
+        .quiz-question { font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; color: var(--dark); text-align: center; }
 
-        .card-info { padding: 15px; text-align: center; }
-        .txt-en { font-weight: 800; font-size: 1.2rem; color: #2d3436; margin-bottom: 5px; line-height: 1.2; }
-        .txt-bn { font-family: 'Nunito'; font-weight: 700; font-size: 1.3rem; color: var(--color-primary); }
+        #drawingCanvas {
+            touch-action: none; background: white; border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); cursor: crosshair;
+            display: none; margin: 0 auto; border: 5px solid var(--accent);
+        }
+        .drawing-controls { display: none; justify-content: center; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+        .color-picker { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer; }
 
-        /* Family Special */
-        .grid.family-mode { justify-content: center; display: flex; flex-wrap: wrap; }
-        .grid.family-mode .card { width: 260px; }
-        .grid.family-mode .img-wrap { height: 240px; }
+        /* --- FAMILY MODE --- */
+        .grid.family-mode { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        .grid.family-mode .card { width: 300px; }
+        .grid.family-mode .img-wrap { height: 280px; }
 
-        /* Confetti */
+        /* --- UTILS --- */
         .confetti { position: fixed; width: 10px; height: 10px; z-index: 999; pointer-events: none; }
-
-        @media (max-width: 600px) {
-            .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .img-wrap { height: 130px; }
-            .txt-en { font-size: 1rem; }
-            .txt-bn { font-size: 1.1rem; }
-            .cat-btn { padding: 8px 12px; font-size: 0.9rem; }
+        
+        .rhyme-btn {
+            width: 100%; padding: 15px; margin-bottom: 15px;
+            background: white; border-radius: 15px; border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); text-align: left;
+            display: flex; align-items: center; gap: 15px;
+            transition: transform 0.2s;
         }
+        .rhyme-btn:active { transform: scale(0.98); }
+        .rhyme-icon { font-size: 2rem; }
+
+        .lang-switch { display: flex; background: #eee; border-radius: 20px; padding: 2px; }
+        .lang-opt { border: none; background: transparent; padding: 5px 10px; border-radius: 18px; font-weight: bold; font-size: 0.8rem; color: #888; }
+        .lang-opt.active { background: white; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="logo" onclick="say('Welcome Muzaif!')">Kids Learning Fun 🎨</div>
+        <div class="logo" onclick="location.reload()">Muzaif's World 🌍</div>
+        <div class="lang-switch">
+            <button class="lang-opt active" onclick="setLang('en', this)">EN</button>
+            <button class="lang-opt" onclick="setLang('bn', this)">BN</button>
+        </div>
     </div>
 
-    <div class="fun-bar">
-        <button class="fun-btn btn-dance" onclick="doDance()"><i class="fas fa-music"></i> Dance</button>
-        <button class="fun-btn btn-rainbow" onclick="doRainbow()"><i class="fas fa-rainbow"></i> Rainbow</button>
-        <button class="fun-btn btn-party" onclick="doParty()"><i class="fas fa-birthday-cake"></i> Party</button>
-    </div>
-
-    <div class="progress-wrapper">
-        <small>Words Learned: <b id="score">0</b></small>
-        <div class="progress-track"><div class="progress-fill" id="progress-bar"></div></div>
-    </div>
-
-    <div class="category-nav">
-        <button class="cat-btn" onclick="loadCat('animals', this)">🦁 Animals</button>
-        <button class="cat-btn" onclick="loadCat('fruits', this)">🍎 Fruits</button>
-        <button class="cat-btn" onclick="loadCat('veg', this)">🥕 Veggies</button>
+    <div class="nav-scroller">
+        <button class="cat-btn" style="background:#FFE66D; color:#333" onclick="openMode('quiz')">🕵️‍♂️ Let's Play!</button>
+        <button class="cat-btn" style="background:#ff6b6b; color:white" onclick="openMode('drawing')">🎨 Draw</button>
+        <button class="cat-btn" style="background:#4ECDC4; color:white" onclick="loadCat('rhymes', this)">🎵 Rhymes</button>
+        
+        <div style="width: 1px; height: 20px; background: #ddd; display: inline-block; vertical-align: middle; margin: 0 5px;"></div>
+        
+        <button class="cat-btn" onclick="loadCat('numbers', this)">🔢 1-10</button>
+        <button class="cat-btn" onclick="loadCat('colors', this)">🔴 Colors</button>
+        <button class="cat-btn active" onclick="loadCat('animals', this)">🦁 Animals</button>
         <button class="cat-btn" onclick="loadCat('fish', this)">🐟 Fish</button>
-        <button class="cat-btn active" onclick="loadCat('flowers', this)">🌸 Flowers</button>
+        <button class="cat-btn" onclick="loadCat('flowers', this)">🌸 Flowers</button>
+        <button class="cat-btn" onclick="loadCat('veg', this)">🥕 Veggies</button>
+        <button class="cat-btn" onclick="loadCat('fruits', this)">🍎 Fruits</button>
         <button class="cat-btn" onclick="loadCat('body', this)">👀 Body</button>
         <button class="cat-btn" onclick="loadCat('family', this)">🏠 Family</button>
     </div>
 
     <div class="content-box">
-        <div class="lang-switch">
-            <button class="lang-opt active" onclick="setLang('en', this)">EN</button>
-            <button class="lang-opt" onclick="setLang('bn', this)">BN</button>
+        <div id="quizUI" class="quiz-overlay">
+            <div class="quiz-question" id="quizQuestion">Where is the Tiger?</div>
+            <button class="cat-btn" style="background:var(--primary); color:white;" onclick="startQuiz()">🔄 Next Question</button>
         </div>
-        
-        <h2 class="section-title" id="title-text">Flowers</h2>
+
+        <canvas id="drawingCanvas" width="340" height="400"></canvas>
+        <div id="drawingControls" class="drawing-controls">
+            <div class="color-picker" style="background:red" onclick="setPenColor('red')"></div>
+            <div class="color-picker" style="background:blue" onclick="setPenColor('blue')"></div>
+            <div class="color-picker" style="background:green" onclick="setPenColor('green')"></div>
+            <div class="color-picker" style="background:yellow" onclick="setPenColor('yellow')"></div>
+            <div class="color-picker" style="background:black" onclick="setPenColor('black')"></div>
+            <button class="cat-btn" onclick="clearCanvas()">🗑️ Trash</button>
+        </div>
+
+        <h2 class="section-title" id="title-text">Animals</h2>
         <div class="grid" id="grid"></div>
     </div>
 
     <script>
-        // --- DATA ---
-        // Image logic: Using loremflickr with keywords and locks to prevent blinking.
-        
+        // --- DATA REPOSITORY (FULL & RESTORED) ---
         const db = {
+            family: [
+                { en: "Muzaif", bn: "মুজাইফ", speech: "My name is Muzaif Muhannad", img: "https://img.freepik.com/free-vector/cute-boy-smiling-cartoon-icon-illustration_138676-2032.jpg" },
+                { en: "Father", bn: "বাবা", speech: "My father's name is Maruf Billah", img: "https://img.freepik.com/free-vector/man-profile-account-picture_24908-81754.jpg" },
+                { en: "Mother", bn: "মা", speech: "My mother's name is Sanjida Nizum", img: "https://img.freepik.com/free-vector/woman-profile-account-picture_24908-81756.jpg" }
+            ],
+            fish: [
+                { en: "Rui", bn: "রুই", img: "https://loremflickr.com/320/240/carp,fish?lock=101" },
+                { en: "Katla", bn: "কাতলা", img: "https://loremflickr.com/320/240/fish,carp?lock=102" },
+                { en: "Mrigal", bn: "মৃগেল", img: "https://loremflickr.com/320/240/fish,river?lock=104" },
+                { en: "Pabda", bn: "পাবদা", img: "https://loremflickr.com/320/240/catfish?lock=105" },
+                { en: "Boal", bn: "বোয়াল", img: "https://loremflickr.com/320/240/fish,catfish?lock=106" },
+                { en: "Hilsa", bn: "ইলিশ", img: "https://loremflickr.com/320/240/fish,hilsa?lock=100" },
+                { en: "Prawn", bn: "চিংড়ি", img: "https://loremflickr.com/320/240/shrimp?lock=103" },
+                { en: "Magur", bn: "মাগুর", img: "https://loremflickr.com/320/240/catfish,mud?lock=107" },
+                { en: "Shingi", bn: "শিং", img: "https://loremflickr.com/320/240/fish,sting?lock=108" },
+                { en: "Koi", bn: "কৈ", img: "https://loremflickr.com/320/240/perch,fish?lock=109" },
+                { en: "Bhetki", bn: "ভেটকি", img: "https://loremflickr.com/320/240/barramundi?lock=110" },
+                { en: "Chital", bn: "চিতল", img: "https://loremflickr.com/320/240/knifefish?lock=111" },
+                { en: "Kalibaush", bn: "কালিবাউশ", img: "https://loremflickr.com/320/240/fish,dark?lock=112" },
+                { en: "Aar", bn: "আইড়", img: "https://loremflickr.com/320/240/fish,river?lock=113" },
+                { en: "Bata", bn: "বাটা", img: "https://loremflickr.com/320/240/fish,silver?lock=114" },
+                { en: "Shoul", bn: "শোল", img: "https://loremflickr.com/320/240/snakehead,fish?lock=115" },
+                { en: "Taki", bn: "টাকি", img: "https://loremflickr.com/320/240/snakehead?lock=116" },
+                { en: "Pomfret", bn: "রূপচাঁদা", img: "https://loremflickr.com/320/240/pomfret?lock=117" },
+                { en: "Baim", bn: "বাইম", img: "https://loremflickr.com/320/240/eel?lock=118" },
+                { en: "Tengra", bn: "টেংরা", img: "https://loremflickr.com/320/240/small,fish?lock=119" },
+                { en: "Gozar", bn: "গজার", img: "https://loremflickr.com/320/240/snakehead,giant?lock=120" },
+                { en: "Pangas", bn: "পাঙ্গাস", img: "https://loremflickr.com/320/240/catfish,shark?lock=121" },
+                { en: "Mohashoul", bn: "মহা‌শোল", img: "https://loremflickr.com/320/240/fish,golden?lock=122" },
+                { en: "Chapila", bn: "চাপিলা", img: "https://loremflickr.com/320/240/fish,shad?lock=123" }
+            ],
             flowers: [
+                { en: "Jasmine", bn: "জুঁই", img: "https://loremflickr.com/320/240/jasmine,flower?lock=7" },
                 { en: "Rose", bn: "গোলাপ", img: "https://loremflickr.com/320/240/rose,flower?lock=1" },
-                { en: "Water Lily", bn: "শাপলা", img: "https://loremflickr.com/320/240/waterlily,flower?lock=2" },
-                { en: "Lotus", bn: "পদ্ম", img: "https://loremflickr.com/320/240/lotus,flower?lock=3" },
+                { en: "Lily", bn: "লিলি", img: "https://loremflickr.com/320/240/lily,flower?lock=15" },
                 { en: "Sunflower", bn: "সূর্যমুখী", img: "https://loremflickr.com/320/240/sunflower?lock=4" },
+                { en: "Orchid", bn: "অর্কিড", img: "https://loremflickr.com/320/240/orchid,flower?lock=13" },
+                { en: "Tulip", bn: "টিউলিপ", img: "https://loremflickr.com/320/240/tulip,flower?lock=12" },
+                { en: "Daisy", bn: "ডেইজি", img: "https://loremflickr.com/320/240/daisy,flower?lock=14" },
+                { en: "Lotus", bn: "পদ্ম", img: "https://loremflickr.com/320/240/lotus,flower?lock=3" },
                 { en: "Marigold", bn: "গাঁদা", img: "https://loremflickr.com/320/240/marigold,flower?lock=5" },
                 { en: "Hibiscus", bn: "জবা", img: "https://loremflickr.com/320/240/hibiscus,flower?lock=6" },
-                { en: "Jasmine", bn: "জুঁই", img: "https://loremflickr.com/320/240/jasmine,flower?lock=7" },
-                { en: "Tuberose (Rajanigandha)", bn: "রজনীগন্ধা", img: "https://loremflickr.com/320/240/tuberose,flower?lock=8" },
-                { en: "Frangipani (Champa)", bn: "কাঠগোলাপ / চাঁপা", img: "https://loremflickr.com/320/240/frangipani,flower?lock=9" },
-                { en: "Gardenia", bn: "গন্ধরাজ", img: "https://loremflickr.com/320/240/gardenia,flower?lock=10" },
-                { en: "Chrysanthemum", bn: "চন্দ্রমল্লিকা", img: "https://loremflickr.com/320/240/chrysanthemum,flower?lock=11" },
-                { en: "Tulip", bn: "টিউলিপ", img: "https://loremflickr.com/320/240/tulip,flower?lock=12" },
-                { en: "Orchid", bn: "অর্কিড", img: "https://loremflickr.com/320/240/orchid,flower?lock=13" },
-                { en: "Daisy", bn: "ডেইজি", img: "https://loremflickr.com/320/240/daisy,flower?lock=14" },
-                { en: "Lily", bn: "লিলি", img: "https://loremflickr.com/320/240/lily,flower?lock=15" },
                 { en: "Bougainvillea", bn: "বাগানবিলাস", img: "https://loremflickr.com/320/240/bougainvillea,flower?lock=16" },
+                { en: "Frangipani", bn: "কাঠগোলাপ", img: "https://loremflickr.com/320/240/frangipani,flower?lock=9" },
+                { en: "Tuberose", bn: "রজনীগন্ধা", img: "https://loremflickr.com/320/240/tuberose,flower?lock=8" },
                 { en: "Magnolia", bn: "ম্যাগনোলিয়া", img: "https://loremflickr.com/320/240/magnolia,flower?lock=17" },
-                { en: "Dahlia", bn: "ডালিয়া", img: "https://loremflickr.com/320/240/dahlia,flower?lock=18" },
                 { en: "Carnation", bn: "কার্নেশন", img: "https://loremflickr.com/320/240/carnation,flower?lock=19" },
+                { en: "Dahlia", bn: "ডালিয়া", img: "https://loremflickr.com/320/240/dahlia,flower?lock=18" },
                 { en: "Gerbera", bn: "জারবেরা", img: "https://loremflickr.com/320/240/gerbera,flower?lock=20" },
                 { en: "Lavender", bn: "ল্যাভেন্ডার", img: "https://loremflickr.com/320/240/lavender,flower?lock=21" },
                 { en: "Peony", bn: "পিওনি", img: "https://loremflickr.com/320/240/peony,flower?lock=22" },
                 { en: "Iris", bn: "আইরিস", img: "https://loremflickr.com/320/240/iris,flower?lock=23" },
                 { en: "Hydrangea", bn: "হাইড্রেঞ্জা", img: "https://loremflickr.com/320/240/hydrangea,flower?lock=24" },
+                { en: "Chrysanthemum", bn: "চন্দ্রমল্লিকা", img: "https://loremflickr.com/320/240/chrysanthemum,flower?lock=11" },
+                { en: "Gardenia", bn: "গন্ধরাজ", img: "https://loremflickr.com/320/240/gardenia,flower?lock=10" },
                 { en: "Azalea", bn: "অ্যাজেলিয়া", img: "https://loremflickr.com/320/240/azalea,flower?lock=25" },
                 { en: "Poinsettia", bn: "পয়েনসেটিয়া", img: "https://loremflickr.com/320/240/poinsettia,flower?lock=26" },
                 { en: "Ranunculus", bn: "রানুনকুলাস", img: "https://loremflickr.com/320/240/ranunculus,flower?lock=27" }
-            ],
-            animals: [
-                { en: "Tiger", bn: "বাঘ", img: "https://loremflickr.com/320/240/tiger?lock=50" },
-                { en: "Lion", bn: "সিংহ", img: "https://loremflickr.com/320/240/lion?lock=51" },
-                { en: "Elephant", bn: "হাতি", img: "https://loremflickr.com/320/240/elephant?lock=52" },
-                { en: "Cow", bn: "গরু", img: "https://loremflickr.com/320/240/cow?lock=53" },
-                { en: "Goat", bn: "ছাগল", img: "https://loremflickr.com/320/240/goat?lock=54" },
-                { en: "Cat", bn: "বিড়াল", img: "https://loremflickr.com/320/240/cat?lock=55" },
-                { en: "Dog", bn: "কুকুর", img: "https://loremflickr.com/320/240/dog?lock=56" },
-                { en: "Monkey", bn: "বানর", img: "https://loremflickr.com/320/240/monkey?lock=57" },
-                { en: "Horse", bn: "ঘোড়া", img: "https://loremflickr.com/320/240/horse?lock=58" },
-                { en: "Rabbit", bn: "খরগোশ", img: "https://loremflickr.com/320/240/rabbit?lock=59" }
-            ],
-            fish: [
-                { en: "Hilsa (Ilish)", bn: "ইলিশ", img: "https://loremflickr.com/320/240/fish,hilsa?lock=100" },
-                { en: "Rohu (Rui)", bn: "রুই", img: "https://loremflickr.com/320/240/carp,fish?lock=101" },
-                { en: "Catla (Katla)", bn: "কাতলা", img: "https://loremflickr.com/320/240/fish,carp?lock=102" },
-                { en: "Prawn (Chingri)", bn: "চিংড়ি", img: "https://loremflickr.com/320/240/shrimp?lock=103" },
-                { en: "Mrigal", bn: "মৃগেল", img: "https://loremflickr.com/320/240/fish,river?lock=104" },
-                { en: "Pabda", bn: "পাবদা", img: "https://loremflickr.com/320/240/catfish?lock=105" },
-                { en: "Boal", bn: "বোয়াল", img: "https://loremflickr.com/320/240/fish,catfish?lock=106" },
-                { en: "Magur", bn: "মাগুর", img: "https://loremflickr.com/320/240/catfish,mud?lock=107" },
-                { en: "Shingi", bn: "শিং", img: "https://loremflickr.com/320/240/fish,sting?lock=108" },
-                { en: "Koi", bn: "কৈ", img: "https://loremflickr.com/320/240/perch,fish?lock=109" },
-                { en: "Barramundi (Bhetki)", bn: "ভেটকি", img: "https://loremflickr.com/320/240/barramundi?lock=110" },
-                { en: "Knifefish (Chital)", bn: "চিতল", img: "https://loremflickr.com/320/240/knifefish?lock=111" },
-                { en: "Kalibaush", bn: "কালিবাউশ", img: "https://loremflickr.com/320/240/fish,dark?lock=112" },
-                { en: "Aar", bn: "আইড়", img: "https://loremflickr.com/320/240/fish,river?lock=113" },
-                { en: "Bata", bn: "বাটা", img: "https://loremflickr.com/320/240/fish,silver?lock=114" },
-                { en: "Snakehead (Shoul)", bn: "শোল", img: "https://loremflickr.com/320/240/snakehead,fish?lock=115" },
-                { en: "Taki", bn: "টাকি", img: "https://loremflickr.com/320/240/snakehead?lock=116" },
-                { en: "Pomfret", bn: "রূপচাঁদা", img: "https://loremflickr.com/320/240/pomfret?lock=117" },
-                { en: "Eel (Baim)", bn: "বাইম", img: "https://loremflickr.com/320/240/eel?lock=118" },
-                { en: "Tengra", bn: "টেংরা", img: "https://loremflickr.com/320/240/small,fish?lock=119" },
-                { en: "Gozar", bn: "গজার", img: "https://loremflickr.com/320/240/snakehead,giant?lock=120" },
-                { en: "Pangas", bn: "পাঙ্গাস", img: "https://loremflickr.com/320/240/catfish,shark?lock=121" },
-                { en: "Mahseer (Mohashoul)", bn: "মহা‌শোল", img: "https://loremflickr.com/320/240/fish,golden?lock=122" },
-                { en: "Chapila", bn: "চাপিলা", img: "https://loremflickr.com/320/240/fish,shad?lock=123" }
             ],
             veg: [
                 { en: "Potato", bn: "আলু", img: "https://loremflickr.com/320/240/potato?lock=200" },
@@ -279,164 +283,329 @@
                 { en: "Apple", bn: "আপেল", img: "https://loremflickr.com/320/240/apple?lock=253" },
                 { en: "Orange", bn: "কমলা", img: "https://loremflickr.com/320/240/orange?lock=254" },
                 { en: "Litchi", bn: "লিচু", img: "https://loremflickr.com/320/240/litchi?lock=255" },
-                { en: "Guava", bn: "পেয়ারা", img: "https://loremflickr.com/320/240/guava?lock=256" },
+                { en: "Guava", bn: "পেয়ারা", img: "https://loremflickr.com/320/240/guava?lock=256" },
                 { en: "Watermelon", bn: "তরমুজ", img: "https://loremflickr.com/320/240/watermelon?lock=257" },
                 { en: "Blackberry", bn: "জাম", img: "https://loremflickr.com/320/240/blackberry?lock=258" },
                 { en: "Sapodilla", bn: "সফেদা", img: "https://loremflickr.com/320/240/fruit,brown?lock=259" }
+            ],
+            animals: [
+                { en: "Tiger", bn: "বাঘ", img: "https://loremflickr.com/320/240/tiger?lock=50" },
+                { en: "Lion", bn: "সিংহ", img: "https://loremflickr.com/320/240/lion?lock=51" },
+                { en: "Elephant", bn: "হাতি", img: "https://loremflickr.com/320/240/elephant?lock=52" },
+                { en: "Cow", bn: "গরু", img: "https://loremflickr.com/320/240/cow?lock=53" },
+                { en: "Goat", bn: "ছাগল", img: "https://loremflickr.com/320/240/goat?lock=54" },
+                { en: "Cat", bn: "বিড়াল", img: "https://loremflickr.com/320/240/cat?lock=55" },
+                { en: "Dog", bn: "কুকুর", img: "https://loremflickr.com/320/240/dog?lock=56" },
+                { en: "Monkey", bn: "বানর", img: "https://loremflickr.com/320/240/monkey?lock=57" },
+                { en: "Horse", bn: "ঘোড়া", img: "https://loremflickr.com/320/240/horse?lock=58" },
+                { en: "Rabbit", bn: "খরগোশ", img: "https://loremflickr.com/320/240/rabbit?lock=59" }
             ],
             body: [
                 { en: "Eye", bn: "চোখ", img: "https://loremflickr.com/320/240/eye?lock=280" },
                 { en: "Nose", bn: "নাক", img: "https://loremflickr.com/320/240/nose?lock=281" },
                 { en: "Ear", bn: "কান", img: "https://loremflickr.com/320/240/ear?lock=282" },
                 { en: "Hand", bn: "হাত", img: "https://loremflickr.com/320/240/hand?lock=283" },
-                { en: "Leg", bn: "পা", img: "https://loremflickr.com/320/240/leg?lock=284" }
+                { en: "Leg", bn: "পা", img: "https://loremflickr.com/320/240/leg?lock=284" },
+                { en: "Mouth", bn: "মুখ", img: "https://loremflickr.com/320/240/mouth?lock=285" }
             ],
-            family: [
-                { en: "Muzaif", bn: "মুযাইফ", img: "https://img.freepik.com/free-vector/cute-boy-smiling-cartoon-icon-illustration_138676-2032.jpg" },
-                { en: "Father (Maruf)", bn: "বাবা (মারুফ)", img: "https://img.freepik.com/free-vector/man-profile-account-picture_24908-81754.jpg" },
-                { en: "Mother (Sanjida)", bn: "মা (সানজিদা)", img: "https://img.freepik.com/free-vector/woman-profile-account-picture_24908-81756.jpg" }
+            numbers: [
+                { en: "One Apple", bn: "একটি আপেল", val: "1", img: "https://loremflickr.com/320/240/apple?lock=301" },
+                { en: "Two Cats", bn: "দুটি বিড়াল", val: "2", img: "https://loremflickr.com/320/240/cats?lock=302" },
+                { en: "Three Ducks", bn: "তিনটি হাঁস", val: "3", img: "https://loremflickr.com/320/240/ducks?lock=303" },
+                { en: "Four Balls", bn: "চারটি বল", val: "4", img: "https://loremflickr.com/320/240/soccerball?lock=304" },
+                { en: "Five Fingers", bn: "পাঁচটি আঙুল", val: "5", img: "https://loremflickr.com/320/240/hand?lock=305" },
+                { en: "Six Eggs", bn: "ছয়টি ডিম", val: "6", img: "https://loremflickr.com/320/240/eggs?lock=306" },
+                { en: "Seven Stars", bn: "সাতটি তারা", val: "7", img: "https://loremflickr.com/320/240/stars?lock=307" },
+                { en: "Eight Cars", bn: "আটটি গাড়ি", val: "8", img: "https://loremflickr.com/320/240/cars?lock=308" },
+                { en: "Nine Flowers", bn: "নয়টি ফুল", val: "9", img: "https://loremflickr.com/320/240/flowers?lock=309" },
+                { en: "Ten Pencils", bn: "দশটি পেন্সিল", val: "10", img: "https://loremflickr.com/320/240/pencils?lock=310" }
+            ],
+            colors: [
+                { en: "Red", bn: "লাল", hex: "#ff0000", type: "color" },
+                { en: "Blue", bn: "নীল", hex: "#0000ff", type: "color" },
+                { en: "Green", bn: "সবুজ", hex: "#008000", type: "color" },
+                { en: "Yellow", bn: "হলুদ", hex: "#ffff00", type: "color" },
+                { en: "Orange", bn: "কমলা", hex: "#ffa500", type: "color" },
+                { en: "Circle", bn: "বৃত্ত", hex: "#333", shape: "50%", type: "shape" },
+                { en: "Square", bn: "বর্গক্ষেত্র", hex: "#333", shape: "0%", type: "shape" },
+                { en: "Star", bn: "তারা", hex: "#ffd700", shape: "star", type: "shape" }
+            ],
+            rhymes: [
+                { en: "Twinkle Twinkle Little Star", bn: "টুইংকল টুইংকল লিটল স্টার", lyrics: "Twinkle, twinkle, little star, How I wonder what you are!" },
+                { en: "Aye Aye Chad Mama", bn: "আয় আয় চাঁদ মামা", lyrics: "Aye aye chad mama, tip diye ja." },
+                { en: "Baba Black Sheep", bn: "বাবা ব্ল্যাক শিপ", lyrics: "Baa, baa, black sheep, Have you any wool?" },
+                { en: "Johny Johny Yes Papa", bn: "জনি জনি ইয়েস পাপা", lyrics: "Johny Johny? Yes Papa! Eating sugar? No Papa!" }
             ]
         };
 
-        // --- APP STATE ---
+        // --- STATE & AUDIO ---
         let currentLang = 'en';
-        let learned = new Set();
+        let currentMode = 'learn';
+        let quizAnswer = null;
+        let isDrawing = false;
         const synth = window.speechSynthesis;
 
-        // --- INIT ---
-        window.onload = () => loadCat('flowers', document.querySelector('.cat-btn.active'));
+        window.onload = () => loadCat('animals', document.querySelector('.cat-btn.active'));
 
-        // --- FUNCTIONS ---
+        // --- MAIN FUNCTIONS ---
         function loadCat(cat, btn) {
-            // UI Toggle
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            if(btn) btn.classList.add('active');
+            currentMode = 'learn';
+            resetUI();
+            
+            // Toggle Button UI
+            if(btn) {
+                document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
 
             // Set Title
             const titles = {
-                animals: "🦁 Animals", fruits: "🍎 Fruits", veg: "🥕 Vegetables", 
-                fish: "🐟 Fish", flowers: "🌸 Flowers", body: "👀 Body Parts", family: "🏠 Family"
+                animals: "🦁 Animals", fruits: "🍎 Fruits", veg: "🥕 Veggies", 
+                fish: "🐟 Fish", flowers: "🌸 Flowers", body: "👀 Body", 
+                family: "🏠 My Family", numbers: "🔢 1-10", colors: "🔴 Colors & Shapes",
+                rhymes: "🎵 Rhymes"
             };
             document.getElementById('title-text').innerText = titles[cat];
 
-            // Render Grid
             const grid = document.getElementById('grid');
             grid.innerHTML = '';
             
-            if(cat === 'family') {
-                grid.className = 'grid family-mode';
-            } else {
-                grid.className = 'grid';
+            // Family Special Layout
+            if(cat === 'family') grid.className = 'grid family-mode';
+            else grid.className = 'grid';
+
+            // RHYME MODE
+            if(cat === 'rhymes') {
+                db.rhymes.forEach(rhyme => {
+                    const btn = document.createElement('button');
+                    btn.className = 'rhyme-btn';
+                    btn.innerHTML = `<span class="rhyme-icon">🎵</span> 
+                                     <div><div class="txt-en">${rhyme.en}</div><div class="txt-bn">${rhyme.bn}</div></div>`;
+                    btn.onclick = () => {
+                        dualSpeak(rhyme.lyrics, ""); 
+                        fireConfetti(window.innerWidth/2, window.innerHeight/2);
+                    };
+                    grid.appendChild(btn);
+                });
+                return;
             }
 
+            // STANDARD GRID GENERATION
             db[cat].forEach(item => {
                 const el = document.createElement('div');
                 el.className = 'card';
-                el.onclick = () => play(item, el);
+                
+                // Color/Shape Special Logic
+                if(cat === 'colors') {
+                    let preview;
+                    if(item.type === 'color') {
+                        preview = `<div style="height:120px; background:${item.hex};"></div>`;
+                    } else if (item.en === 'Star') {
+                        preview = `<div style="height:120px; font-size:80px; text-align:center; line-height:120px">⭐</div>`;
+                    } else {
+                        preview = `<div style="height:120px; display:flex; justify-content:center; align-items:center;">
+                             <div style="width:80px; height:80px; background:${item.hex}; border-radius:${item.shape}"></div>
+                           </div>`;
+                    }
 
-                // Safe image loading
-                el.innerHTML = `
-                    <div class="img-wrap">
-                        <img src="${item.img}" alt="${item.en}" onerror="this.src='https://via.placeholder.com/300?text=Image'">
-                    </div>
-                    <div class="card-info">
-                        <div class="txt-en">${item.en}</div>
-                        <div class="txt-bn">${item.bn}</div>
-                    </div>
-                `;
+                    el.innerHTML = `${preview}<div class="card-info"><div class="txt-en">${item.en}</div><div class="txt-bn">${item.bn}</div></div>`;
+                    
+                    el.onclick = () => {
+                        dualSpeak(item.en, item.bn);
+                        if(item.type === 'color') {
+                            document.body.style.backgroundColor = item.hex;
+                            setTimeout(() => document.body.style.backgroundColor = "", 1000);
+                        }
+                    };
+                } 
+                // Image Logic (Animals, Fish, Veg, etc.)
+                else {
+                    el.onclick = () => {
+                        // Special speech for family
+                        if(item.speech) {
+                            dualSpeak(item.speech, item.speech.replace("My name is", "আমার নাম").replace("name is", "নাম"));
+                        } else {
+                            dualSpeak(item.en, item.bn);
+                        }
+                        
+                        // Numbers Logic
+                        if(item.val) fireConfetti(el.getBoundingClientRect().left + 50, el.getBoundingClientRect().top);
+                    };
+
+                    el.innerHTML = `
+                        <div class="img-wrap">
+                            <img src="${item.img}" alt="${item.en}" onerror="this.src='https://via.placeholder.com/300?text=Image'">
+                        </div>
+                        <div class="card-info">
+                            <div class="txt-en">${item.en}</div>
+                            <div class="txt-bn">${item.bn}</div>
+                        </div>
+                    `;
+                }
                 grid.appendChild(el);
             });
         }
 
-        function play(item, el) {
-            // Visual
-            el.classList.add('playing');
-            setTimeout(() => el.classList.remove('playing'), 500);
+        // --- MODES ---
+        function openMode(mode) {
+            currentMode = mode;
+            resetUI();
             
-            // Audio
-            const txt = currentLang === 'en' ? item.en : item.bn;
-            say(txt, currentLang === 'bn');
-            
-            // Score
-            if(!learned.has(item.en)) {
-                learned.add(item.en);
-                updateScore(el);
+            if(mode === 'quiz') {
+                document.getElementById('title-text').innerText = "Let's Play! 🕵️‍♂️";
+                document.getElementById('quizUI').classList.add('quiz-active');
+                startQuiz();
+            } else if (mode === 'drawing') {
+                document.getElementById('title-text').innerText = "Drawing Slate 🎨";
+                document.getElementById('drawingCanvas').style.display = "block";
+                document.getElementById('drawingControls').style.display = "flex";
+                initCanvas();
             }
         }
 
-        function say(text, isBangla = false) {
-            synth.cancel();
-            const u = new SpeechSynthesisUtterance(text);
-            u.lang = isBangla ? 'bn-BD' : 'en-US';
-            u.rate = 0.9;
-            synth.speak(u);
+        function resetUI() {
+            document.getElementById('grid').innerHTML = '';
+            document.getElementById('quizUI').classList.remove('quiz-active');
+            document.getElementById('drawingCanvas').style.display = "none";
+            document.getElementById('drawingControls').style.display = "none";
         }
 
+        // --- QUIZ LOGIC ---
+        function startQuiz() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            
+            // Random Category
+            const Cats = ['animals', 'fruits', 'veg', 'flowers', 'fish'];
+            const randomCat = Cats[Math.floor(Math.random() * Cats.length)];
+            const items = db[randomCat];
+            
+            // Pick 4 Random Items
+            const shuffled = [...items].sort(() => 0.5 - Math.random()).slice(0, 4);
+            quizAnswer = shuffled[Math.floor(Math.random() * shuffled.length)];
+            
+            // Question
+            const qEn = `Where is the ${quizAnswer.en}?`;
+            const qBn = `${quizAnswer.bn} কোথায়?`;
+            document.getElementById('quizQuestion').innerText = currentLang === 'en' ? qEn : qBn;
+            dualSpeak(qEn, qBn);
+
+            // Render Options
+            shuffled.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'card';
+                el.innerHTML = `
+                    <div class="img-wrap"><img src="${item.img}"></div>
+                    <div class="card-info" style="font-size:0.8rem">???</div>
+                `;
+                el.onclick = () => checkAnswer(item, el);
+                grid.appendChild(el);
+            });
+        }
+
+        function checkAnswer(item, el) {
+            if(item.en === quizAnswer.en) {
+                el.classList.add('correct');
+                dualSpeak("Yay! Good Job!", "সাবাস!");
+                fireConfetti(window.innerWidth/2, window.innerHeight/2);
+                setTimeout(startQuiz, 2000);
+            } else {
+                el.classList.add('shake');
+                dualSpeak("Try Again", "আবার চেষ্টা কর");
+                setTimeout(() => el.classList.remove('shake'), 500);
+            }
+        }
+
+        // --- DRAWING LOGIC ---
+        let canvas, ctx, lastX, lastY;
+        function initCanvas() {
+            canvas = document.getElementById('drawingCanvas');
+            ctx = canvas.getContext('2d');
+            ctx.lineWidth = 5;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = 'red';
+            
+            // Responsive width
+            canvas.width = window.innerWidth > 350 ? 340 : window.innerWidth - 30;
+            
+            // Events
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', () => isDrawing = false);
+            canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e.touches[0]); });
+            canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); });
+            canvas.addEventListener('touchend', () => isDrawing = false);
+        }
+
+        function startDraw(e) {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            lastX = e.clientX - rect.left;
+            lastY = e.clientY - rect.top;
+        }
+
+        function draw(e) {
+            if(!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            lastX = x;
+            lastY = y;
+        }
+
+        function setPenColor(c) { ctx.strokeStyle = c; }
+        function clearCanvas() { ctx.clearRect(0,0, canvas.width, canvas.height); }
+
+        // --- AUDIO ENGINE ---
         function setLang(l, btn) {
             currentLang = l;
             document.querySelectorAll('.lang-opt').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            say(l === 'en' ? "English Mode" : "বাংলা মোড", l === 'bn');
+            dualSpeak(l === 'en' ? "English Mode" : "বাংলা মোড", "");
         }
 
-        function updateScore(el) {
-            document.getElementById('score').innerText = learned.size;
-            document.getElementById('progress-bar').style.width = (learned.size * 2) + "%"; // rough progress
+        function dualSpeak(textEn, textBn) {
+            synth.cancel();
             
-            // Confetti
-            const rect = el.getBoundingClientRect();
-            for(let i=0; i<15; i++) {
-                createConfetti(rect.left + rect.width/2, rect.top);
+            const utterEn = new SpeechSynthesisUtterance(textEn);
+            utterEn.lang = 'en-US';
+            utterEn.rate = 0.9;
+            
+            utterEn.onend = () => {
+                if(!textBn) return;
+                setTimeout(() => {
+                    const utterBn = new SpeechSynthesisUtterance(textBn);
+                    // Attempt to use a Bangla voice if available, else standard fallback
+                    utterBn.lang = 'bn-BD';
+                    utterBn.rate = 0.8;
+                    synth.speak(utterBn);
+                }, 300);
+            };
+            synth.speak(utterEn);
+        }
+
+        // --- VISUAL EFFECTS ---
+        function fireConfetti(x, y) {
+            const colors = ['#f00', '#0f0', '#00f', '#ff0', '#0ff'];
+            for(let i=0; i<20; i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.background = colors[Math.floor(Math.random()*colors.length)];
+                c.style.left = x + 'px';
+                c.style.top = y + 'px';
+                document.body.appendChild(c);
+                
+                const destX = (Math.random()-0.5) * 300;
+                const destY = (Math.random()-0.5) * 300;
+                
+                c.animate([{transform:`translate(0,0)`}, {transform:`translate(${destX}px,${destY}px)`, opacity:0}], {duration:1000})
+                 .onfinish = () => c.remove();
             }
-        }
-
-        // --- FUN EFFECTS ---
-        function doDance() {
-            say("Let's Dance!");
-            document.querySelectorAll('.card').forEach((c, i) => {
-                c.style.transition = "transform 0.5s";
-                c.style.transform = i%2==0 ? "rotate(10deg) scale(1.1)" : "rotate(-10deg) scale(1.1)";
-            });
-            setTimeout(() => document.querySelectorAll('.card').forEach(c => c.style.transform = "none"), 1000);
-        }
-        function doRainbow() {
-            say("Rainbow Colors!");
-            const colors = ['#ff7675', '#fdcb6e', '#55efc4', '#74b9ff', '#a29bfe'];
-            document.querySelectorAll('.card').forEach((c, i) => {
-                c.style.borderColor = colors[i % colors.length];
-                c.style.borderWidth = "5px";
-            });
-            setTimeout(() => document.querySelectorAll('.card').forEach(c => {
-                c.style.borderColor = "transparent";
-                c.style.borderWidth = "3px";
-            }), 2000);
-        }
-        function doParty() {
-            say("Party Time!");
-            doDance();
-            doRainbow();
-            for(let i=0; i<30; i++) {
-                createConfetti(Math.random()*window.innerWidth, -10);
-            }
-        }
-
-        function createConfetti(x, y) {
-            const c = document.createElement('div');
-            c.className = 'confetti';
-            c.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
-            c.style.left = x + 'px';
-            c.style.top = y + 'px';
-            document.body.appendChild(c);
-
-            const destX = (Math.random() - 0.5) * 300;
-            const destY = Math.random() * 500 + 100;
-
-            const anim = c.animate([
-                { transform: `translate(0,0)`, opacity: 1 },
-                { transform: `translate(${destX}px, ${destY}px) rotate(720deg)`, opacity: 0 }
-            ], { duration: 1000 + Math.random()*1000, easing: 'ease-out' });
-
-            anim.onfinish = () => c.remove();
         }
     </script>
 </body>
