@@ -1,0 +1,3808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DFL Learning Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0046BE; /* City Bank Blue */
+            --secondary-color: #FFCC00; /* City Bank Yellow */
+            --accent-color: #00A859; /* City Bank Green */
+            --light-bg: #F5F7FA;
+            --dark-text: #2C3E50;
+            --light-text: #5D6D7E;
+            --white: #FFFFFF;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', 'Noto Sans Bengali', sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            color: var(--dark-text);
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Login Screen - Show by default */
+        .login-container {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #003399 100%);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 2000;
+        }
+
+        .app-container {
+            display: none; /* Hide until login */
+        }
+
+        .scrollable-content {
+            overflow-y: auto;
+            max-height: calc(100vh - 140px);
+            padding-bottom: 80px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Login Screen */
+        .login-box {
+            background-color: var(--white);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-circle {
+            width: 80px;
+            height: 80px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--dark-text);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #eaeaea;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 70, 190, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            background-color: #003399;
+            transform: translateY(-2px);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Mobile Header */
+        .mobile-header {
+            background: linear-gradient(135deg, var(--primary-color), #003399);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 70, 190, 0.2);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            background-color: var(--secondary-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            color: var(--dark-text);
+        }
+
+        .logo-text h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .logo-text p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .notification-icon, .menu-icon {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #E74C3C;
+            color: white;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 20px;
+            background-color: var(--light-bg);
+            min-height: calc(100vh - 140px);
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dashboard Cards */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .dashboard-card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            border: 2px solid transparent;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .dashboard-card:active {
+            transform: translateY(-2px);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 22px;
+        }
+
+        .icon-content { background-color: #3498DB; }
+        .icon-session { background-color: #9B59B6; }
+        .icon-survey { background-color: #2ECC71; }
+        .icon-dashboard { background-color: #E74C3C; }
+
+        /* Content Section Styles */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: var(--dark-text);
+        }
+
+        .courses-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .course-card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 18px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            border-left: 4px solid var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .course-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .course-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .course-title {
+            flex-grow: 1;
+        }
+
+        .course-title h4 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .course-title p {
+            font-size: 13px;
+            color: var(--light-text);
+        }
+
+        .course-meta {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--light-text);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #003399;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        /* Enhanced Content Learning Interface */
+        .content-player {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .content-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 10px 0;
+            z-index: 10;
+        }
+
+        .content-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .content-progress {
+            height: 8px;
+            background-color: #ecf0f1;
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+            position: sticky;
+            top: 60px;
+            background: white;
+            padding: 10px 0;
+            z-index: 9;
+        }
+
+        .content-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* Enhanced Flash Cards */
+        .flash-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: var(--radius);
+            text-align: center;
+            margin: 20px 0;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.8s ease;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .flash-card h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .flash-card p {
+            font-size: 16px;
+            opacity: 0.95;
+            line-height: 1.5;
+        }
+
+        .content-video {
+            width: 100%;
+            height: 200px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .content-video iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Enhanced Interactive Elements */
+        .interactive-quiz {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin: 20px 0;
+            color: white;
+            box-shadow: 0 8px 25px rgba(240, 147, 251, 0.2);
+        }
+
+        .quiz-question {
+            margin-bottom: 20px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .quiz-option {
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: #333;
+            text-align: left;
+        }
+
+        .quiz-option:hover {
+            background-color: white;
+            transform: translateX(5px);
+        }
+
+        .quiz-option.selected {
+            background-color: white;
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 10px rgba(0, 168, 89, 0.2);
+        }
+
+        /* Enhanced Certificate with Animation */
+        .certificate-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            margin-bottom: 20px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            animation: certificateAppear 1s ease;
+        }
+
+        @keyframes certificateAppear {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .certificate-icon {
+            font-size: 60px;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        .certificate-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .certificate-content {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            color: #333;
+        }
+
+        .certificate-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+
+        /* Survey History */
+        .survey-history-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .survey-history-card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 18px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            border-left: 4px solid #2ECC71;
+            margin-bottom: 15px;
+        }
+
+        .survey-submission-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .submission-card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 15px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .submission-info h5 {
+            margin-bottom: 5px;
+        }
+
+        .submission-info p {
+            font-size: 12px;
+            color: var(--light-text);
+        }
+
+        /* Attendance UI */
+        .attendance-container {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .participant-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+
+        .participant-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .participant-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .participant-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* WhatsApp Chatbot - Enhanced */
+        .chatbot-wrapper {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .chatbot-container {
+            width: 320px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+
+        .chatbot-header {
+            background-color: #25D366;
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chatbot-avatar {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #25D366;
+            font-size: 24px;
+        }
+
+        .chatbot-body {
+            height: 400px;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chat-message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .chat-message.bot {
+            background-color: #f0f0f0;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .chat-message.user {
+            background-color: #DCF8C6;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .chat-input-container {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 14px;
+        }
+
+        .chat-send-btn {
+            width: 45px;
+            height: 45px;
+            background-color: #25D366;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .chatbot-toggle {
+            width: 60px;
+            height: 60px;
+            background-color: #25D366;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+            transition: var(--transition);
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .chatbot-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .chatbot-toggle.active {
+            background-color: #E41E26;
+        }
+
+        .insight-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Mobile Navigation */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--white);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            border-top: 1px solid #eaeaea;
+            z-index: 999;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--light-text);
+            cursor: pointer;
+            transition: var(--transition);
+            flex: 1;
+            padding: 5px;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-item:hover {
+            transform: translateY(-3px);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* Enhanced Profile Section */
+        .profile-container {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), #003399);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 0 auto 15px;
+            border: 4px solid var(--secondary-color);
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .profile-stat {
+            text-align: center;
+            padding: 15px;
+            background-color: var(--light-bg);
+            border-radius: var(--radius);
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--light-text);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+            display: none;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 25px;
+            position: relative;
+            animation: modalAppear 0.3s ease;
+        }
+
+        @keyframes modalAppear {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--light-text);
+        }
+
+        /* Responsive */
+        @media (max-width: 500px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .certificate-actions {
+                flex-direction: column;
+            }
+            
+            .chatbot-container {
+                width: calc(100vw - 40px);
+                right: 10px;
+            }
+            
+            .welcome-banner {
+                padding: 15px !important;
+            }
+        }
+
+        /* Animation for Congratulations */
+        @keyframes confetti {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: var(--secondary-color);
+            animation: confetti 3s linear forwards;
+            z-index: 1000;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--accent-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--white);
+            padding: 15px 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            z-index: 2000;
+            display: none;
+            animation: slideInRight 0.3s ease;
+            max-width: 300px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        /* Course Progress Indicator */
+        .progress-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .progress-step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #ecf0f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 1;
+        }
+
+        .progress-step.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .progress-step.completed {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .progress-step.locked {
+            background-color: #95a5a6;
+            color: white;
+            cursor: not-allowed;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 15px;
+            left: 30px;
+            right: 30px;
+            height: 2px;
+            background-color: #ecf0f1;
+            z-index: 0;
+        }
+
+        /* New Features */
+        .achievement-card {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin: 15px 0;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .reminder-card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background-color: var(--white);
+            border-radius: var(--radius);
+            margin-bottom: 10px;
+        }
+
+        .leaderboard-rank {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        /* Test Score Screen */
+        .score-screen {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            border-radius: var(--radius);
+            padding: 40px 20px;
+            text-align: center;
+            color: white;
+            margin: 20px 0;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            border: 5px solid white;
+        }
+
+        .score-value {
+            font-size: 36px;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .score-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Welcome Banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--primary-color), #003399);
+            color: white;
+            border-radius: var(--radius);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .welcome-banner h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .welcome-banner p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        /* Catchment Filter */
+        .catchment-filter {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .catchment-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        /* Topic Lock */
+        .topic-locked {
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: var(--radius);
+            padding: 30px;
+            text-align: center;
+            color: var(--light-text);
+            margin: 20px 0;
+        }
+
+        .lock-icon {
+            font-size: 40px;
+            color: #95a5a6;
+            margin-bottom: 15px;
+        }
+
+        /* Session Filters */
+        .session-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .session-filters .btn-sm {
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen (Visible by default) -->
+    <div class="login-container" id="login-screen">
+        <div class="login-box">
+            <div class="login-logo">
+                <div class="logo-circle">CB</div>
+                <h2 style="color: var(--primary-color);">DFL Learning System</h2>
+                <p style="color: var(--light-text); margin-top: 5px;">City Bank PLC Initiative</p>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Mobile Number</label>
+                <input type="tel" class="form-input" placeholder="Enter your mobile number" id="login-mobile" value="+880 1712-345678">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" placeholder="Enter your password" id="login-password" value="password123">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Select Role</label>
+                <select class="form-input" id="login-role">
+                    <option value="beneficiary">Beneficiary</option>
+                    <option value="field_officer">Field Officer</option>
+                    <option value="unit_manager">Unit Manager</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            
+            <button class="login-btn" onclick="login()">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <p style="color: var(--light-text); font-size: 14px;">
+                    Don't have an account? <a href="#" style="color: var(--primary-color); text-decoration: none;" onclick="showToast('Please contact your administrator to create an account.')">Contact Admin</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Container (Hidden until login) -->
+    <div class="app-container" id="app-container">
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <div class="logo-container">
+                <div class="logo-icon">CB</div>
+                <div class="logo-text">
+                    <h2>DFL Learning</h2>
+                    <p>Welcome, <span id="user-name">User</span></p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="notification-icon" onclick="showNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <div class="notification-badge">3</div>
+                </div>
+                <div class="menu-icon" onclick="toggleDrawer()">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scrollable Main Content -->
+        <div class="main-content scrollable-content" id="main-content">
+            <!-- Dashboard -->
+            <div class="content-section active" id="dashboard-section">
+                <div class="section-header">
+                    <h2 class="section-title">Dashboard</h2>
+                    <button class="btn btn-sm btn-outline" onclick="syncData()">
+                        <i class="fas fa-sync-alt"></i> Sync
+                    </button>
+                </div>
+                
+                <!-- Welcome Banner - Reduced Size -->
+                <div class="welcome-banner">
+                    <h3>Welcome back, <span id="dashboard-username">Admin</span>!</h3>
+                    <p>You have 3 pending tasks and 2 new notifications</p>
+                </div>
+                
+                <!-- Quick Stats -->
+                <div class="dashboard-cards">
+                    <div class="dashboard-card" onclick="showSection('content-section')">
+                        <div class="card-icon icon-content">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <h3>Contents</h3>
+                        <p style="color: var(--light-text); font-size: 14px; margin-top: 5px;">Start learning</p>
+                        <div class="badge badge-success" style="margin-top: 10px;">3 Active</div>
+                    </div>
+                    
+                    <div class="dashboard-card" onclick="showSection('session-section')">
+                        <div class="card-icon icon-session">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <h3>Sessions</h3>
+                        <p style="color: var(--light-text); font-size: 14px; margin-top: 5px;">Training sessions</p>
+                        <div class="badge badge-warning" style="margin-top: 10px;">2 Upcoming</div>
+                    </div>
+                    
+                    <div class="dashboard-card" onclick="showSection('survey-section')">
+                        <div class="card-icon icon-survey">
+                            <i class="fas fa-poll"></i>
+                        </div>
+                        <h3>Surveys</h3>
+                        <p style="color: var(--light-text); font-size: 14px; margin-top: 5px;">Data collection</p>
+                        <div class="badge badge-info" style="margin-top: 10px;">3 Available</div>
+                    </div>
+                    
+                    <div class="dashboard-card" onclick="showSection('dashboard-analytics')">
+                        <div class="card-icon icon-dashboard">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Analytics</h3>
+                        <p style="color: var(--light-text); font-size: 14px; margin-top: 5px;">Performance stats</p>
+                        <div class="badge" style="background-color: #f0f0f0; color: var(--dark-text); margin-top: 10px;">View</div>
+                    </div>
+                </div>
+                
+                <!-- Progress Overview -->
+                <div style="background-color: var(--white); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3>Overall Progress</h3>
+                        <span style="color: var(--accent-color); font-weight: 600;">65%</span>
+                    </div>
+                    <div style="height: 10px; background-color: #ecf0f1; border-radius: 5px; margin: 10px 0 20px; overflow: hidden;">
+                        <div class="content-fill" id="overall-progress" style="width: 65%"></div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; font-weight: bold; color: var(--primary-color);">3</div>
+                            <div style="font-size: 12px; color: var(--light-text);">Courses Enrolled</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; font-weight: bold; color: var(--accent-color);">2</div>
+                            <div style="font-size: 12px; color: var(--light-text);">Courses Completed</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contents Section -->
+            <div class="content-section" id="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">Learning Contents</h2>
+                    <button class="btn btn-primary btn-sm" onclick="showCourseCatalog()">
+                        <i class="fas fa-search"></i> Browse
+                    </button>
+                </div>
+                
+                <!-- Course Filter -->
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto;">
+                    <button class="btn btn-sm" onclick="filterCourses('all')" style="white-space: nowrap;">All Courses</button>
+                    <button class="btn btn-sm btn-outline" onclick="filterCourses('enrolled')" style="white-space: nowrap;">Enrolled</button>
+                    <button class="btn btn-sm btn-outline" onclick="filterCourses('completed')" style="white-space: nowrap;">Completed</button>
+                    <button class="btn btn-sm btn-outline" onclick="filterCourses('new')" style="white-space: nowrap;">New</button>
+                </div>
+                
+                <div class="courses-grid" id="courses-container">
+                    <!-- Courses loaded dynamically -->
+                </div>
+            </div>
+
+            <!-- Pre-Test Section -->
+            <div class="content-section" id="pretest-section">
+                <div class="content-player">
+                    <div class="content-nav">
+                        <button class="btn btn-outline" onclick="showSection('content-section')">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <h4 id="pretest-title">Pre-Test</h4>
+                        <div style="font-size: 14px; color: var(--light-text);">
+                            <i class="fas fa-clock"></i> <span id="pretest-timer">15:00</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Indicator -->
+                    <div class="progress-indicator">
+                        <div class="progress-line"></div>
+                        <div class="progress-step active">1</div>
+                        <div class="progress-step">2</div>
+                        <div class="progress-step">3</div>
+                        <div class="progress-step">4</div>
+                    </div>
+                    
+                    <div id="pretest-questions">
+                        <!-- Questions loaded dynamically -->
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="submitPreTest()" id="submit-pretest-btn" style="width: 100%; margin-top: 20px;">
+                        <i class="fas fa-paper-plane"></i> Submit Pre-Test
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pre-Test Score Screen -->
+            <div class="content-section" id="pretest-score-section">
+                <div class="content-player">
+                    <div class="content-nav">
+                        <button class="btn btn-outline" onclick="showSection('content-section')">
+                            <i class="fas fa-arrow-left"></i> Back to Courses
+                        </button>
+                        <h4>Pre-Test Results</h4>
+                    </div>
+                    
+                    <div class="score-screen">
+                        <div class="score-circle">
+                            <div class="score-value" id="pretest-score-value">75%</div>
+                            <div class="score-label">Your Score</div>
+                        </div>
+                        <h3 id="pretest-score-title">Good Start!</h3>
+                        <p style="margin: 15px 0;">You scored <strong id="pretest-correct-answers">3/4</strong> correct answers</p>
+                        <button class="btn btn-primary" onclick="startCourseContent()" style="background-color: white; color: var(--primary-color);">
+                            <i class="fas fa-play"></i> Start Learning Content
+                        </button>
+                    </div>
+                    
+                    <div style="background-color: var(--white); border-radius: var(--radius); padding: 20px; margin-top: 20px;">
+                        <h5 style="margin-bottom: 15px;">Detailed Results</h5>
+                        <div id="pretest-details">
+                            <!-- Details loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Learning Interface -->
+            <div class="content-section" id="learning-section">
+                <div class="content-player">
+                    <div class="content-nav">
+                        <button class="btn btn-outline" onclick="showSection('content-section')">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <h4 id="course-title">Course Title</h4>
+                        <div style="font-size: 14px; color: var(--light-text);">
+                            <span id="content-counter">1/6</span>
+                        </div>
+                    </div>
+                    
+                    <div class="content-progress">
+                        <div class="content-fill" id="learning-progress" style="width: 0%"></div>
+                    </div>
+                    
+                    <!-- Progress Steps -->
+                    <div class="progress-indicator" id="topic-progress">
+                        <!-- Steps loaded dynamically -->
+                    </div>
+                    
+                    <div id="content-display">
+                        <!-- Content loaded dynamically -->
+                    </div>
+                    
+                    <div class="content-nav" style="margin-top: 20px;">
+                        <button class="btn btn-outline" onclick="previousContent()" id="prev-btn" disabled>
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </button>
+                        <button class="btn btn-primary" onclick="nextContent()" id="next-btn">
+                            Next Topic <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post-Test Section -->
+            <div class="content-section" id="posttest-section">
+                <div class="content-player">
+                    <div class="content-nav">
+                        <button class="btn btn-outline" onclick="showSection('learning-section')">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <h4>Post-Test</h4>
+                        <div style="font-size: 14px; color: var(--light-text);">
+                            <i class="fas fa-clock"></i> <span id="posttest-timer">20:00</span>
+                        </div>
+                    </div>
+                    
+                    <div id="posttest-questions">
+                        <!-- Questions loaded dynamically -->
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="submitPostTest()" id="submit-posttest-btn" style="width: 100%; margin-top: 20px;">
+                        <i class="fas fa-paper-plane"></i> Submit Post-Test
+                    </button>
+                </div>
+            </div>
+
+            <!-- Post-Test Score Screen -->
+            <div class="content-section" id="posttest-score-section">
+                <div class="content-player">
+                    <div class="content-nav">
+                        <button class="btn btn-outline" onclick="showSection('content-section')">
+                            <i class="fas fa-arrow-left"></i> Back to Courses
+                        </button>
+                        <h4>Course Results</h4>
+                    </div>
+                    
+                    <div class="score-screen">
+                        <div class="score-circle">
+                            <div class="score-value" id="posttest-score-value">92%</div>
+                            <div class="score-label">Your Score</div>
+                        </div>
+                        <h3 id="posttest-score-title">Excellent!</h3>
+                        <p style="margin: 15px 0;">Improvement: <strong id="improvement-score">+17%</strong></p>
+                        <button class="btn btn-primary" onclick="generateCertificate()" style="background-color: white; color: var(--primary-color);">
+                            <i class="fas fa-award"></i> View Certificate
+                        </button>
+                    </div>
+                    
+                    <div style="background-color: var(--white); border-radius: var(--radius); padding: 20px; margin-top: 20px;">
+                        <h5 style="margin-bottom: 15px;">Score Comparison</h5>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 24px; font-weight: bold; color: var(--primary-color);" id="pre-test-final">75%</div>
+                                <div style="font-size: 12px; color: var(--light-text);">Pre-Test Score</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 24px; font-weight: bold; color: var(--accent-color);" id="post-test-final">92%</div>
+                                <div style="font-size: 12px; color: var(--light-text);">Post-Test Score</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Certificate Section -->
+            <div class="content-section" id="certificate-section">
+                <div class="certificate-container">
+                    <div class="certificate-icon">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <h2 class="certificate-title">Certificate of Completion</h2>
+                    
+                    <div class="certificate-content">
+                        <p style="margin-bottom: 15px;">This certifies that</p>
+                        <h3 style="font-size: 24px; margin-bottom: 10px; color: var(--primary-color);" id="certificate-name">Fatima Begum</h3>
+                        <p style="margin-bottom: 20px;">has successfully completed the course</p>
+                        <h4 style="color: var(--primary-color); margin-bottom: 20px;" id="certificate-course">Budgeting & Savings</h4>
+                        
+                        <div style="margin: 20px 0;">
+                            <p style="margin-bottom: 10px;">Pre-Test Score: <strong id="pre-score">75%</strong></p>
+                            <p>Post-Test Score: <strong id="post-score">92%</strong></p>
+                            <p style="margin-top: 10px; color: var(--accent-color); font-weight: 600;">
+                                Improvement: <strong id="improvement">+17%</strong>
+                            </p>
+                        </div>
+                        
+                        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                            <div class="qr-code" style="width: 100px; height: 100px; background-color: #e9ecef; border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--light-text);">
+                                <span>QR Code</span>
+                            </div>
+                            <p style="margin-top: 15px; color: var(--light-text); font-size: 14px;">
+                                Certificate ID: <strong id="certificate-id">DFL-2024-00123</strong>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="certificate-actions">
+                        <button class="btn btn-primary" onclick="downloadCertificate()">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                        <button class="btn btn-outline" onclick="shareCertificate()">
+                            <i class="fas fa-share-alt"></i> Share
+                        </button>
+                        <button class="btn btn-outline" onclick="showSection('content-section')">
+                            <i class="fas fa-home"></i> Back to Courses
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Session Management -->
+            <div class="content-section" id="session-section">
+                <div class="section-header">
+                    <h2 class="section-title">Training Sessions</h2>
+                    <button class="btn btn-primary btn-sm" onclick="showCreateSessionModal()">
+                        <i class="fas fa-plus"></i> Add Session
+                    </button>
+                </div>
+                
+                <!-- Catchment Filter -->
+                <div class="catchment-filter">
+                    <h4 style="margin-bottom: 10px;">Catchment Filter</h4>
+                    <div class="catchment-grid">
+                        <select class="form-input" id="zone-filter" onchange="updateCatchment('zone', this.value)">
+                            <option value="">All Zones</option>
+                            <option value="dhaka">Dhaka Zone</option>
+                            <option value="chittagong">Chittagong Zone</option>
+                            <option value="khulna">Khulna Zone</option>
+                        </select>
+                        <select class="form-input" id="business-area-filter" onchange="updateCatchment('business', this.value)">
+                            <option value="">All Business Areas</option>
+                            <option value="retail">Retail Banking</option>
+                            <option value="sme">SME Banking</option>
+                            <option value="corporate">Corporate Banking</option>
+                        </select>
+                        <select class="form-input" id="region-filter" onchange="updateCatchment('region', this.value)" style="grid-column: span 2;">
+                            <option value="">All Regions</option>
+                            <option value="central">Central Region</option>
+                            <option value="north">North Region</option>
+                            <option value="south">South Region</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Session Filters -->
+                <div class="session-filters">
+                    <button class="btn btn-sm" onclick="filterSessions('all')">All Sessions</button>
+                    <button class="btn btn-sm btn-outline" onclick="filterSessions('upcoming')">Upcoming</button>
+                    <button class="btn btn-sm btn-outline" onclick="filterSessions('self')">Self-Paced</button>
+                </div>
+                
+                <div class="sessions-list" id="sessions-list">
+                    <!-- Sessions loaded dynamically -->
+                </div>
+            </div>
+
+            <!-- Assign Participants Section -->
+            <div class="content-section" id="assign-participants-section">
+                <div class="content-player">
+                    <div class="content-nav">
+                        <button class="btn btn-outline" onclick="showSection('session-section')">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <h4 id="assign-session-title">Assign Participants</h4>
+                        <div class="badge" id="selected-count">0 selected</div>
+                    </div>
+                    
+                    <div class="search-bar">
+                        <input type="text" class="search-input" placeholder="Search by name or mobile..." id="participant-search" onkeyup="searchParticipants()">
+                        <button class="btn btn-primary" onclick="searchParticipants()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h5>Available Participants</h5>
+                        <button class="btn btn-sm btn-outline" onclick="selectAllParticipants()">
+                            <i class="fas fa-check-square"></i> Select All
+                        </button>
+                    </div>
+                    
+                    <div class="participant-list" id="participant-list">
+                        <!-- Participants loaded dynamically -->
+                    </div>
+                    
+                    <button class="btn btn-success" onclick="assignSelectedParticipants()" id="assign-btn" style="width: 100%; margin-top: 20px;" disabled>
+                        <i class="fas fa-user-plus"></i> Assign Selected Participants
+                    </button>
+                </div>
+            </div>
+
+            <!-- Attendance Section -->
+            <div class="content-section" id="attendance-section">
+                <div class="content-player">
+                    <div class="content-nav">
+                        <button class="btn btn-outline" onclick="showSection('session-section')">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <h4 id="attendance-session-title">Take Attendance</h4>
+                        <div style="font-size: 14px; color: var(--light-text);">
+                            <i class="fas fa-users"></i> <span id="total-count">0</span> participants
+                        </div>
+                    </div>
+                    
+                    <div class="attendance-container">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h5>Mark Absent Only (All are present by default)</h5>
+                            <button class="btn btn-sm btn-outline" onclick="markAllPresent()">
+                                <i class="fas fa-check-circle"></i> Mark All Present
+                            </button>
+                        </div>
+                        
+                        <div class="participant-list" id="attendance-list">
+                            <!-- Attendance list loaded dynamically -->
+                        </div>
+                        
+                        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span>Total Participants:</span>
+                                <strong id="total-participants">30</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span>Present:</span>
+                                <strong style="color: var(--accent-color);" id="present-count">30</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Absent:</span>
+                                <strong style="color: #E74C3C;" id="absent-count">0</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="submitAttendance()" style="width: 100%; margin-top: 20px;">
+                        <i class="fas fa-check-circle"></i> Submit Attendance
+                    </button>
+                </div>
+            </div>
+
+            <!-- Survey Section -->
+            <div class="content-section" id="survey-section">
+                <div class="section-header">
+                    <h2 class="section-title">Surveys</h2>
+                    <button class="btn btn-primary btn-sm" onclick="showSurveyCatalog()">
+                        <i class="fas fa-list"></i> View All
+                    </button>
+                </div>
+                
+                <div class="survey-history-list" id="survey-history">
+                    <!-- Survey history loaded dynamically -->
+                </div>
+            </div>
+
+            <!-- Survey Submissions Section -->
+            <div class="content-section" id="survey-submissions-section">
+                <div class="content-player">
+                    <div class="content-nav">
+                        <button class="btn btn-outline" onclick="showSection('survey-section')">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <h4 id="survey-submissions-title">Survey Submissions</h4>
+                        <div class="badge badge-info" id="survey-response-count">156 responses</div>
+                    </div>
+                    
+                    <div class="section-header" style="margin-bottom: 20px;">
+                        <h5 id="selected-survey-title">Beneficiary Profile Survey</h5>
+                        <button class="btn btn-primary btn-sm" onclick="startSurvey('profile')">
+                            <i class="fas fa-plus"></i> New Submission
+                        </button>
+                    </div>
+                    
+                    <div class="survey-submission-list" id="submissions-list">
+                        <!-- Submissions loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Survey Form Section -->
+            <div class="content-section" id="survey-form-section">
+                <div class="content-player">
+                    <div class="content-nav">
+                        <button class="btn btn-outline" onclick="showSection('survey-submissions-section')">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <h4 id="survey-title">Survey Title</h4>
+                        <div style="font-size: 14px; color: var(--light-text);">
+                            <span id="survey-progress">1/10</span>
+                        </div>
+                    </div>
+                    
+                    <div class="survey-form-container" id="survey-form-container">
+                        <!-- Survey form loaded dynamically -->
+                    </div>
+                    
+                    <div class="content-nav" style="margin-top: 20px;">
+                        <button class="btn btn-outline" onclick="previousSurveyQuestion()" id="prev-survey-btn" disabled>
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </button>
+                        <button class="btn btn-primary" onclick="nextSurveyQuestion()" id="next-survey-btn">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Analytics -->
+            <div class="content-section" id="dashboard-analytics">
+                <div class="section-header">
+                    <h2 class="section-title">Analytics Dashboard</h2>
+                    <select class="form-input" style="width: auto; padding: 8px 15px;" onchange="updateAnalyticsPeriod(this.value)">
+                        <option value="monthly">This Month</option>
+                        <option value="weekly">This Week</option>
+                        <option value="yearly">This Year</option>
+                    </select>
+                </div>
+                
+                <div class="stats-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+                    <div class="stat-card" style="background-color: var(--white); border-radius: var(--radius); padding: 20px; text-align: center; box-shadow: var(--shadow);">
+                        <div class="stat-icon" style="color: #3498DB; font-size: 24px; margin-bottom: 10px;">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-value" style="font-size: 24px; font-weight: 700; color: var(--primary-color); margin-bottom: 5px;" id="target-sessions">24</div>
+                        <div class="stat-label" style="font-size: 13px; color: var(--light-text);">Target Sessions</div>
+                    </div>
+                    
+                    <div class="stat-card" style="background-color: var(--white); border-radius: var(--radius); padding: 20px; text-align: center; box-shadow: var(--shadow);">
+                        <div class="stat-icon" style="color: #2ECC71; font-size: 24px; margin-bottom: 10px;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-value" style="font-size: 24px; font-weight: 700; color: var(--primary-color); margin-bottom: 5px;" id="completed-sessions">18</div>
+                        <div class="stat-label" style="font-size: 13px; color: var(--light-text);">Completed Sessions</div>
+                    </div>
+                    
+                    <div class="stat-card" style="background-color: var(--white); border-radius: var(--radius); padding: 20px; text-align: center; box-shadow: var(--shadow);">
+                        <div class="stat-icon" style="color: #9B59B6; font-size: 24px; margin-bottom: 10px;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-value" style="font-size: 24px; font-weight: 700; color: var(--primary-color); margin-bottom: 5px;" id="persons-reached">342</div>
+                        <div class="stat-label" style="font-size: 13px; color: var(--light-text);">Persons Reached</div>
+                    </div>
+                    
+                    <div class="stat-card" style="background-color: var(--white); border-radius: var(--radius); padding: 20px; text-align: center; box-shadow: var(--shadow);">
+                        <div class="stat-icon" style="color: #E74C3C; font-size: 24px; margin-bottom: 10px;">
+                            <i class="fas fa-female"></i>
+                        </div>
+                        <div class="stat-value" style="font-size: 24px; font-weight: 700; color: var(--primary-color); margin-bottom: 5px;" id="women-participants">218</div>
+                        <div class="stat-label" style="font-size: 13px; color: var(--light-text);">Women Participants</div>
+                    </div>
+                </div>
+                
+                <!-- Performance Chart -->
+                <div style="background-color: var(--white); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 15px;">Performance Trends</h4>
+                    <div style="height: 200px; display: flex; align-items: flex-end; gap: 10px; margin-top: 20px;">
+                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                            <div style="background-color: var(--primary-color); height: 150px; width: 30px; border-radius: 4px;"></div>
+                            <div style="margin-top: 5px; font-size: 12px;">Week 1</div>
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                            <div style="background-color: var(--primary-color); height: 180px; width: 30px; border-radius: 4px;"></div>
+                            <div style="margin-top: 5px; font-size: 12px;">Week 2</div>
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                            <div style="background-color: var(--primary-color); height: 200px; width: 30px; border-radius: 4px;"></div>
+                            <div style="margin-top: 5px; font-size: 12px;">Week 3</div>
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                            <div style="background-color: var(--primary-color); height: 220px; width: 30px; border-radius: 4px;"></div>
+                            <div style="margin-top: 5px; font-size: 12px;">Week 4</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Leaderboard -->
+                <div style="background-color: var(--white); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow);">
+                    <h4 style="margin-bottom: 15px;">Top Performers</h4>
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank">1</div>
+                        <div class="participant-avatar" style="background-color: var(--accent-color);">FB</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600;">Fatima Begum</div>
+                            <div style="font-size: 12px; color: var(--light-text);">92% Average Score</div>
+                        </div>
+                        <div class="badge badge-success">Top</div>
+                    </div>
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank">2</div>
+                        <div class="participant-avatar" style="background-color: var(--primary-color);">MA</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600;">Mohammad Ali</div>
+                            <div style="font-size: 12px; color: var(--light-text);">88% Average Score</div>
+                        </div>
+                        <div class="badge badge-warning">2nd</div>
+                    </div>
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank">3</div>
+                        <div class="participant-avatar" style="background-color: #9B59B6;">RA</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600;">Rina Akter</div>
+                            <div style="font-size: 12px; color: var(--light-text);">85% Average Score</div>
+                        </div>
+                        <div class="badge badge-info">3rd</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Section -->
+            <div class="content-section" id="profile-section">
+                <div class="section-header">
+                    <h2 class="section-title">My Profile</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary btn-sm" onclick="editProfile()">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-outline btn-sm" onclick="showSettings()">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <div class="profile-avatar" id="profile-avatar">FB</div>
+                        <h3 id="profile-name">Fatima Begum</h3>
+                        <p style="color: var(--light-text); margin-top: 5px;" id="profile-role">Beneficiary | Dhaka, Bangladesh</p>
+                        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+                            <span class="badge badge-success">
+                                <i class="fas fa-check-circle"></i> Verified
+                            </span>
+                            <span class="badge badge-info">
+                                <i class="fas fa-graduation-cap"></i> Learner
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <div class="stat-value" id="courses-completed">3</div>
+                            <div class="stat-label">Courses Completed</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="stat-value" id="learning-time">18h</div>
+                            <div class="stat-label">Learning Time</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="stat-value" id="avg-score">85%</div>
+                            <div class="stat-label">Avg. Score</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Personal Info -->
+                    <div style="margin-bottom: 25px;">
+                        <h4 style="margin-bottom: 15px; color: var(--primary-color); display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-id-card"></i> Personal Information
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                            <div>
+                                <label style="font-size: 12px; color: var(--light-text); display: block; margin-bottom: 5px;">Mobile</label>
+                                <div style="font-weight: 600;" id="profile-mobile">+880 1712-345678</div>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: var(--light-text); display: block; margin-bottom: 5px;">Date of Birth</label>
+                                <div style="font-weight: 600;" id="profile-dob">15 March 1992 (32 years)</div>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: var(--light-text); display: block; margin-bottom: 5px;">Gender</label>
+                                <div style="font-weight: 600;" id="profile-gender">Female</div>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: var(--light-text); display: block; margin-bottom: 5px;">NID</label>
+                                <div style="font-weight: 600;" id="profile-nid">1990 1234 5678 9012</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Household Details -->
+                    <div style="margin-bottom: 25px;">
+                        <h4 style="margin-bottom: 15px; color: var(--primary-color); display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-home"></i> Household Details
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                            <div>
+                                <label style="font-size: 12px; color: var(--light-text); display: block; margin-bottom: 5px;">Family Members</label>
+                                <div style="font-weight: 600;" id="family-members">5</div>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: var(--light-text); display: block; margin-bottom: 5px;">Monthly Earnings</label>
+                                <div style="font-weight: 600;" id="monthly-earnings">BDT 45,000</div>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: var(--light-text); display: block; margin-bottom: 5px;">Relationship to Migrant</label>
+                                <div style="font-weight: 600;" id="migrant-relation">Sister</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Migration Details -->
+                    <div>
+                        <h4 style="margin-bottom: 15px; color: var(--primary-color); display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-plane-departure"></i> Migration & Financial Details
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                            <div>
+                                <label style="font-size: 12px; color: var(--light-text); display: block; margin-bottom: 5px;">Migrant Country</label>
+                                <div style="font-weight: 600;" id="migrant-country">Saudi Arabia</div>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: var(--light-text); display: block; margin-bottom: 5px;">Years Abroad</label>
+                                <div style="font-weight: 600;" id="years-abroad">8 years</div>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: var(--light-text); display: block; margin-bottom: 5px;">Monthly Remittance</label>
+                                <div style="font-weight: 600;" id="monthly-remittance">$350</div>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: var(--light-text); display: block; margin-bottom: 5px;">Bank Account</label>
+                                <div style="font-weight: 600; color: var(--accent-color);" id="bank-account">Yes</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px;">
+                    <button class="btn btn-outline" onclick="showChangePassword()">
+                        <i class="fas fa-key"></i> Change Password
+                    </button>
+                    <button class="btn btn-outline" style="color: #E74C3C; border-color: #E74C3C;" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div class="mobile-nav">
+            <div class="nav-item active" onclick="showSection('dashboard-section')">
+                <div class="nav-icon">
+                    <i class="fas fa-home"></i>
+                </div>
+                <div class="nav-label">Home</div>
+            </div>
+            
+            <div class="nav-item" onclick="showSection('content-section')">
+                <div class="nav-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="nav-label">Contents</div>
+            </div>
+            
+            <div class="nav-item" onclick="showSection('session-section')">
+                <div class="nav-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="nav-label">Sessions</div>
+            </div>
+            
+            <div class="nav-item" onclick="showSection('profile-section')">
+                <div class="nav-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="nav-label">Profile</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Chatbot with Insights -->
+    <div class="chatbot-toggle" id="chatbot-toggle" onclick="toggleChatbot()">
+        <i class="fab fa-whatsapp"></i>
+        <div class="insight-badge">CBL</div>
+    </div>
+
+    <div class="chatbot-wrapper" id="chatbot-wrapper">
+        <div class="chatbot-container" id="chatbot-container">
+            <div class="chatbot-header">
+                <div class="chatbot-avatar">
+                    <i class="fab fa-whatsapp"></i>
+                </div>
+                <div>
+                    <h4 style="margin: 0;">DFL AI Assistant</h4>
+                    <p style="margin: 0; font-size: 12px; opacity: 0.9;">AI-Powered • Financial Insights</p>
+                </div>
+            </div>
+            
+            <div class="chatbot-body" id="chatbot-body">
+                <div class="chat-message bot">
+                    <strong>DFL AI Assistant:</strong> Hello! 👋 I'm your financial assistant. I can provide insights on:
+                </div>
+                <div class="chat-message bot">
+                    <strong>Financial Topics:</strong><br>
+                    • 💰 Budgeting & Savings<br>
+                    • 📱 Digital Banking<br>
+                    • 🌍 Remittance Management<br>
+                    • 🏦 Loans & Credit<br>
+                    • 📊 Financial Planning
+                </div>
+                <div class="chat-message bot">
+                    Type any financial topic for detailed insights or ask specific questions!
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" id="chat-input" placeholder="Ask about financial topics..." onkeypress="handleChatInput(event)">
+                <button class="chat-send-btn" onclick="sendChatMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Creation Modal -->
+    <div class="modal-overlay" id="session-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('session-modal')">&times;</button>
+            <h3 style="margin-bottom: 20px;">Create New Session</h3>
+            
+            <div class="form-group">
+                <label class="form-label">Session Name</label>
+                <input type="text" class="form-input" id="session-name" placeholder="Enter session name">
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                <div class="form-group">
+                    <label class="form-label">Date</label>
+                    <input type="date" class="form-input" id="session-date">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Time</label>
+                    <input type="time" class="form-input" id="session-time">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Duration (hours)</label>
+                <input type="number" class="form-input" id="session-duration" placeholder="e.g., 2" min="1" max="8">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Session Type</label>
+                <select class="form-input" id="session-type">
+                    <option value="live">Live Session</option>
+                    <option value="self">Self-Paced</option>
+                </select>
+            </div>
+            
+            <!-- Catchment Fields -->
+            <div class="form-group">
+                <label class="form-label">Catchment Area</label>
+                <div class="catchment-grid" style="margin-top: 10px;">
+                    <select class="form-input" id="modal-zone">
+                        <option value="">Select Zone</option>
+                        <option value="dhaka">Dhaka Zone</option>
+                        <option value="chittagong">Chittagong Zone</option>
+                        <option value="khulna">Khulna Zone</option>
+                    </select>
+                    <select class="form-input" id="modal-business-area">
+                        <option value="">Select Business Area</option>
+                        <option value="retail">Retail Banking</option>
+                        <option value="sme">SME Banking</option>
+                        <option value="corporate">Corporate Banking</option>
+                    </select>
+                    <select class="form-input" id="modal-region" style="grid-column: span 2;">
+                        <option value="">Select Region</option>
+                        <option value="central">Central Region</option>
+                        <option value="north">North Region</option>
+                        <option value="south">South Region</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea class="form-input" id="session-description" placeholder="Enter session description" rows="3"></textarea>
+            </div>
+            
+            <button class="btn btn-primary" onclick="createSession()" style="width: 100%; margin-top: 20px;">
+                <i class="fas fa-save"></i> Create Session
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <div id="toast-message">Operation completed successfully!</div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="modal-overlay" id="loading-overlay">
+        <div style="text-align: center;">
+            <div class="spinner"></div>
+            <p style="color: white; margin-top: 15px;" id="loading-text">Loading...</p>
+        </div>
+    </div>
+
+    <script>
+        // ==================== APPLICATION STATE ====================
+        let currentUser = null;
+        let currentCourse = null;
+        let currentContentIndex = 0;
+        let preTestScore = 0;
+        let postTestScore = 0;
+        let surveyData = {};
+        let currentSessionId = null;
+        let chatHistory = [];
+        let selectedParticipants = new Set();
+        let surveyQuestions = [];
+        let currentSurveyQuestion = 0;
+        let testTimer = null;
+        let remainingTime = 900;
+        let userProgress = {};
+        let surveySubmissions = [];
+
+        // ==================== SAMPLE DATA ====================
+        const courses = {
+            budgeting: {
+                id: "budgeting",
+                title: "Budgeting & Savings",
+                description: "Personal Financial Management",
+                duration: "4 hours",
+                topicsCount: 6,
+                sessions: 4,
+                completed: false,
+                progress: 0,
+                score: 0,
+                enrolled: false,
+                topics: [
+                    { 
+                        id: 1,
+                        type: "flash", 
+                        title: "What is Budgeting?", 
+                        content: "Budgeting is creating a plan for your money. It helps you control spending, track expenses, and save for future goals. A good budget ensures you don't spend more than you earn.", 
+                        duration: "5 min",
+                        locked: false,
+                        completed: false
+                    },
+                    { 
+                        id: 2,
+                        type: "video", 
+                        title: "Income vs Expenses", 
+                        content: "https://www.youtube.com/embed/4YcLcLkfL4c", 
+                        duration: "8 min",
+                        description: "Learn to distinguish between needs and wants",
+                        locked: true,
+                        completed: false
+                    },
+                    { 
+                        id: 3,
+                        type: "interactive", 
+                        title: "Create Your Budget", 
+                        content: "Let's create a simple monthly budget together. Track your income and allocate funds for essentials, savings, and wants.", 
+                        duration: "10 min",
+                        locked: true,
+                        completed: false
+                    },
+                    { 
+                        id: 4,
+                        type: "flash", 
+                        title: "50/30/20 Rule", 
+                        content: "Allocate 50% for needs, 30% for wants, and 20% for savings. This simple rule helps maintain financial balance.", 
+                        duration: "6 min",
+                        locked: true,
+                        completed: false
+                    },
+                    { 
+                        id: 5,
+                        type: "quiz", 
+                        title: "Budgeting Quiz", 
+                        content: "Test your understanding of budgeting principles", 
+                        duration: "7 min",
+                        questions: [
+                            {
+                                question: "What percentage should go to needs in the 50/30/20 rule?",
+                                options: ["20%", "30%", "50%", "70%"],
+                                answer: 2
+                            }
+                        ],
+                        locked: true,
+                        completed: false
+                    },
+                    { 
+                        id: 6,
+                        type: "flash", 
+                        title: "Emergency Funds", 
+                        content: "Save 3-6 months of expenses for emergencies. This protects you from unexpected financial shocks.", 
+                        duration: "5 min",
+                        locked: true,
+                        completed: false
+                    }
+                ],
+                preTest: [
+                    { 
+                        question: "What is the primary purpose of budgeting?", 
+                        options: [
+                            "To spend all your money quickly",
+                            "To track income and control expenses",
+                            "To get more credit cards",
+                            "To impress others with spending"
+                        ], 
+                        answer: 1 
+                    },
+                    { 
+                        question: "How much of your income should be saved according to financial experts?", 
+                        options: ["5%", "10%", "20%", "30%"], 
+                        answer: 2 
+                    },
+                    { 
+                        question: "What is an emergency fund for?", 
+                        options: [
+                            "Vacation planning",
+                            "Investment in stocks",
+                            "Unexpected expenses like medical bills",
+                            "Buying luxury items"
+                        ], 
+                        answer: 2 
+                    },
+                    { 
+                        question: "Which budgeting method gives every dollar a specific job?", 
+                        options: [
+                            "50/30/20 Rule",
+                            "Zero-based Budgeting",
+                            "Envelope System",
+                            "Pay Yourself First"
+                        ], 
+                        answer: 1 
+                    }
+                ],
+                postTest: [
+                    { 
+                        question: "In the 50/30/20 rule, what does the 20% represent?", 
+                        options: ["Needs", "Wants", "Savings & Debt", "Entertainment"], 
+                        answer: 2 
+                    },
+                    { 
+                        question: "What should you do first when creating a budget?", 
+                        options: [
+                            "Track all expenses for a month",
+                            "Set financial goals",
+                            "Calculate total monthly income",
+                            "Cut all entertainment expenses"
+                        ], 
+                        answer: 2 
+                    },
+                    { 
+                        question: "How often should you review and adjust your budget?", 
+                        options: ["Yearly", "Monthly", "Never", "Only when in debt"], 
+                        answer: 1 
+                    },
+                    { 
+                        question: "What is the purpose of tracking expenses?", 
+                        options: [
+                            "To feel guilty about spending",
+                            "To identify spending patterns and areas to save",
+                            "To share with friends",
+                            "To get discounts"
+                        ], 
+                        answer: 1 
+                    }
+                ]
+            },
+            digital: {
+                id: "digital",
+                title: "Digital Financial Services",
+                description: "Mobile Banking & Digital Transactions",
+                duration: "6 hours",
+                topicsCount: 8,
+                sessions: 5,
+                completed: false,
+                progress: 0,
+                score: 0,
+                enrolled: false,
+                topics: [],
+                preTest: [],
+                postTest: []
+            }
+        };
+
+        const surveys = [
+            { 
+                id: 1, 
+                title: "Beneficiary Profile Survey", 
+                description: "Collect demographic & financial data", 
+                responseCount: 156,
+                lastSubmission: "2024-04-20",
+                status: "active",
+                questions: [
+                    {
+                        type: "text",
+                        question: "Full Name",
+                        required: true
+                    },
+                    {
+                        type: "number",
+                        question: "Age",
+                        required: true
+                    },
+                    {
+                        type: "select",
+                        question: "Gender",
+                        options: ["Male", "Female", "Other"],
+                        required: true
+                    }
+                ]
+            },
+            { 
+                id: 2, 
+                title: "Financial Behavior Survey", 
+                description: "Understand financial habits and preferences", 
+                responseCount: 89,
+                lastSubmission: "2024-04-18",
+                status: "active"
+            },
+            { 
+                id: 3, 
+                title: "Training Feedback Survey", 
+                description: "Collect feedback on training sessions", 
+                responseCount: 234,
+                lastSubmission: "2024-04-22",
+                status: "active"
+            }
+        ];
+
+        const sessions = [
+            { 
+                id: 1, 
+                name: "Basic Budgeting Workshop", 
+                date: "2024-04-25", 
+                time: "14:00", 
+                duration: 2, 
+                type: "live", 
+                catchment: "Dhaka Zone > Retail Banking > Central Region", 
+                participants: 24,
+                status: "upcoming"
+            },
+            { 
+                id: 2, 
+                name: "Digital Banking Training", 
+                date: "2024-04-20", 
+                time: "10:00", 
+                duration: 3, 
+                type: "live", 
+                catchment: "Chittagong Zone > SME Banking > North Region", 
+                participants: 18,
+                status: "past"
+            },
+            { 
+                id: 3, 
+                name: "Self-Paced Financial Literacy", 
+                date: "2024-04-15", 
+                time: "N/A", 
+                duration: 4, 
+                type: "self", 
+                catchment: "All Zones", 
+                participants: 45,
+                status: "self"
+            }
+        ];
+
+        const participants = [
+            { id: 1, name: "Fatima Begum", mobile: "+880 1712-345678", gender: "Female", age: 32, selected: false },
+            { id: 2, name: "Mohammad Ali", mobile: "+880 1812-987654", gender: "Male", age: 45, selected: false },
+            { id: 3, name: "Rina Akter", mobile: "+880 1912-456789", gender: "Female", age: 28, selected: false }
+        ];
+
+        // Sample survey submissions
+        const sampleSubmissions = [
+            { id: 1, name: "Fatima Begum", gender: "Female", mobile: "+880 1712-345678", age: 32, submissionDate: "2024-04-20 10:30" },
+            { id: 2, name: "Mohammad Ali", gender: "Male", mobile: "+880 1812-987654", age: 45, submissionDate: "2024-04-19 14:20" },
+            { id: 3, name: "Rina Akter", gender: "Female", mobile: "+880 1912-456789", age: 28, submissionDate: "2024-04-18 11:15" }
+        ];
+
+        // AI Chatbot Responses with Insights
+        const chatbotInsights = {
+            "budgeting": {
+                title: "💰 Budgeting & Savings Insights",
+                content: "Budgeting helps you control finances. Key strategies:\n\n1. **50/30/20 Rule**: 50% needs, 30% wants, 20% savings\n2. **Zero-based Budgeting**: Every dollar has a job\n3. **Emergency Fund**: Save 3-6 months of expenses\n4. **Track Spending**: Use apps or spreadsheets\n5. **Review Monthly**: Adjust as needed",
+                tips: ["Start with tracking expenses", "Automate savings", "Use budgeting apps"]
+            },
+            "digital banking": {
+                title: "📱 Digital Banking Insights",
+                content: "Digital banking offers convenience and security:\n\n• **24/7 Access**: Bank anytime, anywhere\n• **Lower Fees**: Reduced transaction costs\n• **Security**: Two-factor authentication\n• **Mobile Apps**: Bill payments, transfers\n• **Alerts**: Real-time notifications",
+                tips: ["Enable 2FA", "Use biometric login", "Check statements regularly"]
+            },
+            "remittance": {
+                title: "🌍 Remittance Management Insights",
+                content: "Smart remittance practices:\n\n• **Compare Rates**: Use multiple services\n• **Formal Channels**: Banks vs informal\n• **Timing**: Exchange rate fluctuations\n• **Fees**: Consider all costs\n• **Planning**: Regular vs lump sum",
+                tips: ["Use bank transfers for large amounts", "Monitor exchange rates", "Plan regular remittances"]
+            },
+            "loan": {
+                title: "🏦 Loans & Credit Insights",
+                content: "Responsible borrowing:\n\n• **Interest Rates**: Compare APR\n• **Terms**: Short vs long term\n• **Eligibility**: Credit score matters\n• **Repayment**: EMI planning\n• **Documentation**: Keep records",
+                tips: ["Borrow only what you need", "Check credit score first", "Read terms carefully"]
+            },
+            "savings": {
+                title: "📊 Savings & Investment Insights",
+                content: "Grow your money:\n\n• **Compound Interest**: Start early\n• **Diversify**: Don't put all eggs in one basket\n• **Risk Profile**: Conservative to aggressive\n• **Goals**: Short vs long term\n• **Regular Contributions**: SIP approach",
+                tips: ["Start with emergency fund", "Automate savings", "Review portfolio annually"]
+            }
+        };
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default date for session creation
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('session-date').value = tomorrow.toISOString().split('T')[0];
+            document.getElementById('session-time').value = '10:00';
+            
+            // Pre-populate login for easy testing
+            document.getElementById('login-mobile').value = '+880 1712-345678';
+            document.getElementById('login-password').value = 'password123';
+            
+            // Initialize user progress
+            userProgress = JSON.parse(localStorage.getItem('userProgress')) || {};
+            
+            // Load initial survey submissions
+            surveySubmissions = JSON.parse(localStorage.getItem('surveySubmissions')) || sampleSubmissions;
+        });
+
+        // ==================== LOGIN FUNCTION ====================
+        function login() {
+            const mobile = document.getElementById('login-mobile').value;
+            const password = document.getElementById('login-password').value;
+            const role = document.getElementById('login-role').value;
+            
+            if (!mobile || !password) {
+                showToast('Please enter mobile number and password');
+                return;
+            }
+            
+            showLoading('Logging in...');
+            
+            setTimeout(() => {
+                currentUser = {
+                    name: role === 'beneficiary' ? 'Fatima Begum' : 
+                          role === 'field_officer' ? 'Field Officer' : 
+                          role === 'unit_manager' ? 'Unit Manager' : 'Admin',
+                    role: role,
+                    mobile: mobile,
+                    avatar: role === 'beneficiary' ? 'FB' : 
+                           role === 'field_officer' ? 'FO' : 
+                           role === 'unit_manager' ? 'UM' : 'AD'
+                };
+                
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-container').style.display = 'block';
+                
+                document.getElementById('user-name').textContent = currentUser.name.split(' ')[0];
+                document.getElementById('dashboard-username').textContent = currentUser.name.split(' ')[0];
+                document.getElementById('profile-name').textContent = currentUser.name;
+                document.getElementById('profile-avatar').textContent = currentUser.avatar;
+                document.getElementById('profile-role').textContent = 
+                    role === 'beneficiary' ? 'Beneficiary | Dhaka, Bangladesh' :
+                    role === 'field_officer' ? 'Field Officer | City Bank PLC' :
+                    role === 'unit_manager' ? 'Unit Manager | City Bank PLC' : 'Admin | City Bank PLC';
+                
+                loadDashboard();
+                loadCourses();
+                loadSessions();
+                loadSurveyHistory();
+                
+                hideLoading();
+                showToast(`Welcome back, ${currentUser.name.split(' ')[0]}!`);
+                
+                showSection('dashboard-section');
+            }, 1500);
+        }
+
+        // ==================== LOGOUT FUNCTION ====================
+        function logout() {
+            showLoading('Logging out...');
+            
+            setTimeout(() => {
+                currentUser = null;
+                document.getElementById('app-container').style.display = 'none';
+                document.getElementById('login-screen').style.display = 'flex';
+                
+                document.getElementById('login-password').value = '';
+                
+                hideLoading();
+                showToast('Logged out successfully');
+            }, 1000);
+        }
+
+        // ==================== NAVIGATION FUNCTIONS ====================
+        function showSection(sectionId) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                const navItems = document.querySelectorAll('.nav-item');
+                if (sectionId === 'dashboard-section') navItems[0].classList.add('active');
+                else if (sectionId === 'content-section') navItems[1].classList.add('active');
+                else if (sectionId === 'session-section') navItems[2].classList.add('active');
+                else if (sectionId === 'profile-section') navItems[3].classList.add('active');
+                
+                document.getElementById('main-content').scrollTop = 0;
+            }
+        }
+
+        // ==================== SYNC FUNCTION ====================
+        function syncData() {
+            showLoading('Syncing data...');
+            setTimeout(() => {
+                loadDashboard();
+                loadCourses();
+                loadSessions();
+                loadSurveyHistory();
+                hideLoading();
+                showToast('Data synchronized successfully!');
+            }, 2000);
+        }
+
+        // ==================== DASHBOARD FUNCTIONS ====================
+        function loadDashboard() {
+            document.getElementById('overall-progress').style.width = '65%';
+            
+            if (currentUser.role === 'beneficiary') {
+                document.getElementById('target-sessions').textContent = '3';
+                document.getElementById('completed-sessions').textContent = '2';
+                document.getElementById('persons-reached').textContent = '1';
+                document.getElementById('women-participants').textContent = '1';
+            }
+        }
+
+        // ==================== COURSE FUNCTIONS ====================
+        function loadCourses() {
+            const container = document.getElementById('courses-container');
+            let html = '';
+            
+            Object.values(courses).forEach(course => {
+                const statusClass = course.completed ? 'success' : course.enrolled ? 'primary' : 'outline';
+                const statusText = course.completed ? 'View Certificate' : course.enrolled ? 'Continue' : 'Enroll';
+                const statusIcon = course.completed ? 'fa-award' : course.enrolled ? 'fa-play' : 'fa-lock';
+                
+                html += `
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div class="course-title">
+                                <h4>${course.title}</h4>
+                                <p>${course.description}</p>
+                            </div>
+                            <div>
+                                <span style="background-color: #ffeaa7; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                                    <i class="fas fa-clock"></i> ${course.duration}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="course-meta">
+                            <span><i class="fas fa-book"></i> ${course.topicsCount} Topics</span>
+                            <span><i class="fas fa-play-circle"></i> ${course.sessions} Sessions</span>
+                            ${course.completed ? `<span><i class="fas fa-star"></i> Score: ${course.score}%</span>` : ''}
+                        </div>
+                        ${course.completed ? 
+                            `<button class="btn btn-success" onclick="showCertificate('${course.id}');" style="margin-top: 15px; width: 100%;">
+                                <i class="fas fa-award"></i> View Certificate
+                            </button>` :
+                            `<button class="btn btn-${statusClass}" onclick="${course.enrolled ? 'continueCourse' : 'startPreTest'}('${course.id}');" style="margin-top: 15px; width: 100%;">
+                                <i class="fas ${statusIcon}"></i> ${statusText}
+                            </button>`
+                        }
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function startPreTest(courseId) {
+            currentCourse = courseId;
+            const course = courses[courseId];
+            
+            document.getElementById('pretest-title').textContent = `${course.title} - Pre-Test`;
+            showSection('pretest-section');
+            
+            startTestTimer('pretest-timer', 900);
+            
+            let questionsHTML = '';
+            course.preTest.forEach((q, index) => {
+                questionsHTML += `
+                    <div class="quiz-question">
+                        <h5 style="margin-bottom: 15px;">${index + 1}. ${q.question}</h5>
+                        <div class="quiz-options">
+                            ${q.options.map((option, optIndex) => `
+                                <div class="quiz-option" onclick="selectTestAnswer(this, ${index}, ${optIndex}, 'preTest')">
+                                    ${option}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('pretest-questions').innerHTML = questionsHTML;
+        }
+
+        function submitPreTest() {
+            clearInterval(testTimer);
+            
+            const course = courses[currentCourse];
+            let score = 0;
+            let total = course.preTest.length;
+            
+            course.preTest.forEach((q, index) => {
+                if (surveyData.preTest && surveyData.preTest[index] === q.answer) {
+                    score++;
+                }
+            });
+            
+            preTestScore = Math.round((score / total) * 100);
+            
+            // Show pre-test score screen
+            document.getElementById('pretest-score-value').textContent = `${preTestScore}%`;
+            document.getElementById('pretest-correct-answers').textContent = `${score}/${total}`;
+            
+            let title = '';
+            if (preTestScore >= 80) title = 'Excellent!';
+            else if (preTestScore >= 60) title = 'Good Start!';
+            else title = 'Room for Improvement';
+            
+            document.getElementById('pretest-score-title').textContent = title;
+            
+            // Show details
+            let detailsHTML = '';
+            course.preTest.forEach((q, index) => {
+                const isCorrect = surveyData.preTest && surveyData.preTest[index] === q.answer;
+                detailsHTML += `
+                    <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            ${isCorrect ? 
+                                '<i class="fas fa-check-circle" style="color: var(--accent-color);"></i>' : 
+                                '<i class="fas fa-times-circle" style="color: #E74C3C;"></i>'
+                            }
+                            <div style="font-weight: 600;">Question ${index + 1}</div>
+                        </div>
+                        <div style="font-size: 13px; color: var(--light-text); margin-left: 24px;">
+                            ${q.question}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('pretest-details').innerHTML = detailsHTML;
+            
+            // Enroll user in course
+            courses[currentCourse].enrolled = true;
+            courses[currentCourse].progress = 0;
+            
+            // Initialize progress
+            if (!userProgress[currentCourse]) {
+                userProgress[currentCourse] = {
+                    currentTopic: 0,
+                    topicsCompleted: [],
+                    preTestScore: preTestScore
+                };
+            }
+            
+            localStorage.setItem('userProgress', JSON.stringify(userProgress));
+            loadCourses();
+            
+            showSection('pretest-score-section');
+        }
+
+        function continueCourse(courseId) {
+            currentCourse = courseId;
+            
+            if (!userProgress[courseId]) {
+                userProgress[courseId] = {
+                    currentTopic: 0,
+                    topicsCompleted: [],
+                    preTestScore: 0
+                };
+            }
+            
+            currentContentIndex = userProgress[courseId].currentTopic || 0;
+            document.getElementById('course-title').textContent = courses[courseId].title;
+            showSection('learning-section');
+            loadContent();
+        }
+
+        function startCourseContent() {
+            currentContentIndex = 0;
+            userProgress[currentCourse].currentTopic = 0;
+            localStorage.setItem('userProgress', JSON.stringify(userProgress));
+            
+            document.getElementById('course-title').textContent = courses[currentCourse].title;
+            showSection('learning-section');
+            loadContent();
+        }
+
+        function loadContent() {
+            const course = courses[currentCourse];
+            const progress = userProgress[currentCourse] || { currentTopic: 0, topicsCompleted: [] };
+            
+            // Unlock first topic if starting
+            if (progress.currentTopic === 0 && progress.topicsCompleted.length === 0) {
+                course.topics[0].locked = false;
+            }
+            
+            // Check if current topic is locked
+            if (course.topics[currentContentIndex].locked) {
+                document.getElementById('content-display').innerHTML = `
+                    <div class="topic-locked">
+                        <div class="lock-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h3>Topic Locked</h3>
+                        <p style="margin: 10px 0;">Complete the previous topic to unlock this content.</p>
+                        <button class="btn btn-primary" onclick="previousContent()">
+                            <i class="fas fa-chevron-left"></i> Go to Previous Topic
+                        </button>
+                    </div>
+                `;
+                
+                document.getElementById('prev-btn').disabled = currentContentIndex === 0;
+                document.getElementById('next-btn').disabled = true;
+                return;
+            }
+            
+            const content = course.topics[currentContentIndex];
+            
+            let contentHTML = '';
+            
+            if (content.type === 'flash') {
+                contentHTML = `
+                    <div class="flash-card">
+                        <h3>${content.title}</h3>
+                        <p>${content.content}</p>
+                        <div style="margin-top: 20px; font-size: 14px;">
+                            <i class="fas fa-clock"></i> ${content.duration}
+                        </div>
+                        <button class="btn btn-primary" onclick="completeTopic()" style="margin-top: 15px;">
+                            <i class="fas fa-check"></i> Mark as Complete
+                        </button>
+                    </div>
+                `;
+            } else if (content.type === 'video') {
+                contentHTML = `
+                    <h4 style="margin-bottom: 10px;">${content.title}</h4>
+                    ${content.description ? `<p style="color: var(--light-text); margin-bottom: 10px;">${content.description}</p>` : ''}
+                    <div class="content-video">
+                        <iframe src="${content.content}" title="${content.title}" allowfullscreen></iframe>
+                    </div>
+                    <div style="margin-top: 10px; font-size: 14px; color: var(--light-text);">
+                        <i class="fas fa-clock"></i> ${content.duration}
+                    </div>
+                    <button class="btn btn-primary" onclick="completeTopic()" style="width: 100%; margin-top: 15px;">
+                        <i class="fas fa-check"></i> Mark as Complete
+                    </button>
+                `;
+            } else if (content.type === 'quiz') {
+                contentHTML = `
+                    <h4 style="margin-bottom: 10px;">${content.title}</h4>
+                    <p style="color: var(--light-text); margin-bottom: 15px;">${content.content}</p>
+                    
+                    ${content.questions.map((q, qIndex) => `
+                        <div style="margin-bottom: 20px;">
+                            <h5>${qIndex + 1}. ${q.question}</h5>
+                            <div style="margin-top: 10px;">
+                                ${q.options.map((opt, optIndex) => `
+                                    <div style="margin-bottom: 8px;">
+                                        <input type="radio" id="q${qIndex}_${optIndex}" name="q${qIndex}" value="${optIndex}">
+                                        <label for="q${qIndex}_${optIndex}" style="margin-left: 8px;">${opt}</label>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+                    
+                    <button class="btn btn-primary" onclick="completeTopic()" style="width: 100%;">
+                        <i class="fas fa-check"></i> Complete Quiz
+                    </button>
+                `;
+            }
+            
+            document.getElementById('content-display').innerHTML = contentHTML;
+            
+            // Update progress bar
+            const progressPercent = ((currentContentIndex + 1) / course.topics.length) * 100;
+            document.getElementById('learning-progress').style.width = `${progressPercent}%`;
+            document.getElementById('content-counter').textContent = `${currentContentIndex + 1}/${course.topics.length}`;
+            
+            // Update topic progress indicator
+            updateTopicProgress(course);
+            
+            // Update buttons
+            document.getElementById('prev-btn').disabled = currentContentIndex === 0;
+            document.getElementById('next-btn').textContent = currentContentIndex === course.topics.length - 1 ? 
+                'Complete Course' : 
+                'Next Topic <i class="fas fa-chevron-right"></i>';
+        }
+
+        function updateTopicProgress(course) {
+            const progressContainer = document.getElementById('topic-progress');
+            let stepsHTML = '<div class="progress-line"></div>';
+            
+            course.topics.forEach((topic, index) => {
+                let stepClass = 'progress-step';
+                
+                if (index < currentContentIndex || topic.completed) {
+                    stepClass += ' completed';
+                } else if (index === currentContentIndex) {
+                    stepClass += ' active';
+                } else if (topic.locked) {
+                    stepClass += ' locked';
+                }
+                
+                stepsHTML += `
+                    <div class="${stepClass}" onclick="goToTopic(${index})" title="${topic.title}">
+                        ${index + 1}
+                    </div>
+                `;
+            });
+            
+            progressContainer.innerHTML = stepsHTML;
+        }
+
+        function goToTopic(index) {
+            const course = courses[currentCourse];
+            const topic = course.topics[index];
+            
+            if (!topic.locked) {
+                currentContentIndex = index;
+                loadContent();
+            } else {
+                showToast('Complete previous topics first');
+            }
+        }
+
+        function completeTopic() {
+            const course = courses[currentCourse];
+            const topic = course.topics[currentContentIndex];
+            
+            topic.completed = true;
+            
+            // Unlock next topic if exists
+            if (currentContentIndex < course.topics.length - 1) {
+                course.topics[currentContentIndex + 1].locked = false;
+            }
+            
+            // Update user progress
+            if (!userProgress[currentCourse]) {
+                userProgress[currentCourse] = {
+                    currentTopic: 0,
+                    topicsCompleted: [],
+                    preTestScore: preTestScore
+                };
+            }
+            
+            userProgress[currentCourse].currentTopic = currentContentIndex + 1;
+            if (!userProgress[currentCourse].topicsCompleted.includes(currentContentIndex)) {
+                userProgress[currentCourse].topicsCompleted.push(currentContentIndex);
+            }
+            
+            localStorage.setItem('userProgress', JSON.stringify(userProgress));
+            
+            showToast('Topic completed successfully!');
+            
+            // Check if all topics completed
+            const allCompleted = course.topics.every(t => t.completed);
+            if (allCompleted) {
+                setTimeout(() => {
+                    startPostTest();
+                }, 1000);
+            } else {
+                nextContent();
+            }
+        }
+
+        function nextContent() {
+            const course = courses[currentCourse];
+            
+            if (currentContentIndex < course.topics.length - 1) {
+                currentContentIndex++;
+                loadContent();
+            } else {
+                // All topics completed, start post-test
+                startPostTest();
+            }
+        }
+
+        function previousContent() {
+            if (currentContentIndex > 0) {
+                currentContentIndex--;
+                loadContent();
+            }
+        }
+
+        function startPostTest() {
+            const course = courses[currentCourse];
+            showSection('posttest-section');
+            
+            startTestTimer('posttest-timer', 1200);
+            
+            let questionsHTML = '';
+            course.postTest.forEach((q, index) => {
+                questionsHTML += `
+                    <div class="quiz-question">
+                        <h5 style="margin-bottom: 15px;">${index + 1}. ${q.question}</h5>
+                        <div class="quiz-options">
+                            ${q.options.map((option, optIndex) => `
+                                <div class="quiz-option" onclick="selectTestAnswer(this, ${index}, ${optIndex}, 'postTest')">
+                                    ${option}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('posttest-questions').innerHTML = questionsHTML;
+        }
+
+        function submitPostTest() {
+            clearInterval(testTimer);
+            
+            const course = courses[currentCourse];
+            let score = 0;
+            let total = course.postTest.length;
+            
+            course.postTest.forEach((q, index) => {
+                if (surveyData.postTest && surveyData.postTest[index] === q.answer) {
+                    score++;
+                }
+            });
+            
+            postTestScore = Math.round((score / total) * 100);
+            const improvement = postTestScore - preTestScore;
+            
+            // Update course status
+            courses[currentCourse].completed = true;
+            courses[currentCourse].score = postTestScore;
+            courses[currentCourse].progress = 100;
+            
+            // Show post-test score screen
+            document.getElementById('posttest-score-value').textContent = `${postTestScore}%`;
+            document.getElementById('improvement-score').textContent = `+${improvement}%`;
+            document.getElementById('pre-test-final').textContent = `${preTestScore}%`;
+            document.getElementById('post-test-final').textContent = `${postTestScore}%`;
+            
+            let title = '';
+            if (postTestScore >= 90) title = 'Outstanding!';
+            else if (postTestScore >= 80) title = 'Excellent!';
+            else if (postTestScore >= 70) title = 'Good Job!';
+            else title = 'Keep Learning!';
+            
+            document.getElementById('posttest-score-title').textContent = title;
+            
+            // Update user progress
+            if (userProgress[currentCourse]) {
+                userProgress[currentCourse].postTestScore = postTestScore;
+                userProgress[currentCourse].completed = true;
+            }
+            
+            localStorage.setItem('userProgress', JSON.stringify(userProgress));
+            
+            loadCourses();
+            loadDashboard();
+            
+            showSection('posttest-score-section');
+        }
+
+        function generateCertificate() {
+            const course = courses[currentCourse];
+            
+            document.getElementById('certificate-name').textContent = currentUser.name;
+            document.getElementById('certificate-course').textContent = course.title;
+            document.getElementById('pre-score').textContent = `${preTestScore}%`;
+            document.getElementById('post-score').textContent = `${postTestScore}%`;
+            document.getElementById('improvement').textContent = `+${postTestScore - preTestScore}%`;
+            document.getElementById('certificate-id').textContent = `DFL-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000)}`;
+            
+            showSection('certificate-section');
+            createConfetti();
+            
+            setTimeout(() => {
+                showToast('🎉 Course completed successfully! Certificate generated.');
+            }, 500);
+        }
+
+        function showCertificate(courseId) {
+            const course = courses[courseId];
+            const progress = userProgress[courseId] || {};
+            
+            document.getElementById('certificate-name').textContent = currentUser.name;
+            document.getElementById('certificate-course').textContent = course.title;
+            document.getElementById('pre-score').textContent = `${progress.preTestScore || 0}%`;
+            document.getElementById('post-score').textContent = `${course.score}%`;
+            document.getElementById('improvement').textContent = `+${course.score - (progress.preTestScore || 0)}%`;
+            document.getElementById('certificate-id').textContent = `DFL-${new Date().getFullYear()}-${courseId.toUpperCase()}`;
+            
+            showSection('certificate-section');
+        }
+
+        // ==================== SESSION FUNCTIONS ====================
+        function loadSessions() {
+            const container = document.getElementById('sessions-list');
+            let html = '';
+            
+            sessions.forEach(session => {
+                const isPast = new Date(session.date) < new Date();
+                const statusColor = session.type === 'self' ? '#9b59b6' : isPast ? '#95a5a6' : '#3498db';
+                
+                html += `
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div class="course-title">
+                                <h4>${session.name}</h4>
+                                <p>${session.catchment}</p>
+                            </div>
+                            <div>
+                                <span style="background-color: ${statusColor}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                                    ${session.type === 'self' ? 'Self-Paced' : isPast ? 'Completed' : 'Upcoming'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="course-meta">
+                            <span><i class="fas fa-calendar"></i> ${session.date} ${session.time !== 'N/A' ? '| ' + session.time : ''}</span>
+                            <span><i class="fas fa-clock"></i> ${session.duration} hours</span>
+                            <span><i class="fas fa-users"></i> ${session.participants} participants</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-top: 15px;">
+                            <button class="btn btn-sm" style="background-color: #dfe6e9; color: var(--dark-text); flex: 1;" onclick="viewSession(${session.id})">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            ${currentUser.role !== 'beneficiary' ? `
+                                <button class="btn btn-sm" style="background-color: #74b9ff; color: white; flex: 1;" onclick="editSession(${session.id})">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn btn-sm" style="background-color: #55efc4; color: var(--dark-text); flex: 1;" onclick="assignParticipants(${session.id})">
+                                    <i class="fas fa-user-plus"></i> Assign
+                                </button>
+                                <button class="btn btn-sm" style="background-color: #fab1a0; color: var(--dark-text); flex: 1;" onclick="takeAttendance(${session.id})">
+                                    <i class="fas fa-clipboard-check"></i> Attendance
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function updateCatchment(type, value) {
+            showToast(`Filtered by ${type}: ${value}`);
+        }
+
+        function filterSessions(filter) {
+            showToast(`Showing ${filter} sessions`);
+        }
+
+        function showCreateSessionModal() {
+            if (currentUser.role === 'beneficiary') {
+                showToast('Only field officers and managers can create sessions');
+                return;
+            }
+            document.getElementById('session-modal').style.display = 'flex';
+        }
+
+        function createSession() {
+            const name = document.getElementById('session-name').value;
+            const date = document.getElementById('session-date').value;
+            const time = document.getElementById('session-time').value;
+            const duration = document.getElementById('session-duration').value;
+            const type = document.getElementById('session-type').value;
+            const zone = document.getElementById('modal-zone').value;
+            const business = document.getElementById('modal-business-area').value;
+            const region = document.getElementById('modal-region').value;
+            const description = document.getElementById('session-description').value;
+            
+            if (!name || !date || !duration || !zone || !business || !region) {
+                showToast('Please fill in all required fields');
+                return;
+            }
+            
+            const catchment = `${zone.split(' ')[0]} Zone > ${business.split(' ')[0]} Banking > ${region.split(' ')[0]} Region`;
+            
+            const newSession = {
+                id: sessions.length + 1,
+                name: name,
+                date: date,
+                time: time,
+                duration: duration,
+                type: type,
+                catchment: catchment,
+                participants: 0,
+                status: type === 'self' ? 'self' : (new Date(date) > new Date() ? 'upcoming' : 'past'),
+                description: description
+            };
+            
+            sessions.unshift(newSession);
+            loadSessions();
+            closeModal('session-modal');
+            showToast('Session created successfully!');
+            
+            // Clear form
+            document.getElementById('session-name').value = '';
+            document.getElementById('session-duration').value = '';
+            document.getElementById('session-description').value = '';
+        }
+
+        // ==================== SURVEY FUNCTIONS ====================
+        function loadSurveyHistory() {
+            const container = document.getElementById('survey-history');
+            let html = '';
+            
+            surveys.forEach(survey => {
+                html += `
+                    <div class="survey-history-card" onclick="showSurveySubmissions(${survey.id})">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                            <h4 style="font-size: 16px; margin-bottom: 5px;">${survey.title}</h4>
+                            <span class="badge badge-success">
+                                ${survey.responseCount} responses
+                            </span>
+                        </div>
+                        <p style="color: var(--light-text); font-size: 13px; margin-bottom: 10px;">${survey.description}</p>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--light-text);">
+                            <span>Last submission: ${survey.lastSubmission}</span>
+                            <span style="color: var(--accent-color);">${survey.status}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function showSurveySubmissions(surveyId) {
+            const survey = surveys.find(s => s.id === surveyId);
+            
+            document.getElementById('survey-submissions-title').textContent = survey.title;
+            document.getElementById('selected-survey-title').textContent = survey.title;
+            document.getElementById('survey-response-count').textContent = `${survey.responseCount} responses`;
+            
+            // Load submissions
+            loadSurveySubmissions(surveyId);
+            
+            showSection('survey-submissions-section');
+        }
+
+        function loadSurveySubmissions(surveyId) {
+            const container = document.getElementById('submissions-list');
+            let html = '';
+            
+            surveySubmissions.forEach(submission => {
+                html += `
+                    <div class="submission-card">
+                        <div class="submission-info">
+                            <h5>${submission.name}</h5>
+                            <p>${submission.gender}, ${submission.age}y • ${submission.mobile}</p>
+                            <p style="font-size: 11px; color: var(--light-text);">Submitted: ${submission.submissionDate}</p>
+                        </div>
+                        <button class="btn btn-sm btn-outline" onclick="viewSubmission(${submission.id})">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function startSurvey(surveyType) {
+            const survey = surveys.find(s => s.id === 1); // Default to first survey
+            
+            document.getElementById('survey-title').textContent = survey.title;
+            document.getElementById('survey-progress').textContent = '1/10';
+            
+            let surveyHTML = '';
+            
+            if (surveyType === 'profile') {
+                surveyHTML = `
+                    <div style="margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
+                        <h5 style="margin-bottom: 15px; color: var(--primary-color);">Personal Information</h5>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-input" placeholder="Enter your full name" id="survey-name">
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                            <div class="form-group">
+                                <label class="form-label">Mobile Number</label>
+                                <input type="tel" class="form-input" placeholder="Enter mobile number" id="survey-mobile">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Date of Birth</label>
+                                <input type="date" class="form-input" id="survey-dob">
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="form-group">
+                                <label class="form-label">Gender</label>
+                                <select class="form-input" id="survey-gender">
+                                    <option value="">Select Gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">NID Number</label>
+                                <input type="text" class="form-input" placeholder="Enter NID number" id="survey-nid">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('survey-form-container').innerHTML = surveyHTML;
+            showSection('survey-form-section');
+        }
+
+        function submitSurvey() {
+            const name = document.getElementById('survey-name').value;
+            const mobile = document.getElementById('survey-mobile').value;
+            const gender = document.getElementById('survey-gender').value;
+            const dob = document.getElementById('survey-dob').value;
+            const nid = document.getElementById('survey-nid').value;
+            
+            if (!name || !mobile || !gender) {
+                showToast('Please fill in all required fields');
+                return;
+            }
+            
+            const newSubmission = {
+                id: surveySubmissions.length + 1,
+                name: name,
+                mobile: mobile,
+                gender: gender,
+                age: dob ? new Date().getFullYear() - new Date(dob).getFullYear() : 30,
+                submissionDate: new Date().toLocaleString()
+            };
+            
+            surveySubmissions.unshift(newSubmission);
+            localStorage.setItem('surveySubmissions', JSON.stringify(surveySubmissions));
+            
+            showToast('Survey submitted successfully!');
+            showSection('survey-submissions-section');
+            
+            // Reload submissions
+            loadSurveySubmissions(1);
+        }
+
+        function viewSubmission(submissionId) {
+            const submission = surveySubmissions.find(s => s.id === submissionId);
+            showToast(`Viewing submission from ${submission.name}`);
+        }
+
+        // ==================== CHATBOT FUNCTIONS ====================
+        function toggleChatbot() {
+            const chatbot = document.getElementById('chatbot-container');
+            const toggleBtn = document.getElementById('chatbot-toggle');
+            
+            if (chatbot.style.display === 'block') {
+                chatbot.style.display = 'none';
+                toggleBtn.classList.remove('active');
+            } else {
+                chatbot.style.display = 'block';
+                toggleBtn.classList.add('active');
+                document.getElementById('chat-input').focus();
+            }
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim().toLowerCase();
+            
+            if (message) {
+                addChatMessage(message, 'user');
+                
+                setTimeout(() => {
+                    let response = "I can provide insights on budgeting, digital banking, remittance, loans, and savings. Ask about any specific topic!";
+                    
+                    // Check for topic keywords
+                    for (const [topic, insight] of Object.entries(chatbotInsights)) {
+                        if (message.includes(topic) || message.includes(topic.split(' ')[0])) {
+                            response = `${insight.title}\n\n${insight.content}\n\n💡 Tips:\n${insight.tips.map(tip => `• ${tip}`).join('\n')}`;
+                            break;
+                        }
+                    }
+                    
+                    addChatMessage(response, 'bot');
+                }, 1000);
+                
+                input.value = '';
+            }
+        }
+
+        function handleChatInput(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        function addChatMessage(message, sender) {
+            const chatBody = document.getElementById('chatbot-body');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${sender}`;
+            
+            if (sender === 'bot') {
+                // Format bot response with line breaks
+                const formattedMessage = message.replace(/\n/g, '<br>');
+                messageDiv.innerHTML = `<strong>DFL AI Assistant:</strong><br>${formattedMessage}`;
+            } else {
+                messageDiv.innerHTML = `<strong>You:</strong> ${message}`;
+            }
+            
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = message;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function showLoading(message) {
+            document.getElementById('loading-text').textContent = message || 'Loading...';
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function createConfetti() {
+            const colors = ['#0046BE', '#FFCC00', '#00A859', '#E74C3C', '#9B59B6'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.width = Math.random() * 10 + 5 + 'px';
+                    confetti.style.height = confetti.style.width;
+                    
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 3000);
+                }, i * 50);
+            }
+        }
+
+        function downloadCertificate() {
+            showToast('Certificate download started!');
+        }
+
+        function shareCertificate() {
+            showToast('Certificate sharing options would appear here');
+        }
+
+        // ==================== OTHER FUNCTIONS ====================
+        function editProfile() {
+            showToast('Edit profile feature coming soon!');
+        }
+
+        function showSettings() {
+            showToast('Settings panel would open here');
+        }
+
+        function showChangePassword() {
+            showToast('Change password feature coming soon!');
+        }
+
+        function toggleDrawer() {
+            showToast('Menu drawer would open here');
+        }
+
+        function showNotifications() {
+            showToast('You have 3 new notifications');
+        }
+
+        function filterCourses(filter) {
+            showToast(`Showing ${filter} courses`);
+        }
+
+        function showCourseCatalog() {
+            showToast('Course catalog would open here');
+        }
+
+        function showSurveyCatalog() {
+            showToast('Survey catalog would open here');
+        }
+
+        function startTestTimer(timerElementId, seconds) {
+            remainingTime = seconds;
+            updateTimerDisplay(timerElementId);
+            
+            testTimer = setInterval(() => {
+                remainingTime--;
+                updateTimerDisplay(timerElementId);
+                
+                if (remainingTime <= 0) {
+                    clearInterval(testTimer);
+                    showToast('Time is up! Test will be submitted automatically.');
+                    if (timerElementId === 'pretest-timer') submitPreTest();
+                    else submitPostTest();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay(timerElementId) {
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            document.getElementById(timerElementId).textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function selectTestAnswer(element, questionIndex, optionIndex, testType) {
+            const questionDiv = element.parentElement.parentElement;
+            questionDiv.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            element.classList.add('selected');
+            
+            if (!surveyData[testType]) surveyData[testType] = {};
+            surveyData[testType][questionIndex] = optionIndex;
+        }
+
+        // Assign participants functions
+        function assignParticipants(sessionId) {
+            if (currentUser.role === 'beneficiary') {
+                showToast('Only field officers and managers can assign participants');
+                return;
+            }
+            
+            currentSessionId = sessionId;
+            selectedParticipants.clear();
+            document.getElementById('selected-count').textContent = '0 selected';
+            document.getElementById('assign-btn').disabled = true;
+            
+            const session = sessions.find(s => s.id === sessionId);
+            document.getElementById('assign-session-title').textContent = `Assign Participants - ${session.name}`;
+            
+            loadParticipantsList();
+            showSection('assign-participants-section');
+        }
+
+        function loadParticipantsList() {
+            const container = document.getElementById('participant-list');
+            let html = '';
+            
+            participants.forEach(participant => {
+                html += `
+                    <div class="participant-item">
+                        <div class="participant-info">
+                            <div class="participant-avatar">${participant.name.charAt(0)}</div>
+                            <div>
+                                <div style="font-weight: 600;">${participant.name}</div>
+                                <div style="font-size: 12px; color: var(--light-text);">
+                                    ${participant.mobile} • ${participant.gender}, ${participant.age}y
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <input type="checkbox" onchange="toggleParticipantSelection(${participant.id}, this.checked)">
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function toggleParticipantSelection(participantId, selected) {
+            if (selected) {
+                selectedParticipants.add(participantId);
+            } else {
+                selectedParticipants.delete(participantId);
+            }
+            
+            document.getElementById('selected-count').textContent = `${selectedParticipants.size} selected`;
+            document.getElementById('assign-btn').disabled = selectedParticipants.size === 0;
+        }
+
+        function selectAllParticipants() {
+            const checkboxes = document.querySelectorAll('#participant-list input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.checked = true;
+                const participantId = parseInt(cb.getAttribute('onchange').match(/\d+/)[0]);
+                selectedParticipants.add(participantId);
+            });
+            
+            document.getElementById('selected-count').textContent = `${selectedParticipants.size} selected`;
+            document.getElementById('assign-btn').disabled = false;
+        }
+
+        function searchParticipants() {
+            const searchTerm = document.getElementById('participant-search').value.toLowerCase();
+            showToast(`Searching for: ${searchTerm}`);
+        }
+
+        function assignSelectedParticipants() {
+            const session = sessions.find(s => s.id === currentSessionId);
+            session.participants += selectedParticipants.size;
+            loadSessions();
+            showToast(`${selectedParticipants.size} participants assigned successfully!`);
+            showSection('session-section');
+        }
+
+        function takeAttendance(sessionId) {
+            if (currentUser.role === 'beneficiary') {
+                showToast('Only field officers and managers can take attendance');
+                return;
+            }
+            
+            currentSessionId = sessionId;
+            const session = sessions.find(s => s.id === sessionId);
+            document.getElementById('attendance-session-title').textContent = `Take Attendance - ${session.name}`;
+            
+            loadAttendanceList();
+            showSection('attendance-section');
+        }
+
+        function loadAttendanceList() {
+            const container = document.getElementById('attendance-list');
+            let html = '';
+            let presentCount = 0;
+            
+            participants.forEach(participant => {
+                const isPresent = Math.random() > 0.2;
+                if (isPresent) presentCount++;
+                
+                html += `
+                    <div class="participant-item">
+                        <div class="participant-info">
+                            <div class="participant-avatar" style="background-color: ${isPresent ? 'var(--accent-color)' : '#E74C3C'};">${participant.name.charAt(0)}</div>
+                            <div>
+                                <div style="font-weight: 600;">${participant.name}</div>
+                                <div style="font-size: 12px; color: var(--light-text);">
+                                    ${participant.mobile}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="toggle-switch">
+                            <input type="checkbox" ${isPresent ? 'checked' : ''} onchange="updateAttendanceStatus(${participant.id}, this.checked)">
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            updateAttendanceStats(presentCount, participants.length);
+        }
+
+        function updateAttendanceStatus(participantId, isPresent) {
+            const totalParticipants = participants.length;
+            const presentElements = document.querySelectorAll('#attendance-list input[type="checkbox"]:checked');
+            updateAttendanceStats(presentElements.length, totalParticipants);
+        }
+
+        function updateAttendanceStats(present, total) {
+            document.getElementById('total-participants').textContent = total;
+            document.getElementById('present-count').textContent = present;
+            document.getElementById('absent-count').textContent = total - present;
+        }
+
+        function markAllPresent() {
+            const checkboxes = document.querySelectorAll('#attendance-list input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = true);
+            updateAttendanceStats(participants.length, participants.length);
+        }
+
+        function submitAttendance() {
+            const presentElements = document.querySelectorAll('#attendance-list input[type="checkbox"]:checked');
+            showToast(`Attendance submitted! ${presentElements.length} marked present.`);
+            showSection('session-section');
+        }
+
+        function viewSession(id) {
+            const session = sessions.find(s => s.id === id);
+            showToast(`Viewing session: ${session.name}`);
+        }
+
+        function editSession(id) {
+            if (currentUser.role === 'beneficiary') {
+                showToast('Only field officers and managers can edit sessions');
+                return;
+            }
+            showToast(`Editing session ${id}`);
+        }
+
+        function updateAnalyticsPeriod(period) {
+            showToast(`Analytics updated for ${period} period`);
+        }
+
+        function previousSurveyQuestion() {
+            if (currentSurveyQuestion > 0) {
+                currentSurveyQuestion--;
+                document.getElementById('survey-progress').textContent = `${currentSurveyQuestion + 1}/10`;
+                document.getElementById('prev-survey-btn').disabled = currentSurveyQuestion === 0;
+            }
+        }
+
+        function nextSurveyQuestion() {
+            if (currentSurveyQuestion < 9) {
+                currentSurveyQuestion++;
+                document.getElementById('survey-progress').textContent = `${currentSurveyQuestion + 1}/10`;
+                document.getElementById('prev-survey-btn').disabled = false;
+                
+                if (currentSurveyQuestion === 9) {
+                    document.getElementById('next-survey-btn').innerHTML = 'Submit <i class="fas fa-paper-plane"></i>';
+                    document.getElementById('next-survey-btn').onclick = submitSurvey;
+                }
+            }
+        }
+
+        // Initialize
+        window.onload = function() {
+            const today = new Date();
+            document.getElementById('session-date').min = today.toISOString().split('T')[0];
+            
+            // Pre-populate for demo
+            if (document.getElementById('session-name')) {
+                document.getElementById('session-name').value = 'Financial Literacy Workshop';
+                document.getElementById('session-duration').value = 2;
+                document.getElementById('session-description').value = 'Learn about budgeting, savings, and digital banking';
+                document.getElementById('modal-zone').value = 'dhaka';
+                document.getElementById('modal-business-area').value = 'retail';
+                document.getElementById('modal-region').value = 'central';
+            }
+        };
+    </script>
+</body>
+</html>
