@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>UNCDF DFL Project – Implementation Workflow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
+  <style>
+    :root{
+      --bg:#0f172a;
+      --panel:#111827;
+      --card:#1f2937;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --accent:#22c55e;
+      --accent-glow: rgba(34, 197, 94, 0.2);
+      --accent-2:#06b6d4;
+      --border:#334155;
+      --hover:#374151;
+      --warn:#f59e0b;
+      --line-color: #475569;
+    }
+    *{box-sizing:border-box}
+    html,body{
+      margin:0; padding:0; background:var(--bg); color:var(--text); font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Arial,"Noto Sans",sans-serif;
+    }
+    a{color:var(--accent-2); text-decoration:none}
+    a:hover{text-decoration:underline}
+    .app{
+      max-width:1200px; margin:0 auto; padding:24px;
+    }
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+    }
+    .logo{
+      width:40px; height:40px; border-radius:8px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); box-shadow:0 8px 24px rgba(0,0,0,.35);
+    }
+    .title{
+      font-weight:700; letter-spacing:.2px; font-size:20px;
+    }
+    .topbar{
+      display:flex; gap:8px; flex-wrap:wrap;
+    }
+    .btn{
+      background:var(--card); border:1px solid var(--border); color:var(--text);
+      padding:10px 14px; border-radius:10px; cursor:pointer; transition:.2s; font-size:14px;
+    }
+    .btn:hover{background:var(--hover)}
+    .btn-primary{border-color:transparent; background:linear-gradient(135deg,var(--accent),#16a34a); color: white; font-weight: 600;}
+    .btn-outline{border:1px solid var(--border); background:transparent}
+    
+    /* Hero / Glimpse */
+    .container{
+      background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:24px; margin-bottom:30px;
+      box-shadow:0 10px 28px rgba(0,0,0,.35);
+      /* Prevent splitting inside PDF */
+      page-break-inside: avoid;
+    }
+    
+    /* Updated Grid for Metrics */
+    .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-top: 16px;
+    }
+    @media (max-width: 1000px) { .metric-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .metric-grid { grid-template-columns: 1fr; } }
+
+    .stat-card {
+        background: #0b1220;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .stat-card.highlight {
+        background: linear-gradient(180deg, rgba(34, 197, 94, 0.1), transparent);
+        border-color: rgba(34, 197, 94, 0.3);
+    }
+    .stat-card h3 { margin: 0 0 8px 0; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-card .main-val { font-size: 18px; font-weight: 700; color: var(--text); }
+    .stat-card .sub-val { font-size: 13px; color: var(--muted); margin-top: 4px; display: flex; align-items: center; gap: 6px; }
+    .stat-card .sub-val span { color: var(--accent-2); }
+    
+    .divider{height:1px; background:var(--border); margin:20px 0}
+    
+    .list{margin:0; padding-left:18px}
+    .list li{margin:6px 0; color:var(--text)}
+    .two-col{
+      display:grid; grid-template-columns:1fr 1fr; gap:24px;
+    }
+    @media (max-width:900px){ .two-col{grid-template-columns:1fr} }
+    .tag{
+      display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:6px 8px; border-radius:999px; background:#0b1220; border:1px solid var(--border); color:var(--text); margin-bottom: 8px;
+    }
+    
+    /* Journey / Timeline Styles */
+    .timeline-wrapper {
+      position: relative;
+      padding-left: 40px;
+    }
+    .timeline-wrapper::before {
+      content: '';
+      position: absolute;
+      left: 14px;
+      top: 20px;
+      bottom: 20px;
+      width: 2px;
+      background: var(--line-color);
+      border-radius: 2px;
+    }
+
+    .section{
+      position: relative;
+      border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:24px;
+      background:linear-gradient(180deg,rgba(31,41,55,.7),rgba(15,23,42,.7));
+      transition: transform 0.2s, box-shadow 0.2s;
+      /* Keep sections whole in PDF */
+      page-break-inside: avoid;
+    }
+    .section:hover {
+      border-color: var(--muted);
+    }
+    .section::before {
+      content: '';
+      position: absolute;
+      left: -41px;
+      top: 20px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 3px solid var(--accent);
+      z-index: 2;
+    }
+
+    /* Highlighted Last Section */
+    #sectionNext {
+      border: 1px solid var(--accent);
+      box-shadow: 0 0 20px var(--accent-glow);
+      animation: pulse 3s infinite;
+    }
+    #sectionNext::before {
+      background: var(--accent);
+      border-color: white;
+      box-shadow: 0 0 10px var(--accent);
+    }
+    #sectionNext .section-header {
+      background: rgba(34, 197, 94, 0.1);
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+
+    .section-header{
+      display:flex; align-items:center; justify-content:space-between; padding:14px 16px; cursor:pointer; background:#0b1220;
+    }
+    .section-header:hover{background:#0d1425}
+    .section-title{
+      display:flex; align-items:center; gap:12px; font-weight:600; font-size: 16px;
+    }
+    .pill{
+      font-size:11px; padding:4px 8px; border-radius:999px; border:1px solid var(--border); color:var(--muted);
+      background: var(--bg);
+      min-width: 24px; text-align: center;
+    }
+    .toggle{
+      width:28px; height:28px; border-radius:8px; background:var(--card); border:1px solid var(--border);
+      display:grid; place-items:center; color:var(--text); font-weight:700;
+    }
+    .content{
+      display:none; padding:16px 20px; background:transparent;
+    }
+    .content.show{display:block}
+
+    /* Table */
+    table{
+      width:100%; border-collapse:collapse; margin-top:8px; font-size:14px;
+    }
+    th, td{
+      border:1px solid var(--border); padding:10px; text-align:left; vertical-align:top;
+    }
+    th{background:#0b1220; color:var(--text)}
+    tbody tr:nth-child(even){background:#111827}
+    
+    /* Footer & PDF Button Area */
+    .export-area {
+      margin-top: 40px;
+      padding: 24px;
+      background: var(--panel);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    
+    footer{color:var(--muted); font-size:12px; margin-top:24px; text-align: center;}
+    
+    .diagram-block {
+        white-space:pre-wrap; 
+        background:#0b1220; 
+        border:1px solid var(--border); 
+        padding:16px; 
+        border-radius:10px; 
+        font-family: 'Courier New', monospace; 
+        font-size: 13px; 
+        line-height: 1.4;
+        overflow-x: auto;
+    }
+    
+    /* Hide buttons during PDF generation to clean up the look */
+    .hide-on-print {
+      display: block;
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="app" id="app-root">
+    <header class="hide-on-print">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div class="title">UNCDF DFL Project – Implementation Workflow</div>
+      </div>
+      <div class="topbar">
+        <button class="btn btn-outline" id="expandAll">Expand all</button>
+        <button class="btn btn-outline" id="collapseAll">Collapse all</button>
+        <button class="btn btn-primary" id="scrollJourney">Go to journey</button>
+      </div>
+    </header>
+
+    <div class="container hero" id="glimpse">
+      <div>
+        <h2 style="margin:0 0 4px 0; font-size:22px">Overall Glimpse</h2>
+        
+        <div class="metric-grid">
+            <div class="stat-card">
+                <h3>Funding Agency</h3>
+                <div class="main-val">UNCDF</div>
+                <div class="sub-val">Shafal Project</div>
+            </div>
+            <div class="stat-card">
+                <h3>Duration</h3>
+                <div class="main-val">18 Months</div>
+                <div class="sub-val">Oct 2025 – Mar 2027</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Reach</h3>
+                <div class="main-val">15,000</div>
+                <div class="sub-val">Min 60% Women</div>
+            </div>
+            <div class="stat-card">
+                <h3>Locations</h3>
+                <div class="main-val">6 Districts</div>
+                <div class="sub-val" style="font-size:11px">Chattogram, Cumilla, Feni, Narsingdi, Munshiganj, Tangail</div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <h4 style="margin:0 0 12px 0; font-size:16px; color:var(--text)">Operational Metrics</h4>
+        <div class="metric-grid">
+            
+            <div class="stat-card highlight">
+                <h3>Implementation Lead</h3>
+                <div class="main-val">6 TMs</div>
+                <div class="sub-val">Responsible for respective Districts</div>
+            </div>
+
+            <div class="stat-card highlight">
+                <h3>Target Breakdown</h3>
+                <div class="main-val">2,500 / Dist</div>
+                <div class="sub-val">Monthly Target: <span>~200</span></div>
+            </div>
+
+            <div class="stat-card">
+                <h3>Courtyard Sessions</h3>
+                <div class="main-val">Total: 360</div>
+                <div class="sub-val">Per Dist: <span>60</span> (35 pax each)</div>
+                <div class="sub-val">Per Session Cost: <span>5700</span> (Approx)</div>
+            </div>
+
+            <div class="stat-card">
+                <h3>Awareness Sessions</h3>
+                <div class="main-val">Total: 24</div>
+                <div class="sub-val">Per Dist: <span>4</span> (100 pax each)</div>
+                <div class="sub-val">Per Session Cost: <span>50,000</span> (Approx)</div>
+            </div>
+
+        </div>
+
+        <div class="divider"></div>
+
+        <div>
+            <div class="tag">Milestones</div>
+            <div style="display:flex; gap:16px; flex-wrap:wrap; font-size:14px; margin-top:8px;">
+                <span style="color:var(--accent)">M1: Workplan & Prep ✅</span>
+                <span style="color:var(--muted)">•</span>
+                <span>M2: 5,000 pax</span>
+                <span style="color:var(--muted)">•</span>
+                <span>M3: 5,000 pax</span>
+                <span style="color:var(--muted)">•</span>
+                <span>M4: 5,000 pax</span>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" id="journey">
+      
+      <div class="timeline-wrapper">
+        
+        <div class="section" id="sectionContext">
+          <div class="section-header">
+            <div class="section-title">
+              <span class="pill">1</span>
+              <span>Project Context</span>
+            </div>
+            <div class="toggle" aria-label="toggle">+</div>
+          </div>
+          <div class="content">
+            <p><strong>Funding Agency:</strong> UNCDF</p>
+            <p><strong>Implementation Districts:</strong> Chattogram, Cumilla, Feni, Narsingdi, Munshiganj, Tangail</p>
+            <p><strong>Project Duration:</strong> 13 October 2025 – March 2027</p>
+            <p><strong>Target Participants:</strong> 15,000 individuals (minimum 60% women)</p>
+          </div>
+        </div>
+
+        <div class="section" id="sectionWorkflow">
+          <div class="section-header">
+            <div class="section-title">
+              <span class="pill">2</span>
+              <span>Workflow Diagram (Leadership & Coordination)</span>
+            </div>
+            <div class="toggle">+</div>
+          </div>
+          <div class="content">
+            <div class="diagram-block">
+UNCDF HQ (Lead, Strategic Direction & Oversight)
+            │
+            ▼
+Project HQ Team (Overall Coordination & Management)
+            │
+            ▼
+Project Officers – Day-to-Day Communication with Field
+            │
+            ├── Field Implementation Head (TM – 6 Districts)
+            │        │
+            │        └── Territory Managers (TM) coordinate with respective RO
+            │
+            ▼
+Monitoring & Reporting (MIS + Evidence + HQ Review + UNCDF Review)
+            </div>
+
+            <h4 style="margin-top:16px">2.1 Roles & Responsibilities</h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>Level</th>
+                  <th>Key Responsibility</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Project Lead (HQ)</td>
+                  <td>Strategic leadership, approvals, planning & donor alignment</td>
+                </tr>
+                <tr>
+                  <td>Project Coordinator (HQ)</td>
+                  <td>Donor coordination, detailed planning, implementation oversight & reporting</td>
+                </tr>
+                <tr>
+                  <td>Project Officers (HQ)</td>
+                  <td>Day-to-day field communication, target tracking, MIS data completeness</td>
+                </tr>
+                <tr>
+                  <td>ZH / RH</td>
+                  <td>District-level supervision, quality assurance & compliance</td>
+                </tr>
+                <tr>
+                  <td>Territory Managers (TM)</td>
+                  <td>Session execution, team supervision & field coordination</td>
+                </tr>
+                <tr>
+                  <td>UM / RO / Facilitators</td>
+                  <td>Session facilitation, attendance management & evidence collection</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="section" id="sectionTargets">
+          <div class="section-header">
+            <div class="section-title">
+              <span class="pill">3</span>
+              <span>Targets & Outreach Distribution</span>
+            </div>
+            <div class="toggle">+</div>
+          </div>
+          <div class="content">
+            <h4>Courtyard Sessions</h4>
+            <ul class="list">
+              <li>Total Sessions: 360</li>
+              <li>Participants per Session: 35</li>
+              <li>Total Participants: 360 × 35 = 12,600</li>
+            </ul>
+            <div class="divider"></div>
+            <h4>DFL Awareness Programs</h4>
+            <ul class="list">
+              <li>Total Programs: 24</li>
+              <li>Participants per Program: 100</li>
+              <li>Total Participants: 24 × 100 = 2,400</li>
+            </ul>
+            <div class="divider"></div>
+            <h4>District-wise Distribution</h4>
+            <ul class="list">
+              <li>Average Target per District: 15,000 ÷ 6 = 2,500 participants</li>
+              <li>Average Monthly Target per District: ~200 participants (minimum 60% women)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section" id="sectionTraining">
+          <div class="section-header">
+            <div class="section-title">
+              <span class="pill">4</span>
+              <span>Training & ToT</span>
+            </div>
+            <div class="toggle">+</div>
+          </div>
+          <div class="content">
+            <h4>HQ-Level Launch Event</h4>
+            <ul class="list">
+              <li>Participants: 50</li>
+              <li>Snacks Cost: 250 × 50 = 12,500 BDT</li>
+              <li>Banner Cost: 3,500 BDT</li>
+              <li>Total Cost: 16,000 BDT</li>
+            </ul>
+            <div class="divider"></div>
+            <h4>ToT & Capacity Building</h4>
+            <ul class="list">
+              <li>ToT for Unit Managers / Territory Managers: 2 sessions (Online)</li>
+              <li>Training for Relationship Officers (RO): 6 ToT sessions (1 per district)</li>
+              <li>Cost: 35,000 × 6 = 210,000 BDT</li>
+              <li>Coverage: Approximately 175 staff</li>
+            </ul>
+            <p class="note">💡 TM will retain ToT materials and conduct refresher training for RO as required.</p>
+          </div>
+        </div>
+
+        <div class="section" id="sectionCosts">
+          <div class="section-header">
+            <div class="section-title">
+              <span class="pill">5</span>
+              <span>Event Costs</span>
+            </div>
+            <div class="toggle">+</div>
+          </div>
+          <div class="content">
+            <h4>Courtyard Sessions</h4>
+            <ul class="list">
+              <li>Participant Refreshment Cost: 100 × 35 × 360 = 1,260,000 BDT</li>
+              <li>Common Banners: 1,500 × 20 = 30,000 BDT</li>
+              <li>Branding & Materials (Placards, art paper, stationery): 200,000 BDT</li>
+            </ul>
+            <div class="divider"></div>
+            <h4>DFL Awareness Programs</h4>
+            <ul class="list">
+              <li>Refreshment Cost (Tea/Coffee + Snacks): 100 × 24 × 100 = 240,000 BDT</li>
+              <li>Common Banners: 1,500 × 6 = 9,000 BDT</li>
+              <li>Venue Cost: 30,000 × 24 = 720,000 BDT</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section" id="sectionTeam">
+          <div class="section-header">
+            <div class="section-title">
+              <span class="pill">6</span>
+              <span>Team Activities</span>
+            </div>
+            <div class="toggle">+</div>
+          </div>
+          <div class="content">
+            <div class="two-col">
+              <div>
+                <h4>Field-Level</h4>
+                <ul class="list">
+                  <li>Organize Courtyard Sessions & DFL Awareness Programs</li>
+                  <li>Participant mobilization (≥60% women)</li>
+                  <li>Attendance (hardcopy) & MIS entry</li>
+                  <li>Evidence collection (Photo/Video)</li>
+                </ul>
+              </div>
+              <div>
+                <h4>HQ & Coordination</h4>
+                <ul class="list">
+                  <li>Donor coordination & Agent Banking alignment</li>
+                  <li>MIS data validation</li>
+                  <li>Quarterly progress reports</li>
+                  <li>Joint field visits</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section" id="sectionME">
+          <div class="section-header">
+            <div class="section-title">
+              <span class="pill">7</span>
+              <span>Monitoring & Evaluation</span>
+            </div>
+            <div class="toggle">+</div>
+          </div>
+          <div class="content">
+            <ul class="list">
+              <li>MIS Dashboard: Real-time tracking of participants & gender ratio</li>
+              <li>Quarterly Reviews: Joint HQ & UNCDF review meetings</li>
+              <li>Field Audits: Random verification of attendance and evidence</li>
+              <li>Outcome Monitoring: Awareness levels, inclusion, and behavioral change</li>
+              <li>Feedback Mechanism: Participant feedback collection</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section" id="sectionBudget">
+          <div class="section-header">
+            <div class="section-title">
+              <span class="pill">8</span>
+              <span>Budget Summary</span>
+            </div>
+            <div class="toggle">+</div>
+          </div>
+          <div class="content">
+            <table>
+              <thead>
+                <tr>
+                  <th>Activity</th>
+                  <th>Unit Cost (BDT)</th>
+                  <th>Quantity</th>
+                  <th>Total (BDT)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>HQ Launch Event</td>
+                  <td>Snacks + Banner</td>
+                  <td>50 pax</td>
+                  <td>16,000</td>
+                </tr>
+                <tr>
+                  <td>UM / RO Training (6 Dist)</td>
+                  <td>35,000</td>
+                  <td>6 Training</td>
+                  <td>210,000</td>
+                </tr>
+                <tr>
+                  <td>Courtyard (Refreshment)</td>
+                  <td>100</td>
+                  <td>35 × 360</td>
+                  <td>1,260,000</td>
+                </tr>
+                <tr>
+                  <td>Courtyard Common Banners</td>
+                  <td>1,500</td>
+                  <td>20 Pcs</td>
+                  <td>30,000</td>
+                </tr>
+                <tr>
+                  <td>Courtyard Materials</td>
+                  <td>Stationery/Logistics</td>
+                  <td>–</td>
+                  <td>200,000</td>
+                </tr>
+                <tr>
+                  <td>Awareness Program (Snacks)</td>
+                  <td>100</td>
+                  <td>24 × 100</td>
+                  <td>240,000</td>
+                </tr>
+                <tr>
+                  <td>Awareness Program (Venue)</td>
+                  <td>30,000</td>
+                  <td>24</td>
+                  <td>720,000</td>
+                </tr>
+                <tr>
+                  <td>Awareness Program (Logistics)</td>
+                  <td>10,000</td>
+                  <td>24</td>
+                  <td>240,000</td>
+                </tr>
+                <tr>
+                  <td>Awareness Common Banners</td>
+                  <td>1,500</td>
+                  <td>6</td>
+                  <td>9,000</td>
+                </tr>
+                <tr>
+                  <td>Incentive & Per Diem</td>
+                  <td>1,000</td>
+                  <td>400</td>
+                  <td>400,000</td>
+                </tr>
+                <tr>
+                  <th colspan="3" style="text-align:right">Total Estimated Budget</th>
+                  <th style="color:var(--accent)">3,325,000 BDT</th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="section" id="sectionImpact">
+          <div class="section-header">
+            <div class="section-title">
+              <span class="pill">9</span>
+              <span>Impact & Visibility</span>
+            </div>
+            <div class="toggle">+</div>
+          </div>
+          <div class="content">
+            <ul class="list">
+              <li>Case story production (City Bank & UNCDF platforms)</li>
+              <li>Short documentaries of session engagements</li>
+              <li>High-quality photography for reporting</li>
+              <li>Social media branded content</li>
+            </ul>
+            <p class="note">Identify 2–3 champions per district to illustrate behavioral change & Gender Transformation (SDG aligned).</p>
+          </div>
+        </div>
+
+        <div class="section" id="sectionRisk">
+          <div class="section-header">
+            <div class="section-title">
+              <span class="pill">10</span>
+              <span>Risk Management</span>
+            </div>
+            <div class="toggle">+</div>
+          </div>
+          <div class="content">
+            <table>
+              <thead>
+                <tr>
+                  <th>Risk</th>
+                  <th>Mitigation</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Low women participation</td>
+                  <td>Targeted mobilization & community engagement</td>
+                </tr>
+                <tr>
+                  <td>Data quality issues</td>
+                  <td>MIS validation rules & periodic audits</td>
+                </tr>
+                <tr>
+                  <td>Field delays</td>
+                  <td>Buffer planning & adaptive scheduling</td>
+                </tr>
+                <tr>
+                  <td>Visibility non-compliance</td>
+                  <td>Branding checklist & approval process</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="section" id="sectionSustain">
+          <div class="section-header">
+            <div class="section-title">
+              <span class="pill">11</span>
+              <span>Sustainability Plan</span>
+            </div>
+            <div class="toggle">+</div>
+          </div>
+          <div class="content">
+            <ul class="list">
+              <li>Link trained women participants to microfinance & SME programs</li>
+              <li>Continuous coordination with Agent Banking Teams</li>
+              <li>Partnerships with local institutions</li>
+              <li>Promote community ownership</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section" id="sectionClosure">
+          <div class="section-header">
+            <div class="section-title">
+              <span class="pill">12</span>
+              <span>Project Closure & Learning Loop</span>
+            </div>
+            <div class="toggle">+</div>
+          </div>
+          <div class="content">
+            <ul class="list">
+              <li>Final participant verification & data reconciliation</li>
+              <li>Impact analysis & lessons learned documentation</li>
+              <li>Final report submission to UNCDF</li>
+              <li>Archiving knowledge products</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section" id="sectionNext">
+          <div class="section-header">
+            <div class="section-title">
+              <span class="pill" style="background:var(--accent); color:#fff; border:none">13</span>
+              <span style="color:var(--accent)">Next Course of Action</span>
+            </div>
+            <div class="toggle" style="border-color:var(--accent); color:var(--accent)">!</div>
+          </div>
+          <div class="content show"> <ul class="list" style="font-weight:500;">
+              <li>👉 Arrange Zoom meeting with TM, UM, RH, and ZH for alignment</li>
+              <li>👉 Conduct coordination meeting with Agent Banking Team</li>
+              <li>👉 Finalize DFL content</li>
+              <li>👉 Ensure LMS platform readiness by 15 March</li>
+            </ul>
+          </div>
+        </div>
+
+      </div> </div>
+    
+        
+    
+  </div>
+
+  <script>
+    // Toggle sections
+    document.querySelectorAll('.section').forEach(section=>{
+      const header = section.querySelector('.section-header');
+      const content = section.querySelector('.content');
+      const toggle = section.querySelector('.toggle');
+      header.addEventListener('click', ()=>{
+        const isOpen = content.classList.contains('show');
+        if(isOpen){
+            content.classList.remove('show');
+            toggle.textContent = '+';
+        } else {
+            content.classList.add('show');
+            toggle.textContent = '–';
+        }
+      });
+    });
+
+    // Expand/Collapse all
+    const expandAll = document.getElementById('expandAll');
+    const collapseAll = document.getElementById('collapseAll');
+    
+    function expandAllSections() {
+      document.querySelectorAll('.content').forEach(c=>c.classList.add('show'));
+      document.querySelectorAll('.toggle').forEach(t=>t.textContent = '–');
+    }
+
+    expandAll.addEventListener('click', expandAllSections);
+    
+    collapseAll.addEventListener('click', ()=>{
+      document.querySelectorAll('.content').forEach(c=>c.classList.remove('show'));
+      document.querySelectorAll('.toggle').forEach(t=>t.textContent = '+');
+    });
+
+    // Scroll to journey
+    document.getElementById('scrollJourney').addEventListener('click', ()=>{
+      document.getElementById('journey').scrollIntoView({behavior:'smooth', block:'start'});
+    });
+
+    // PDF EXPORT LOGIC
+    document.getElementById('exportPdfBtn').addEventListener('click', function() {
+      const btn = this;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = 'Generating PDF...';
+      btn.disabled = true;
+
+      // 1. Force expand all sections so PDF isn't empty
+      expandAllSections();
+
+      // 2. Wait a moment for DOM to paint
+      setTimeout(() => {
+        const element = document.getElementById('app-root');
+        
+        // Configuration for html2pdf
+        const opt = {
+          margin:       0.2,
+          filename:     'UNCDF_Workflow_Full.pdf',
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#0f172a' }, // Maintain dark bg
+          jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+        };
+
+        // 3. Generate and Save
+        html2pdf().set(opt).from(element).save().then(() => {
+          // Restore button state
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        });
+      }, 500);
+    });
+  </script>
+</body>
+</html>
+
