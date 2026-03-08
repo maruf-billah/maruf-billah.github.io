@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>When women understand money · IWD 2026</title>
+  <!-- Fonts & Icons (minimal, only for fallback) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fefaf7;
+      color: #2c241f;
+      line-height: 1.6;
+      scroll-behavior: smooth;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.8rem 2rem 2rem; /* reduced bottom space */
+    }
+
+    /* ===== INTERACTIVE / REVEAL ===== */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.8s cubic-bezier(0.15, 0.8, 0.25, 1), transform 0.8s cubic-bezier(0.15, 0.8, 0.25, 1);
+    }
+
+    .fade-up.appear {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .delay-1 { transition-delay: 0.1s; }
+    .delay-2 { transition-delay: 0.2s; }
+    .delay-3 { transition-delay: 0.3s; }
+    .delay-4 { transition-delay: 0.4s; }
+
+    /* ===== TYPOGRAPHY & THEME ===== */
+    .pill-badge {
+      display: inline-block;
+      background: rgba(205, 120, 90, 0.1);
+      border: 1px solid rgba(195, 95, 65, 0.3);
+      backdrop-filter: blur(4px);
+      padding: 0.45rem 1.4rem;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      color: #954f38;
+      margin-bottom: 1.8rem;
+      transition: 0.15s;
+    }
+    .pill-badge i { margin-right: 6px; color: #b4512e; }
+
+    h1 {
+      font-size: clamp(2.5rem, 7.8vw, 5.0rem); /* reduced by ~2px from previous 5.2 */
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      background: linear-gradient(130deg, #3a251d, #a84f32, #b45c3e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0.5rem 0 1rem; /* reduced bottom margin */
+    }
+
+    .hero-para {
+      font-size: 1.3rem;
+      font-weight: 300;
+      color: #4c3b33;
+      max-width: 900px;
+      margin: 0 auto 1.5rem; /* reduced margin */
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+    }
+
+    .section-title {
+      font-size: 2.2rem;
+      font-weight: 650;
+      margin: 3rem 0 1.8rem; /* slightly reduced top */
+      background: linear-gradient(145deg, #4f3328, #8b503b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      border-left: 7px solid #cd7758;
+      padding-left: 1.2rem;
+    }
+
+    /* cards & grids */
+    .grid-2, .grid-3 {
+      display: grid;
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    .grid-2 { grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+
+    .card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(8px);
+      border-radius: 32px;
+      padding: 2rem 1.8rem;
+      border: 1px solid rgba(210, 135, 105, 0.25);
+      box-shadow: 0 12px 22px -12px rgba(130, 60, 30, 0.12);
+      transition: transform 0.2s, box-shadow 0.25s, border 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(200, 110, 75, 0.45);
+      box-shadow: 0 25px 30px -12px rgba(155, 75, 45, 0.18);
+      background: rgba(255, 255, 255, 0.85);
+    }
+
+    .icon-xl {
+      font-size: 2.6rem;
+      color: #b45a3a;
+      margin-bottom: 1.3rem;
+    }
+
+    .list-bullet {
+      list-style: none;
+    }
+    .list-bullet li {
+      margin-bottom: 0.8rem;
+      display: flex;
+      gap: 0.8rem;
+      align-items: flex-start;
+    }
+    .list-bullet i {
+      color: #c76340;
+      font-size: 1.25rem;
+      margin-top: 4px;
+    }
+
+    .stat-highlight {
+      background: #fff6f0;
+      border-radius: 60px;
+      padding: 2rem 2.5rem; /* reduced vertical padding */
+      margin: 2.5rem 0; /* reduced margin */
+      border: 1px solid #eecdbd;
+      box-shadow: inset 0 1px 5px rgba(255,255,255,0.9), 0 18px 25px -14px #bb8b78;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      gap: 2rem;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-number {
+      font-size: 3.3rem;
+      font-weight: 700;
+      color: #8f4229;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #543c32;
+    }
+    .stat-note {
+      font-size: 0.95rem;
+      color: #a75e44;
+      font-weight: 500;
+    }
+
+    .banner-quote {
+      background: linear-gradient(115deg, #ffede3, #ffdacb);
+      border-radius: 50px;
+      padding: 2.5rem; /* slightly reduced */
+      margin: 2.5rem 0; /* reduced */
+      border-left: 12px solid #b55a3c;
+    }
+
+    /* ----- LOGO STYLES (right side, bank) ----- */
+    .logo-bank-row {
+      display: flex;
+      justify-content: flex-end;  /* align to the right */
+      align-items: center;
+      gap: 2.2rem;
+      margin: 0.8rem 0 1.2rem 0;  /* minimal top/bottom space */
+      flex-wrap: wrap;
+    }
+
+    .logo-bank-item {
+      display: flex;
+      align-items: center;
+      background: white;
+      padding: 0.5rem 1.8rem 0.5rem 1.2rem;
+      border-radius: 50px;
+      box-shadow: 0 4px 12px rgba(110, 55, 30, 0.1);
+      border: 1px solid rgba(180, 110, 70, 0.2);
+    }
+
+    .logo-bank-item img {
+      height: 36px;            /* uniform height */
+      width: auto;
+      display: block;
+      margin-right: 10px;
+    }
+
+    .logo-bank-item span {
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: #2c241f;
+      letter-spacing: -0.01em;
+    }
+
+    /* special case if image missing, but we use real links */
+    .btn {
+      display: inline-block;
+      background: #a95134;
+      color: white;
+      font-weight: 600;
+      padding: 0.9rem 2.5rem;
+      border-radius: 60px;
+      border: none;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 10px 22px rgba(165, 80, 45, 0.25);
+      font-size: 1rem;
+    }
+    .btn i { margin-right: 8px; }
+    .btn:hover { background: #c26342; transform: scale(1.02); box-shadow: 0 14px 26px #b15d3f; }
+
+    footer {
+      background: #251d19;
+      color: #ebdad1;
+      border-radius: 70px 70px 0 0;
+      padding: 2.5rem 2.5rem; /* reduced padding */
+      margin-top: 3rem; /* reduced top margin */
+      text-align: center;
+    }
+
+    hr { border: 1px solid rgba(190, 130, 100, 0.2); margin: 2rem 0; }
+
+    @media (max-width:600px) {
+      .container { padding: 1rem 1.2rem; }
+      .stat-highlight { padding: 1.5rem; }
+      .logo-bank-row { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HERO - with right aligned logos (actual images) -->
+  <div class="fade-up appear">
+    <span class="pill-badge"><i class="fas fa-venus"></i> International Women’s Day 2026</span>
+    
+    <!-- LOGO ROW (RIGHT SIDE) : Bank & UNCDF with actual images -->
+    <div class="logo-bank-row">
+      <!-- City Bank logo (actual PNG) -->
+      <div class="logo-bank-item">
+        <img src="https://www.citybankplc.com/dist/img/logo/citylogo.png" alt="City Bank PLC" onerror="this.onerror=null; this.src=''; this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <span style="display:none;">City Bank PLC</span>
+        <span>City Bank PLC</span> <!-- fallback text if image fails -->
+      </div>
+      <!-- UNCDF logo (actual external link) -->
+      <div class="logo-bank-item">
+        <img src="https://fn.se/wp-content/uploads/2023/05/UNCDF-logo-webb.png" alt="" onerror="this.onerror=null; this.src=''; this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <span style="display:none;">UNCDF</span>
+        <span>UNCDF</span>
+      </div>
+    </div>
+    
+    <h1>When Women Understand Money,<br>Families Become Stronger</h1>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin: 0.5rem 0 1.5rem;">
+      <span class="pill-badge" style="background:white;"><i class="fas fa-gift"></i> Give To Gain</span>
+      <span class="pill-badge" style="background:white;"><i class="fas fa-scale-balanced"></i> Rights. Justice. Action.</span>
+    </div>
+    <p class="hero-para">International Women’s Day 2026 – Giving Knowledge to Gain Financial Resilience</p>
+  </div>
+
+  <!-- All article text preserved exactly, minimal spacing adjustments -->
+  <div class="fade-up">
+    <p style="font-size:1.2rem; margin-bottom:1rem;">Every year, International Women's Day reminds us that empowering women is not only a matter of equality—it is a pathway to stronger families, resilient communities, and sustainable economic growth.</p>
+    <p style="font-size:1.2rem; margin-bottom:1rem;">The global campaign theme for International Women’s Day 2026, “Give To Gain,” highlights a powerful truth: when societies invest in women—through knowledge, opportunities, and resources—everyone benefits. At the same time, the United Nations theme for this year, “Rights. Justice. Action. For ALL Women and Girls,” calls for concrete steps to remove barriers that prevent women from enjoying equal rights and opportunities. Together, these messages send a clear signal: empowering women requires both investment and action.</p>
+  </div>
+
+  <div class="fade-up banner-quote" style="margin-top:1.5rem;">
+    <p style="font-size:1.3rem;">Across rural Bangladesh, thousands of women manage households, raise children, support agriculture, and contribute to small family businesses. Yet many remain excluded from one of the most powerful tools for empowerment: financial knowledge. Today, financial literacy is no longer optional—it is essential.</p>
+  </div>
+
+  <div class="fade-up">
+    <p style="font-size:1.2rem;">Through the <strong>SHAFAL Project</strong>, funded by United Nations Capital Development Fund (UNCDF) and implemented in partnership with <strong>City Bank PLC</strong>, a transformative initiative is underway to bring digital financial literacy to rural communities in Chattogram, Feni, Cumilla, Munshiganj, Narsingdi, and Tangail. The goal is simple but powerful: <strong>Equip women with the knowledge and confidence to manage money, use digital financial services, and participate in household financial decisions.</strong></p>
+  </div>
+
+  <h2 class="section-title fade-up">Why Financial Literacy Matters for Women</h2>
+  <div class="fade-up">
+    <p style="margin-bottom:1rem;">In many rural households, women contribute significantly to family income and financial stability. They manage daily household budgets, savings for emergencies, children’s education, and healthcare expenses. However, limited access to financial education often prevents them from fully controlling these financial responsibilities.</p>
+    <p><strong>When women gain financial literacy, three important transformations occur:</strong></p>
+  </div>
+
+  <div class="grid-3">
+    <div class="card fade-up delay-1">
+      <div class="icon-xl"><i class="fas fa-chart-pie"></i></div>
+      <h3 style="font-size:2rem; margin-bottom:0.25rem;">1</h3>
+      <h3>Financial Confidence</h3>
+      <p>Women begin to understand savings, budgeting, mobile banking, and digital financial services.</p>
+    </div>
+    <div class="card fade-up delay-2">
+      <div class="icon-xl"><i class="fas fa-briefcase"></i></div>
+      <h3 style="font-size:2rem; margin-bottom:0.25rem;">2</h3>
+      <h3>Economic Participation</h3>
+      <p>They become active participants in income-generating activities and financial planning.</p>
+    </div>
+    <div class="card fade-up delay-3">
+      <div class="icon-xl"><i class="fas fa-house-chimney"></i></div>
+      <h3 style="font-size:2rem; margin-bottom:0.25rem;">3</h3>
+      <h3>Household Decision-Making Power</h3>
+      <p>Perhaps most importantly, women gain a stronger voice in family financial decisions — whether it is managing expenses, saving for the future, or investing in livelihoods.</p>
+    </div>
+  </div>
+  <div class="fade-up">
+    <p style="font-size:1.2rem; font-weight:400; background:#f4e2d9; padding:1.5rem; border-radius:60px;"><i class="fas fa-quote-left" style="color:#954f38;"></i> Financial literacy does not simply teach women how to use money. It teaches them how to shape their future.</p>
+  </div>
+
+  <h2 class="section-title fade-up">A Transformative Journey for 15,000 People</h2>
+  <div class="grid-2">
+    <div class="card fade-up">
+      <p><span class="stat-number" style="font-size:2.6rem;">15,000</span> <span style="font-size:1.3rem;">individuals</span><br>across six districts by March 2027.</p>
+      <p><span class="stat-number" style="font-size:2.6rem;">60%</span> <span style="font-size:1.3rem;">are women</span><br> = <strong>9,000 women</strong> will gain practical financial knowledge and digital financial skills — skills that will ripple across families and communities. <span style="background:#faded2; padding:0.2rem 0.8rem; border-radius:20px;">This number will be achieved by 2027.</span></p>
+    </div>
+    <div class="card fade-up delay-2">
+      <p>Through structured training sessions, participants learn about:</p>
+      <ul class="list-bullet" style="margin-top:1rem;">
+        <li><i class="fas fa-circle-check"></i> Household financial planning</li>
+        <li><i class="fas fa-circle-check"></i> Savings and budgeting techniques</li>
+        <li><i class="fas fa-circle-check"></i> Responsible borrowing</li>
+        <li><i class="fas fa-circle-check"></i> Safe use of digital financial services</li>
+        <li><i class="fas fa-circle-check"></i> Mobile banking and digital transactions</li>
+        <li><i class="fas fa-circle-check"></i> Protection from financial fraud</li>
+      </ul>
+    </div>
+  </div>
+  <div class="fade-up">
+    <p>The sessions are designed to be simple, practical, and relatable, allowing women to connect the lessons directly with their daily lives. For many participants, it is the first time they formally learn how financial systems work.</p>
+  </div>
+
+  <h2 class="section-title fade-up">From Awareness to Financial Resilience</h2>
+  <div class="grid-2 fade-up">
+    <div class="card">
+      <p>Financial resilience is not built overnight. It begins with small steps. A woman who learns how to budget can start saving for emergencies. A mother who understands digital payments can safely receive remittances. A farmer’s wife who learns about mobile banking can manage transactions without traveling long distances. Over time, these small steps create financial stability.</p>
+    </div>
+    <div class="card">
+      <p><strong>When women are financially resilient:</strong></p>
+      <ul class="list-bullet">
+        <li><i class="fas fa-arrow-right"></i> Families become more prepared for economic shocks</li>
+        <li><i class="fas fa-arrow-right"></i> Children’s education becomes more secure</li>
+        <li><i class="fas fa-arrow-right"></i> Household investments become smarter</li>
+        <li><i class="fas fa-arrow-right"></i> Communities become economically stronger</li>
+      </ul>
+      <p style="margin-top:1rem;">Financial literacy therefore becomes more than a training—it becomes a foundation for resilience.</p>
+    </div>
+  </div>
+
+  <h2 class="section-title fade-up">Changing the Narrative of Rural Women</h2>
+  <div class="fade-up">
+    <p>In rural Bangladesh, women are often seen as caretakers of the household. But with the right opportunities and knowledge, they are also financial managers, entrepreneurs, and economic decision-makers. Digital financial literacy helps shift this narrative. A woman who understands financial services can:</p>
+  </div>
+  <div class="grid-2 fade-up">
+    <div class="card">
+      <ul class="list-bullet">
+        <li><i class="fas fa-check"></i> Manage household finances efficiently</li>
+        <li><i class="fas fa-check"></i> Contribute to business or agricultural planning</li>
+        <li><i class="fas fa-check"></i> Make informed decisions about savings and investments</li>
+        <li><i class="fas fa-check"></i> Participate confidently in family financial discussions</li>
+      </ul>
+    </div>
+    <div class="card">
+      <p>This shift in financial decision-making power is one of the most meaningful outcomes of the initiative. Because when women participate in financial decisions, the entire household benefits.</p>
+    </div>
+  </div>
+
+  <h2 class="section-title fade-up">Long-Term Impact: Empowering the Next Generation</h2>
+  <div class="grid-2 fade-up">
+    <div class="card">
+      <p>The impact of women’s financial literacy goes far beyond the present generation. When a woman gains financial knowledge, she does not keep it to herself. She shares it—through daily practices, family conversations, and the values she teaches her children. A financially aware mother is more likely to:</p>
+    </div>
+    <div class="card">
+      <ul class="list-bullet">
+        <li><i class="fas fa-seedling"></i> Encourage saving habits among children</li>
+        <li><i class="fas fa-seedling"></i> Prioritize education and long-term investments</li>
+        <li><i class="fas fa-seedling"></i> Teach responsible spending and financial discipline</li>
+        <li><i class="fas fa-seedling"></i> Build a culture of financial planning within the household</li>
+      </ul>
+    </div>
+  </div>
+  <div class="fade-up">
+    <p>Over time, these practices create intergenerational benefits. Children grow up observing responsible financial behavior. Families become more stable. Communities gradually develop stronger economic resilience. In this way, empowering women financially does not only improve today’s households—it shapes the financial awareness of the next generation.</p>
+  </div>
+
+  <h2 class="section-title fade-up">City Bank’s Commitment to Financial Inclusion</h2>
+  <div class="fade-up card">
+    <div style="display:flex; align-items: center; gap:1.5rem; flex-wrap: wrap; margin-bottom:1.2rem;">
+      <!-- logo inside card (right side not necessary, but present) -->
+      <div class="logo-bank-item" style="background:#f3e2d9;">
+        <img src="https://www.citybankplc.com/dist/img/logo/citylogo.png" alt="City Bank" style="height:30px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display:none;">🏦</span>
+        <span>City Bank PLC</span>
+      </div>
+      <div class="logo-bank-item" style="background:#d9e9ef;">
+        <img src="https://fn.se/wp-content/uploads/2023/05/UNCDF-logo-webb.png" alt="UNCDF" style="height:30px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display:none;">🌐</span>
+        <span>UNCDF</span>
+      </div>
+    </div>
+    <p>As one of Bangladesh’s leading financial institutions, City Bank PLC has long been committed to expanding financial access and promoting inclusive growth. Supporting digital financial literacy is part of the bank’s broader vision to:</p>
+    <ul class="list-bullet grid-2" style="margin-top:1rem;">
+      <li><i class="fas fa-check-circle"></i> Promote responsible financial behavior</li>
+      <li><i class="fas fa-check-circle"></i> Expand digital financial inclusion</li>
+      <li><i class="fas fa-check-circle"></i> Empower underserved communities</li>
+      <li><i class="fas fa-check-circle"></i> Strengthen women’s economic participation</li>
+    </ul>
+    <p>By partnering in this initiative, City Bank is helping ensure that financial services reach beyond urban centers and become accessible to rural women as well. Because true financial inclusion means no one is left behind.</p>
+  </div>
+
+  <h2 class="section-title fade-up">Accelerating Action for Women’s Financial Empowerment</h2>
+  <div class="fade-up">
+    <p>The message of this year’s themes—Give To Gain and Rights. Justice. Action.—reminds us that meaningful change requires both commitment and collaboration. Empowering women through financial literacy is one of the most practical ways to translate these ideals into reality. By investing knowledge, resources, and opportunities in women, communities gain stronger economies, better financial resilience, and more inclusive growth.</p>
+  </div>
+
+  <h2 class="section-title fade-up">A Future Led by Financially Empowered Women</h2>
+  <div class="fade-up" style="margin-bottom:1.5rem;">
+    <p>This International Women's Day, we celebrate the women who are learning, growing, and reshaping their futures through financial knowledge. Their journey reminds us that empowerment does not always begin with large investments or sweeping policies. Sometimes, it begins with something simple: Understanding how money works.</p>
+    <p style="margin:1.5rem 0;">But this Women’s Day is also a call to action. Governments, financial institutions, development partners, and communities must continue to invest in women’s financial knowledge, protect their rights, and create opportunities for meaningful participation in economic life. Because when we give women knowledge, opportunities, and financial access — we gain stronger families, resilient communities, and a more inclusive future.</p>
+    <div class="banner-quote" style="font-size:2rem; font-family:'Playfair Display'; text-align:center; padding:2rem;">
+      <i class="fas fa-quote-left" style="color:#a14f32; opacity:0.6;"></i> And when women understand money,<br> they do not only change their own lives—they change the future for generations to come.
+    </div>
+  </div>
+
+  <!-- stats recap -->
+  <div class="stat-highlight fade-up">
+    <div class="stat-item"><span class="stat-number">15,000</span> <span class="stat-label">individuals by 2027</span></div>
+    <div class="stat-item"><span class="stat-number">9,000</span> <span class="stat-label">women trained (60%)</span><div class="stat-note">achieved by 2027</div></div>
+    <div class="stat-item"><span class="stat-number">6</span> <span class="stat-label">districts</span></div>
+  </div>
+
+  <!-- footer -->
+  <footer class="fade-up">
+    <div style="display:flex; justify-content: center; gap: 2rem; margin-bottom: 1.5rem; color: #dbb7a6; align-items:center;">
+      <img src="https://www.citybankplc.com/dist/img/logo/citylogo.png" alt="City Bank" style="height:28px; filter: brightness(0.9);" onerror="this.style.display='none';"><span>City Bank PLC</span>
+      <img src="https://fn.se/wp-content/uploads/2023/05/UNCDF-logo-webb.png" alt="UNCDF" style="height:28px; filter: brightness(0.9);" onerror="this.style.display='none';"><span>UNCDF</span>
+    </div>
+    <i class="" style="font-size:2.5rem; color:#da8b6c; margin-bottom:0.5rem;"></i>
+    <p style="margin-top:1.2rem;">#GiveToGain #IWD2026 #RightsJusticeAction #WomenAndMoney</p>
+  </footer>
+</div>
+
+<!-- Intersection Observer -->
+<script>
+  (function() {
+    const faders = document.querySelectorAll('.fade-up');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('appear');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -20px 0px' });
+
+    faders.forEach(f => observer.observe(f));
+    window.addEventListener('load', () => {
+      faders.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight - 100) el.classList.add('appear');
+      });
+    });
+  })();
+</script>
+
+<!-- handle potential image load errors gracefully (fallback text already present) -->
+</body>
+</html>
