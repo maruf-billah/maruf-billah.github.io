@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>নিবন্ধন - LMS Solution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: 'Hind Siliguri', 'Inter', sans-serif;
+        }
+
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-ocean);
+            padding: var(--space-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-page::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: float 20s infinite ease-in-out;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            50% {
+                transform: translate(-20px, 20px) rotate(5deg);
+            }
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 680px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-card {
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-2xl);
+            box-shadow: var(--shadow-2xl);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Header logos row */
+        .brand-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-lg);
+            border-bottom: 2px solid var(--gray-100);
+            flex-wrap: wrap;
+        }
+
+        .brand-logo-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--gray-700);
+        }
+
+        .brand-logo-item .logo-badge {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.3rem 0.7rem;
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .brand-sep {
+            color: var(--gray-300);
+            font-size: 1.5rem;
+        }
+
+        .auth-title {
+            text-align: center;
+            margin-bottom: var(--space-xl);
+        }
+
+        .auth-title h2 {
+            font-size: 1.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--space-xs);
+            font-weight: 700;
+        }
+
+        .auth-title .subtitle {
+            font-size: 1.05rem;
+            color: var(--gray-600);
+            margin-bottom: var(--space-xs);
+        }
+
+        .auth-title .form-name {
+            display: inline-block;
+            background: var(--info-light);
+            color: var(--info);
+            border: 1px solid var(--info);
+            border-radius: var(--radius-full);
+            padding: 0.2rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: var(--space-xl);
+            position: relative;
+        }
+
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 1.5rem;
+            left: 20%;
+            right: 20%;
+            height: 2px;
+            background: var(--gray-200);
+            z-index: 0;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 1.5rem;
+            left: 20%;
+            height: 2px;
+            background: var(--gradient-primary);
+            transition: width var(--transition-slow);
+            z-index: 1;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-circle {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--gray-400);
+            margin-bottom: var(--space-sm);
+            transition: all var(--transition-base);
+        }
+
+        .step.active .step-circle {
+            border-color: var(--primary-600);
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .step.completed .step-circle {
+            border-color: var(--success);
+            background: var(--success);
+            color: white;
+        }
+
+        .step-label {
+            font-size: var(--text-xs);
+            color: var(--gray-500);
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .step.active .step-label {
+            color: var(--primary-600);
+        }
+
+        /* Section titles */
+        .section-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-sm);
+            border-bottom: 2px solid var(--gray-100);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title .section-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.8rem;
+            height: 1.8rem;
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* Form Steps */
+        .form-step {
+            display: none;
+            animation: slideInRight var(--transition-base);
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-lg);
+        }
+
+        @media (min-width: 600px) {
+            .form-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-row.cols-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* Radio / Checkbox group inline */
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 0.4rem;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: var(--gray-700);
+        }
+
+        .radio-option input[type="radio"],
+        .radio-option input[type="checkbox"] {
+            accent-color: var(--primary-600);
+            width: 1rem;
+            height: 1rem;
+            cursor: pointer;
+        }
+
+        /* Mobile number badge */
+        .mobile-hint {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border: 1px solid #93c5fd;
+            border-radius: var(--radius-md);
+            padding: 0.5rem 0.75rem;
+            font-size: 0.82rem;
+            color: #1d4ed8;
+            margin-top: 0.35rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: var(--space-md);
+            margin-top: var(--space-xl);
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: var(--space-xl);
+            color: var(--gray-600);
+            font-size: var(--text-sm);
+        }
+
+        .auth-footer a {
+            color: var(--primary-600);
+            font-weight: 600;
+            margin-left: var(--space-xs);
+        }
+
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: var(--space-xl) var(--space-lg);
+            }
+
+            .brand-header {
+                gap: 1rem;
+            }
+
+            .brand-sep {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-page">
+        <div class="auth-container">
+            <div class="auth-card">
+
+                <!-- Brand Header -->
+                <div class="brand-header">
+                    <div class="brand-logo-item">
+                        <span class="logo-badge">UNCDF</span>
+                    </div>
+
+                </div>
+
+                <!-- Title -->
+                <div class="auth-title">
+                    <h2>আর্থিক সাক্ষরতা কর্মসূচী</h2>
+                    <div class="subtitle">তথ্য সংগ্রহ ফরম</div>
+                </div>
+
+                <!-- Progress Steps -->
+                <div class="progress-steps">
+                    <div class="progress-line" id="progressLine"></div>
+                    <div class="step active" data-step="1">
+                        <div class="step-circle">১</div>
+                        <div class="step-label">মৌলিক তথ্য</div>
+                    </div>
+                    <div class="step" data-step="2">
+                        <div class="step-circle">২</div>
+                        <div class="step-label">আয় ও প্রবাসী</div>
+                    </div>
+                </div>
+
+                <form id="registerForm" onsubmit="handleRegister(event)">
+
+                    <!-- ===== STEP 1: মৌলিক তথ্য ===== -->
+                    <div class="form-step active" data-step="1">
+
+                        <!-- এলাকা সংক্রান্ত তথ্য -->
+                        <div class="section-title">
+                            <span class="section-num">১</span>
+                            এলাকা সংক্রান্ত তথ্য
+                        </div>
+
+                        <div class="form-row cols-3">
+                            <div class="form-group">
+                                <label class="form-label form-label-required" for="union">ইউনিয়ন</label>
+                                <input type="text" id="union" class="form-input" placeholder="ইউনিয়নের নাম" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label form-label-required" for="upazila">উপজেলা</label>
+                                <input type="text" id="upazila" class="form-input" placeholder="উপজেলার নাম" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label form-label-required" for="district">জেলা</label>
+                                <input type="text" id="district" class="form-input" placeholder="জেলার নাম" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="address">ঠিকানা</label>
+                            <input type="text" id="address" class="form-input" placeholder="সম্পূর্ণ ঠিকানা লিখুন">
+                        </div>
+
+                        <!-- মৌলিক তথ্য -->
+                        <div class="section-title" style="margin-top: var(--space-xl);">
+                            <span class="section-num">২</span>
+                            মৌলিক তথ্য
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label form-label-required" for="fullName">অংশগ্রহণকারীর পূর্ণ নাম</label>
+                            <input type="text" id="fullName" class="form-input" placeholder="পূর্ণ নাম লিখুন" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label form-label-required" for="mobile">অংশগ্রহণকারীর মোবাইল
+                                    নম্বর</label>
+                                <input type="tel" id="mobile" class="form-input" placeholder="০১XXXXXXXXX" required>
+                                <div class="mobile-hint">📱 মোবাইল নম্বরটি আপনার ইউজার আইডি হিসেবে ব্যবহৃত হবে</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label form-label-required" for="age">বর্তমান বয়স (পূর্ণ
+                                    বছরে)</label>
+                                <input type="number" id="age" class="form-input" placeholder="বয়স" min="15" max="100"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label form-label-required">লিঙ্গ</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="gender" value="male" required> পুরুষ
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="gender" value="female"> নারী
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="gender" value="other"> অন্যান্য
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label form-label-required">বৈবাহিক অবস্থা</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="marital" value="single" required> অবিবাহিত
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="marital" value="married"> বিবাহিত
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="marital" value="widow"> বিধবা
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="marital" value="divorced"> তালাকপ্রাপ্ত
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label form-label-required">প্রধান পেশা</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="occupation" value="agriculture" required> কৃষি
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="occupation" value="business"> ব্যবসা
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="occupation" value="service"> চাকরি
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="occupation" value="labor"> দিনমজুরি
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="occupation" value="other"> অন্যান্য
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label form-label-required" for="education">সর্বোচ্চ শিক্ষাগত
+                                    যোগ্যতা</label>
+                                <select id="education" class="form-select" required>
+                                    <option value="">নির্বাচন করুন</option>
+                                    <option value="illiterate">নিরক্ষর</option>
+                                    <option value="primary">প্রাথমিক</option>
+                                    <option value="jsc">জেএসসি / সমমান</option>
+                                    <option value="ssc">এসএসসি / সমমান</option>
+                                    <option value="hsc">এইচএসসি / সমমান</option>
+                                    <option value="graduate">স্নাতক ও তদূর্ধ্ব</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label form-label-required" for="familyMembers">পরিবারে মোট সদস্য
+                                    সংখ্যা</label>
+                                <input type="number" id="familyMembers" class="form-input" placeholder="যেমন: ৫" min="1"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label form-label-required" for="password">পাসওয়ার্ড</label>
+                                <input type="password" id="password" class="form-input"
+                                    placeholder="পাসওয়ার্ড তৈরি করুন" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label form-label-required" for="confirmPassword">পাসওয়ার্ড নিশ্চিত
+                                    করুন</label>
+                                <input type="password" id="confirmPassword" class="form-input"
+                                    placeholder="পুনরায় পাসওয়ার্ড দিন" required>
+                            </div>
+                        </div>
+
+                    </div><!-- /step 1 -->
+
+                    <!-- ===== STEP 2: আয় ও প্রবাসী তথ্য ===== -->
+                    <div class="form-step" data-step="2">
+
+                        <!-- আয় ও জীবিকা -->
+                        <div class="section-title">
+                            <span class="section-num">৩</span>
+                            আয় ও জীবিকা
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label form-label-required" for="totalMonthlyIncome">পরিবারের মোট মাসিক
+                                আয় (টাকা)</label>
+                            <input type="number" id="totalMonthlyIncome" class="form-input"
+                                placeholder="মোট মাসিক আয় (টাকায়)" min="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label form-label-required">রেমিট্যান্স ছাড়া অন্য কোনো আয় আছে কি</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="hasOtherIncome" value="yes" required
+                                        onchange="toggleOtherIncome(true)"> হ্যাঁ
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="hasOtherIncome" value="no"
+                                        onchange="toggleOtherIncome(false)"> না
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="otherIncomeGroup" style="display:none;">
+                            <label class="form-label" for="otherMonthlyIncome">রেমিট্যান্স ছাড়া মাসিক আয়
+                                (টাকা)</label>
+                            <input type="number" id="otherMonthlyIncome" class="form-input"
+                                placeholder="মাসিক আয় (টাকায়)" min="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label form-label-required" for="incomeSource">পরিবারের আয়ের প্রধান
+                                উৎসসমূহ</label>
+                            <input type="text" id="incomeSource" class="form-input"
+                                placeholder="যেমন: কৃষি, ব্যবসা, বিদেশ থেকে রেমিট্যান্স" required>
+                        </div>
+
+                        <!-- প্রবাসী ও রেমিট্যান্স তথ্য -->
+                        <div class="section-title" style="margin-top: var(--space-xl);">
+                            <span class="section-num">৪</span>
+                            প্রবাসী ও রেমিট্যান্স তথ্য
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label form-label-required">আপনার পরিবারে কোনো প্রবাসী সদস্য আছে
+                                কি</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="hasMigrant" value="yes" required
+                                        onchange="toggleMigrantSection(true)"> হ্যাঁ
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="hasMigrant" value="no"
+                                        onchange="toggleMigrantSection(false)"> না
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="migrantDetails" style="display:none;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="migrantRelation">প্রবাসী সদস্যটি আপনার কী হন</label>
+                                    <select id="migrantRelation" class="form-select">
+                                        <option value="">নির্বাচন করুন</option>
+                                        <option value="spouse">স্বামী / স্ত্রী</option>
+                                        <option value="father">বাবা</option>
+                                        <option value="mother">মা</option>
+                                        <option value="brother">ভাই</option>
+                                        <option value="sister">বোন</option>
+                                        <option value="son">ছেলে</option>
+                                        <option value="daughter">মেয়ে</option>
+                                        <option value="self">নিজে</option>
+                                        <option value="other">অন্যান্য</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="migrantCountry">তিনি কোন দেশে অবস্থান করছেন</label>
+                                    <input type="text" id="migrantCountry" class="form-input"
+                                        placeholder="যেমন: সৌদি আরব, UAE">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="yearsAbroad">তিনি কত বছর ধরে সেখানে আছেন</label>
+                                    <input type="number" id="yearsAbroad" class="form-input" placeholder="বছরের সংখ্যা"
+                                        min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="remittanceFrequency">কত সময় পরপর টাকা পাঠান</label>
+                                    <select id="remittanceFrequency" class="form-select">
+                                        <option value="">নির্বাচন করুন</option>
+                                        <option value="monthly">প্রতি মাসে</option>
+                                        <option value="bimonthly">২ মাস পরপর</option>
+                                        <option value="quarterly">৩ মাস পরপর</option>
+                                        <option value="irregular">অনিয়মিত</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="remittanceChannel">তিনি সাধারণত কোন মাধ্যমে টাকা
+                                    পাঠান</label>
+                                <select id="remittanceChannel" class="form-select">
+                                    <option value="">নির্বাচন করুন</option>
+                                    <option value="bank">ব্যাংক</option>
+                                    <option value="mfs">এমএফএস (মোবাইল ব্যাংকিং)</option>
+                                    <option value="exchange">এক্সচেঞ্জ হাউস</option>
+                                    <option value="hundi">হুন্ডি</option>
+                                    <option value="other">অন্যান্য</option>
+                                </select>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="bankOrMfsName">ব্যাংক বা এমএফএস এর নাম</label>
+                                    <input type="text" id="bankOrMfsName" class="form-input"
+                                        placeholder="যেমন: ডাচ-বাংলা, বিকাশ">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="avgRemittanceAmount">প্রতি বার গড়ে কত টাকা
+                                        পাঠান</label>
+                                    <input type="number" id="avgRemittanceAmount" class="form-input"
+                                        placeholder="টাকার পরিমাণ" min="0">
+                                </div>
+                            </div>
+                        </div><!-- /migrantDetails -->
+
+                        <div class="form-check" style="margin-top: var(--space-xl);">
+                            <input type="checkbox" id="terms" class="form-check-input" required>
+                            <label for="terms" class="form-check-label">
+                                আমি <a href="#" style="color: var(--primary-600);">শর্তাবলী ও গোপনীয়তা নীতি</a>-তে
+                                সম্মত
+                            </label>
+                        </div>
+
+                    </div><!-- /step 2 -->
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="prevBtn" onclick="changeStep(-1)"
+                            style="display: none;">
+                            ⬅️ পূর্ববর্তী
+                        </button>
+                        <button type="button" class="btn btn-primary btn-full" id="nextBtn" onclick="changeStep(1)">
+                            পরবর্তী →
+                        </button>
+                        <button type="submit" class="btn btn-success btn-full" id="submitBtn" style="display: none;">
+                            ✅ নিবন্ধন সম্পন্ন করুন
+                        </button>
+                    </div>
+                </form>
+
+                <div class="auth-footer">
+                    ইতোমধ্যে অ্যাকাউন্ট আছে?
+                    <a href="login.html">লগইন করুন</a>
+                </div>
+            </div>
+
+            <div
+                style="text-align: center; margin-top: var(--space-lg); color: rgba(255,255,255,0.8); font-size: var(--text-sm);">
+                <p>© 2026 LMS Solution. সর্বস্বত্ব সংরক্ষিত।</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 2;
+
+        function updateStepUI() {
+            document.querySelectorAll('.step').forEach(step => {
+                const stepNum = parseInt(step.dataset.step);
+                if (stepNum < currentStep) {
+                    step.classList.add('completed');
+                    step.classList.remove('active');
+                } else if (stepNum === currentStep) {
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                } else {
+                    step.classList.remove('active', 'completed');
+                }
+            });
+
+            // Progress line (between 2 steps: 0% or 100%)
+            const progressPercent = ((currentStep - 1) / (totalSteps - 1)) * 100;
+            document.getElementById('progressLine').style.width = progressPercent + '%';
+
+            document.querySelectorAll('.form-step').forEach(step => step.classList.remove('active'));
+            document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
+
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+
+            prevBtn.style.display = currentStep === 1 ? 'none' : 'block';
+            nextBtn.style.display = currentStep === totalSteps ? 'none' : 'block';
+            submitBtn.style.display = currentStep === totalSteps ? 'block' : 'none';
+        }
+
+        function validateStep(step) {
+            const currentStepEl = document.querySelector(`.form-step[data-step="${step}"]`);
+            const inputs = currentStepEl.querySelectorAll('input[required], select[required]');
+
+            for (let input of inputs) {
+                if (input.type === 'radio') continue; // radios validated separately
+                if (!input.value) {
+                    input.focus();
+                    alert('অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন।');
+                    return false;
+                }
+            }
+
+            // Validate radio groups
+            const radioGroups = {};
+            currentStepEl.querySelectorAll('input[type="radio"][required]').forEach(r => {
+                radioGroups[r.name] = radioGroups[r.name] || [];
+                radioGroups[r.name].push(r);
+            });
+            for (const [name, radios] of Object.entries(radioGroups)) {
+                if (!radios.some(r => r.checked)) {
+                    alert('অনুগ্রহ করে সকল বিকল্প নির্বাচন করুন।');
+                    return false;
+                }
+            }
+
+            if (step === 1) {
+                const mobile = document.getElementById('mobile').value;
+                if (!/^01[3-9]\d{8}$/.test(mobile)) {
+                    alert('সঠিক মোবাইল নম্বর দিন (যেমন: 01XXXXXXXXX)');
+                    document.getElementById('mobile').focus();
+                    return false;
+                }
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                if (password !== confirmPassword) {
+                    alert('পাসওয়ার্ড মিলছে না। আবার চেষ্টা করুন।');
+                    return false;
+                }
+                if (password.length < 6) {
+                    alert('পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।');
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        function changeStep(direction) {
+            if (direction === 1 && !validateStep(currentStep)) return;
+            currentStep += direction;
+            if (currentStep < 1) currentStep = 1;
+            if (currentStep > totalSteps) currentStep = totalSteps;
+            updateStepUI();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleOtherIncome(show) {
+            document.getElementById('otherIncomeGroup').style.display = show ? 'block' : 'none';
+        }
+
+        function toggleMigrantSection(show) {
+            document.getElementById('migrantDetails').style.display = show ? 'block' : 'none';
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            if (!validateStep(currentStep)) return;
+
+            const mobile = document.getElementById('mobile').value;
+            const getRadioVal = name => {
+                const el = document.querySelector(`input[name="${name}"]:checked`);
+                return el ? el.value : '';
+            };
+
+            const formData = {
+                // Step 1
+                union: document.getElementById('union').value,
+                upazila: document.getElementById('upazila').value,
+                district: document.getElementById('district').value,
+                address: document.getElementById('address').value,
+                fullName: document.getElementById('fullName').value,
+                mobile: mobile, // user ID
+                age: document.getElementById('age').value,
+                gender: getRadioVal('gender'),
+                maritalStatus: getRadioVal('marital'),
+                occupation: getRadioVal('occupation'),
+                education: document.getElementById('education').value,
+                familyMembers: document.getElementById('familyMembers').value,
+                // Step 2
+                totalMonthlyIncome: document.getElementById('totalMonthlyIncome').value,
+                hasOtherIncome: getRadioVal('hasOtherIncome'),
+                otherMonthlyIncome: document.getElementById('otherMonthlyIncome').value,
+                incomeSource: document.getElementById('incomeSource').value,
+                hasMigrant: getRadioVal('hasMigrant'),
+                migrantRelation: document.getElementById('migrantRelation').value,
+                migrantCountry: document.getElementById('migrantCountry').value,
+                yearsAbroad: document.getElementById('yearsAbroad').value,
+                remittanceChannel: document.getElementById('remittanceChannel').value,
+                bankOrMfsName: document.getElementById('bankOrMfsName').value,
+                remittanceFrequency: document.getElementById('remittanceFrequency').value,
+                avgRemittanceAmount: document.getElementById('avgRemittanceAmount').value
+            };
+
+            console.log('Registration data:', formData);
+
+            // Store session - mobile as userId
+            localStorage.setItem('userRole', 'beneficiary');
+            localStorage.setItem('userMobile', mobile);
+            localStorage.setItem('userEmail', mobile); // use mobile as identifier
+            localStorage.setItem('userName', formData.fullName);
+            localStorage.setItem('isLoggedIn', 'true');
+
+            alert('নিবন্ধন সফল হয়েছে! LMS Solution-এ আপনাকে স্বাগতম।');
+            window.location.href = 'index.html';
+        }
+
+        // Initialize
+        updateStepUI();
+    </script>
+</body>
+
+</html>

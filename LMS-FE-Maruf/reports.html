@@ -1,0 +1,383 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - LMS Solution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+.report-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow-md);
+            transition: all var(--transition-base);
+            border: 2px solid transparent;
+        }
+
+        .report-card:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-2px);
+            border-color: var(--primary-500);
+        }
+
+        .report-icon {
+            width: 4rem;
+            height: 4rem;
+            border-radius: var(--radius-lg);
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--text-3xl);
+            margin-bottom: var(--space-lg);
+        }
+
+        .report-title {
+            font-size: var(--text-xl);
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: var(--space-sm);
+        }
+
+        .report-description {
+            color: var(--gray-600);
+            margin-bottom: var(--space-lg);
+            line-height: 1.6;
+        }
+
+        .report-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+            flex-wrap: wrap;
+        }
+
+        .report-meta-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: var(--text-sm);
+            color: var(--gray-600);
+        }
+
+        .reports-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-xl);
+        }
+
+        @media (min-width: 640px) {
+.reports-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        
+
+        @media (min-width: 1280px) {
+            .reports-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">☰</button>
+        <a href="index.html" class="navbar-brand">
+            📚 LMS Solution
+        </a>
+        <div class="navbar-actions">
+            <div id="roleSwitcher"></div>
+            <div class="navbar-user" onclick="toggleUserDropdown(event)">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">User</div>
+                    <div class="user-role" id="userRole">Beneficiary</div>
+                </div>
+                <div class="user-dropdown">
+                    <a href="profile.html" class="dropdown-item">👤 My Profile</a>
+                    <a href="change-password.html" class="dropdown-item">🔒 Change Password</a>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-secondary" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header" style="display:flex;align-items:center;justify-content:space-between;">
+            <a href="landing.html" class="sidebar-logo" style="text-decoration:none;">📚 LMS</a>
+            <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">«</button>
+        </div>
+        <nav class="sidebar-nav" id="sidebarNav">
+            <!-- Menu items will be populated by JavaScript -->
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn btn-danger btn-full" onclick="logout()">
+                🚪 <span class="sidebar-btn-text">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div style="margin-bottom: var(--space-2xl);">
+                <h1>Reports</h1>
+                <p class="text-muted">Generate and download comprehensive reports</p>
+            </div>
+
+            <!-- Filter Options -->
+            <div class="card" style="margin-bottom: var(--space-2xl);">
+                <h3 style="margin-bottom: var(--space-lg);">📅 Report Filters</h3>
+                <div class="grid grid-cols-1 grid-md-2 grid-lg-3 gap-md">
+                    <div class="form-group">
+                        <label class="form-label" for="startDate">Start Date</label>
+                        <input type="date" id="startDate" class="form-input" value="2026-01-01">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="endDate">End Date</label>
+                        <input type="date" id="endDate" class="form-input" value="2026-01-12">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="reportDistrict">District</label>
+                        <select id="reportDistrict" class="form-select">
+                            <option value="">All Districts</option>
+                            <option value="Dhaka">Dhaka</option>
+                            <option value="Chittagong">Chittagong</option>
+                            <option value="Sylhet">Sylhet</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Grid -->
+            <h2 style="margin-bottom: var(--space-lg);">Available Reports</h2>
+            <div class="reports-grid">
+                <!-- Beneficiary Progress Report -->
+                <div class="report-card">
+                    <div class="report-icon">📊</div>
+                    <h3 class="report-title">Beneficiary Progress Report</h3>
+                    <p class="report-description">Comprehensive report of all beneficiaries with their course completion
+                        percentages and status.</p>
+                    <div class="report-meta">
+                        <div class="report-meta-item">
+                            <span>📄</span>
+                            <span>Excel Format</span>
+                        </div>
+                        <div class="report-meta-item">
+                            <span>👥</span>
+                            <span>1,248 Records</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="downloadReport('beneficiary-progress')">
+                        📥 Download Report
+                    </button>
+                </div>
+
+                <!-- Session Summary Report -->
+                <div class="report-card">
+                    <div class="report-icon">📅</div>
+                    <h3 class="report-title">Session Summary Report</h3>
+                    <p class="report-description">Detailed information about all training sessions including
+                        participants, locations, and outcomes.</p>
+                    <div class="report-meta">
+                        <div class="report-meta-item">
+                            <span>📄</span>
+                            <span>Excel Format</span>
+                        </div>
+                        <div class="report-meta-item">
+                            <span>📅</span>
+                            <span>24 Sessions</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="downloadReport('session-summary')">
+                        📥 Download Report
+                    </button>
+                </div>
+
+                <!-- Location-wise Distribution -->
+                <div class="report-card">
+                    <div class="report-icon">🗺️</div>
+                    <h3 class="report-title">Location-wise Distribution</h3>
+                    <p class="report-description">Geographic breakdown of beneficiaries and completion rates by
+                        district, upazila, and union.</p>
+                    <div class="report-meta">
+                        <div class="report-meta-item">
+                            <span>📄</span>
+                            <span>Excel Format</span>
+                        </div>
+                        <div class="report-meta-item">
+                            <span>📍</span>
+                            <span>8 Districts</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="downloadReport('location-distribution')">
+                        📥 Download Report
+                    </button>
+                </div>
+
+                <!-- Gender Analysis Report -->
+                <div class="report-card">
+                    <div class="report-icon">👥</div>
+                    <h3 class="report-title">Gender Analysis Report</h3>
+                    <p class="report-description">Statistical analysis of male and female participation, completion
+                        rates, and demographics.</p>
+                    <div class="report-meta">
+                        <div class="report-meta-item">
+                            <span>📄</span>
+                            <span>Excel Format</span>
+                        </div>
+                        <div class="report-meta-item">
+                            <span>📊</span>
+                            <span>Full Analytics</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="downloadReport('gender-analysis')">
+                        📥 Download Report
+                    </button>
+                </div>
+
+                <!-- Unit Manager Performance -->
+                <div class="report-card">
+                    <div class="report-icon">🎯</div>
+                    <h3 class="report-title">Unit Manager Performance</h3>
+                    <p class="report-description">Performance metrics for each Unit Manager including sessions conducted
+                        and participants trained.</p>
+                    <div class="report-meta">
+                        <div class="report-meta-item">
+                            <span>📄</span>
+                            <span>Excel Format</span>
+                        </div>
+                        <div class="report-meta-item">
+                            <span>👤</span>
+                            <span>15 Managers</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="downloadReport('um-performance')">
+                        📥 Download Report
+                    </button>
+                </div>
+
+                <!-- Certificate Issuance Report -->
+                <div class="report-card">
+                    <div class="report-icon">🎓</div>
+                    <h3 class="report-title">Certificate Issuance Report</h3>
+                    <p class="report-description">List of all certificates issued with beneficiary details, completion
+                        dates, and certificate IDs.</p>
+                    <div class="report-meta">
+                        <div class="report-meta-item">
+                            <span>📄</span>
+                            <span>Excel Format</span>
+                        </div>
+                        <div class="report-meta-item">
+                            <span>🎓</span>
+                            <span>742 Certificates</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="downloadReport('certificate-issuance')">
+                        📥 Download Report
+                    </button>
+                </div>
+
+                <!-- Module-wise Completion -->
+                <div class="report-card">
+                    <div class="report-icon">📚</div>
+                    <h3 class="report-title">Module-wise Completion</h3>
+                    <p class="report-description">Detailed completion rates and analytics for each individual course
+                        module.</p>
+                    <div class="report-meta">
+                        <div class="report-meta-item">
+                            <span>📄</span>
+                            <span>Excel Format</span>
+                        </div>
+                        <div class="report-meta-item">
+                            <span>📚</span>
+                            <span>5 Modules</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="downloadReport('module-completion')">
+                        📥 Download Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        // Update user avatar
+        const userName = getUserName();
+        document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
+
+        function downloadReport(reportType) {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const district = document.getElementById('reportDistrict').value;
+
+            // In production, this would make an API call to generate the report
+            const reportNames = {
+                'beneficiary-progress': 'Beneficiary Progress Report',
+                'session-summary': 'Session Summary Report',
+                'location-distribution': 'Location-wise Distribution Report',
+                'gender-analysis': 'Gender Analysis Report',
+                'um-performance': 'Unit Manager Performance Report',
+                'certificate-issuance': 'Certificate Issuance Report',
+                'module-completion': 'Module-wise Completion Report'
+            };
+
+            // Simulate CSV generation
+            const csvData = generateSampleCSV(reportType);
+            const blob = new Blob([csvData], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${reportType}_${startDate}_to_${endDate}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            alert(`Downloading ${reportNames[reportType]}...\n\nDate Range: ${startDate} to ${endDate}${district ? '\nDistrict: ' + district : ''}`);
+        }
+
+        function generateSampleCSV(reportType) {
+            const headers = {
+                'beneficiary-progress': 'Name,Email,District,Modules Completed,Completion %,Status\n',
+                'session-summary': 'Session Name,Date,District,Upazila,Participants,Male,Female,Unit Manager,Status\n',
+                'location-distribution': 'District,Upazila,Union,Total Beneficiaries,Completed,Completion %\n',
+                'gender-analysis': 'Category,Male Count,Female Count,Male %,Female %\n',
+                'um-performance': 'Unit Manager,Sessions Conducted,Total Participants,Avg Participants,Performance Score\n',
+                'certificate-issuance': 'Certificate ID,Beneficiary Name,Email,Completion Date,Course Name\n',
+                'module-completion': 'Module Name,Total Enrolled,Completed,In Progress,Completion %\n'
+            };
+
+            const sampleData = {
+                'beneficiary-progress': 'John Doe,john@example.com,Dhaka,5,100%,Completed\nJane Smith,jane@example.com,Chittagong,3,60%,In Progress\n',
+                'session-summary': 'Financial Literacy Workshop,2026-01-10,Dhaka,Savar,45,20,25,Karim Rahman,Completed\n',
+                'location-distribution': 'Dhaka,Savar,Ashulia,150,112,75%\n',
+                'gender-analysis': 'Total Participants,580,668,46.5%,53.5%\n',
+                'um-performance': 'Karim Rahman,12,540,45,Excellent\n',
+                'certificate-issuance': 'LMS-2026-ABC12,John Doe,john@example.com,2026-01-12,Digital Financial Literacy\n',
+                'module-completion': 'Module 1: Financial Literacy,1248,1060,188,85%\n'
+            };
+
+            return headers[reportType] + sampleData[reportType];
+        }
+    </script>
+</body>
+
+</html>
+
+

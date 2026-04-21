@@ -1,0 +1,418 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - LMS Solution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+.chart-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow-md);
+            height: 100%;
+        }
+
+        .chart-header {
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-md);
+            border-bottom: 2px solid var(--gray-100);
+        }
+
+        .chart-title {
+            font-size: var(--text-lg);
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: var(--space-xs);
+        }
+
+        .chart-subtitle {
+            font-size: var(--text-sm);
+            color: var(--gray-600);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-lg);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow-md);
+            border-left: 4px solid var(--primary-500);
+            transition: all var(--transition-base);
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-4px);
+        }
+
+        .stat-card.success {
+            border-left-color: var(--success);
+        }
+
+        .stat-card.warning {
+            border-left-color: var(--warning);
+        }
+
+        .stat-card.info {
+            border-left-color: var(--info);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-md);
+        }
+
+        .stat-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--text-2xl);
+            background: var(--primary-50);
+        }
+
+        .stat-icon.success {
+            background: var(--success-light);
+        }
+
+        .stat-icon.warning {
+            background: var(--warning-light);
+        }
+
+        .stat-icon.info {
+            background: var(--info-light);
+        }
+
+        .stat-label {
+            font-size: var(--text-sm);
+            color: var(--gray-600);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: var(--text-4xl);
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: var(--space-sm);
+        }
+
+        .stat-change {
+            font-size: var(--text-sm);
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        @media (min-width: 640px) {
+.stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+.stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">☰</button>
+        <a href="landing.html" class="navbar-brand">
+            📚 LMS Solution
+        </a>
+        <div class="navbar-actions">
+            <div id="roleSwitcher"></div>
+            <div class="navbar-user" onclick="toggleUserDropdown(event)">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">User</div>
+                    <div class="user-role" id="userRole">Beneficiary</div>
+                </div>
+                <div class="user-dropdown">
+                    <a href="profile.html" class="dropdown-item">👤 My Profile</a>
+                    <a href="change-password.html" class="dropdown-item">🔒 Change Password</a>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-nav" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header" style="display:flex;align-items:center;justify-content:space-between;">
+            <a href="landing.html" class="sidebar-logo" style="text-decoration:none;">📚 LMS</a>
+            <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">«</button>
+        </div>
+        <nav class="sidebar-nav" id="sidebarNav">
+            <!-- Menu items will be populated by JavaScript -->
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn btn-danger btn-full" onclick="logout()">
+                🚪 <span class="sidebar-btn-text">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2xl); flex-wrap: wrap; gap: var(--space-md);">
+                <div>
+                    <h1>Analytics Dashboard</h1>
+                    <p class="text-muted">Track performance metrics and insights</p>
+                </div>
+                <div style="display: flex; gap: var(--space-sm);">
+                    <select class="form-select" id="dateRange">
+                        <option value="7">Last 7 days</option>
+                        <option value="30" selected>Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                        <option value="365">Last year</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Key Metrics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">👥</div>
+                    </div>
+                    <div class="stat-label">Total Beneficiaries</div>
+                    <div class="stat-value">1,248</div>
+                    <div class="stat-change">↑ 12% from last month</div>
+                </div>
+
+                <div class="stat-card success">
+                    <div class="stat-header">
+                        <div class="stat-icon success">✅</div>
+                    </div>
+                    <div class="stat-label">Course Completions</div>
+                    <div class="stat-value">856</div>
+                    <div class="stat-change">↑ 8% from last month</div>
+                </div>
+
+                <div class="stat-card warning">
+                    <div class="stat-header">
+                        <div class="stat-icon warning">📅</div>
+                    </div>
+                    <div class="stat-label">Active Sessions</div>
+                    <div class="stat-value">24</div>
+                    <div class="stat-change">↑ 3 new this week</div>
+                </div>
+
+                <div class="stat-card info">
+                    <div class="stat-header">
+                        <div class="stat-icon info">📊</div>
+                    </div>
+                    <div class="stat-label">Avg. Completion Rate</div>
+                    <div class="stat-value">68%</div>
+                    <div class="stat-change">↑ 5% from last month</div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 grid-md-2 gap-lg">
+                <!-- Location-wise Progress -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">📍 Location-wise Progress</h3>
+                        <p class="chart-subtitle">Completion rates by district</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="locationChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Gender Distribution -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">👥 Gender Distribution</h3>
+                        <p class="chart-subtitle">Male vs Female participants</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="genderChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Unit Manager Performance -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">🎯 Unit Manager Performance</h3>
+                        <p class="chart-subtitle">Sessions conducted by UM</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="umPerformanceChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Completion Trends -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">📈 Completion Trends</h3>
+                        <p class="chart-subtitle">Monthly progress over time</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="trendsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module-wise Completion -->
+            <div class="chart-card" style="margin-top: var(--space-2xl);">
+                <div class="chart-header">
+                    <h3 class="chart-title">📚 Module-wise Completion Rates</h3>
+                    <p class="chart-subtitle">Completion percentage for each module</p>
+                </div>
+                <div class="chart-container" style="height: 400px;">
+                    <canvas id="moduleChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#6b7280';
+
+        // ---- Compute real stats from demoData ----
+        const allUsers   = demoData.users || [];
+        const allCourses = demoData.courses || [];
+        const allExams   = demoData.exams || [];
+        const examHistory = JSON.parse(localStorage.getItem('examHistory') || '[]');
+        const enrollmentData = JSON.parse(localStorage.getItem('lmsEnrollments') || '{}');
+        const moduleProgressData = JSON.parse(localStorage.getItem('moduleProgress') || '{}');
+
+        const totalUsers = allUsers.length;
+        const beneficiaryUsers = allUsers.filter(u => u.role === 'beneficiary').length;
+
+        // Count enrollments
+        let totalEnrollments = 0;
+        allCourses.forEach(c => {
+            if (enrollmentData[c.id] && enrollmentData[c.id].enrolled) totalEnrollments++;
+        });
+
+        // Count completed modules across all (simulated across courses)
+        let totalMods = 0, completedMods = 0;
+        allCourses.forEach(c => {
+            c.modules.forEach(m => {
+                totalMods++;
+                if (moduleProgressData[c.id + '_' + m.id]) completedMods++;
+            });
+        });
+        const overallCompletion = totalMods > 0 ? Math.round((completedMods / totalMods) * 100) : 0;
+
+        // Update stat cards from hardcoded HTML
+        document.querySelectorAll('.stat-card')[0].querySelector('.stat-value').textContent = totalUsers;
+        document.querySelectorAll('.stat-card')[0].querySelector('.stat-change').textContent = beneficiaryUsers + ' beneficiaries';
+        document.querySelectorAll('.stat-card')[1].querySelector('.stat-value').textContent = allCourses.length;
+        document.querySelectorAll('.stat-card')[1].querySelector('.stat-change').textContent = totalMods + ' total modules';
+        document.querySelectorAll('.stat-card')[2].querySelector('.stat-value').textContent = examHistory.length;
+        document.querySelectorAll('.stat-card')[2].querySelector('.stat-change').textContent = allExams.length + ' exam types';
+        document.querySelectorAll('.stat-card')[3].querySelector('.stat-value').textContent = overallCompletion + '%';
+        document.querySelectorAll('.stat-card')[3].querySelector('.stat-change').textContent = completedMods + '/' + totalMods + ' modules done';
+
+        // ---- District-wise completion (from sessions + simulated) ----
+        const districts = demoData.districts || ['Chattogram','Feni','Cumilla','Narsingdi','Tangail'];
+        const distRates = [72, 65, 80, 58, 74];
+        new Chart(document.getElementById('locationChart'), {
+            type: 'bar',
+            data: {
+                labels: districts.slice(0,5),
+                datasets: [{ label: 'Completion %', data: distRates, backgroundColor: 'rgba(102,126,234,0.8)', borderRadius: 8 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } } }
+        });
+
+        // ---- Gender from sessions ----
+        const sessions = demoData.sessions || [];
+        const totalMale = sessions.reduce((s, sess) => s + (sess.male || 0), 0) || 38;
+        const totalFemale = sessions.reduce((s, sess) => s + (sess.female || 0), 0) || 45;
+        new Chart(document.getElementById('genderChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Male', 'Female'],
+                datasets: [{ data: [totalMale, totalFemale], backgroundColor: ['rgba(59,130,246,0.85)','rgba(236,72,153,0.85)'], borderWidth: 0 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        });
+
+        // ---- UM Performance (sessions by unitManager) ----
+        const umMap = {};
+        sessions.forEach(s => { umMap[s.unitManager] = (umMap[s.unitManager] || 0) + (s.participants || 0); });
+        const umNames = Object.keys(umMap).length > 0 ? Object.keys(umMap) : ['Karim Rahman','Fatima Begum','Abdul Malik','Nasrin Akter','Rahim Uddin'];
+        const umVals  = Object.keys(umMap).length > 0 ? Object.values(umMap) : [45, 38, 52, 29, 41];
+        new Chart(document.getElementById('umPerformanceChart'), {
+            type: 'bar',
+            data: { labels: umNames, datasets: [{ label: 'Participants', data: umVals, backgroundColor: 'rgba(16,185,129,0.8)', borderRadius: 8 }] },
+            options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
+        });
+
+        // ---- Completion trends (exam history by month) ----
+        const monthMap = {};
+        examHistory.forEach(h => {
+            const d = new Date(h.date);
+            const key = d.toLocaleString('en-US', { month: 'short', year: '2-digit' });
+            monthMap[key] = (monthMap[key] || 0) + 1;
+        });
+        const monthLabels = Object.keys(monthMap).length > 0 ? Object.keys(monthMap) : ['Oct','Nov','Dec','Jan','Feb','Mar'];
+        const monthVals   = Object.keys(monthMap).length > 0 ? Object.values(monthMap) : [2, 5, 8, 11, 15, examHistory.length];
+        new Chart(document.getElementById('trendsChart'), {
+            type: 'line',
+            data: { labels: monthLabels, datasets: [{ label: 'Exam Attempts', data: monthVals, borderColor: 'rgba(102,126,234,1)', backgroundColor: 'rgba(102,126,234,0.1)', fill: true, tension: 0.4, borderWidth: 3 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+
+        // ---- Module-wise completion ----
+        const modLabels = [], modVals = [];
+        allCourses.forEach(c => {
+            c.modules.forEach(m => {
+                modLabels.push(m.title.length > 28 ? m.title.slice(0,28) + '…' : m.title);
+                const isDone = moduleProgressData[c.id + '_' + m.id] ? 100 : Math.floor(Math.random()*60 + 20);
+                modVals.push(isDone);
+            });
+        });
+        const barColors = ['rgba(102,126,234,0.8)','rgba(16,185,129,0.8)','rgba(245,158,11,0.8)','rgba(236,72,153,0.8)','rgba(239,68,68,0.8)','rgba(99,102,241,0.8)','rgba(20,184,166,0.8)'];
+        new Chart(document.getElementById('moduleChart'), {
+            type: 'bar',
+            data: { labels: modLabels, datasets: [{ label: 'Completion %', data: modVals, backgroundColor: modLabels.map((_,i) => barColors[i % barColors.length]), borderRadius: 8 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } } }
+        });
+    </script>
+    </script>
+</body>
+
+</html>
+
+

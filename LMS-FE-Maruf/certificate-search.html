@@ -1,0 +1,275 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Search - LMS Solution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+.search-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: var(--space-2xl);
+        }
+
+        .search-header {
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+        }
+
+        .search-header h1 {
+            margin-bottom: var(--space-md);
+        }
+
+        .search-box {
+            background: white;
+            padding: var(--space-2xl);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+
+        .search-input-group input {
+            flex: 1;
+        }
+
+        .result-card {
+            background: white;
+            padding: var(--space-xl);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            border: 2px solid var(--success);
+            display: none;
+        }
+
+        .result-card.show {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+            padding-bottom: var(--space-lg);
+            border-bottom: 2px solid var(--gray-100);
+        }
+
+        .result-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: var(--text-3xl);
+            font-weight: 700;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
+        }
+
+        .detail-label {
+            font-size: var(--text-sm);
+            font-weight: 600;
+            color: var(--gray-600);
+            text-transform: uppercase;
+        }
+
+        .detail-value {
+            font-size: var(--text-base);
+            color: var(--gray-900);
+            font-weight: 500;
+        }
+
+        
+
+        
+
+        @media (max-width: 768px) {
+            .result-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">☰</button>
+        <a href="landing.html" class="navbar-brand">📚 LMS Solution</a>
+        <div class="navbar-actions">
+            <div id="roleSwitcher"></div>
+            <div class="navbar-user" onclick="toggleUserDropdown(event)">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">User</div>
+                    <div class="user-role" id="userRole">Role</div>
+                </div>
+                <div class="user-dropdown">
+                    <a href="profile.html" class="dropdown-item">👤 My Profile</a>
+                    <a href="change-password.html" class="dropdown-item">🔒 Change Password</a>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-nav" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header" style="display:flex;align-items:center;justify-content:space-between;">
+            <a href="landing.html" class="sidebar-logo" style="text-decoration:none;">📚 LMS</a>
+            <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">«</button>
+        </div>
+        <nav class="sidebar-nav" id="sidebarNav"></nav>
+        <div class="sidebar-footer">
+            <button class="btn btn-danger btn-full" onclick="logout()">🚪 <span class="sidebar-btn-text">Logout</span></button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="search-container">
+            <div class="search-header">
+                <h1>🔍 Certificate Search</h1>
+                <p class="text-muted">Search for beneficiary certificates by mobile number or UID</p>
+            </div>
+
+            <div class="search-box">
+                <div class="search-input-group">
+                    <input type="text" id="searchInput" class="form-input" placeholder="Enter Mobile Number or UID..."
+                        onkeypress="if(event.key==='Enter') searchCertificate()">
+                    <button class="btn btn-primary" onclick="searchCertificate()">🔍 Search</button>
+                </div>
+                <p class="form-help">Enter the beneficiary's mobile number (e.g., 01700000006) or UID (e.g.,
+                    BEN-2026-001)</p>
+            </div>
+
+            <div class="result-card" id="resultCard">
+                <div class="result-header">
+                    <div class="result-avatar" id="resultAvatar">B</div>
+                    <div class="result-info">
+                        <h2 id="resultName">Beneficiary Name</h2>
+                        <span class="badge badge-success">✅ Course Completed</span>
+                    </div>
+                </div>
+
+                <div class="result-details">
+                    <div class="detail-item">
+                        <span class="detail-label">UID</span>
+                        <span class="detail-value" id="resultUID">BEN-2026-001</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Mobile</span>
+                        <span class="detail-value" id="resultMobile">01700000006</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Course</span>
+                        <span class="detail-value">Digital Financial Literacy</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Completion Date</span>
+                        <span class="detail-value" id="resultDate">January 12, 2026</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Modules Completed</span>
+                        <span class="detail-value">5/5</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Certificate ID</span>
+                        <span class="detail-value" id="resultCertID">LMS-2026-ABC12</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: var(--space-md); flex-wrap: wrap;">
+                    <button class="btn btn-success btn-lg" onclick="generateCertificate()">
+                        📥 Generate & Download Certificate
+                    </button>
+                    <button class="btn btn-secondary" onclick="viewProgress()">
+                        📊 View Progress Details
+                    </button>
+                </div>
+            </div>
+
+            <div class="alert alert-info" id="noResultAlert" style="display: none; margin-top: var(--space-xl);">
+                <strong>ℹ️ No results found</strong><br>
+                No beneficiary found with the provided information. Please check and try again.
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        // Demo beneficiary data
+        const demoBeneficiaries = {
+            'BEN-2026-001': {
+                name: 'Ahmed Rahman', mobile: '01700000006', uid: 'BEN-2026-001',
+                completionDate: 'January 12, 2026', certificateId: 'LMS-2026-ABC12', completed: true
+            },
+            '01700000006': {
+                name: 'Beneficiary User', mobile: '01700000006', uid: 'BEN-2026-002',
+                completionDate: 'January 10, 2026', certificateId: 'LMS-2026-XYZ89', completed: true
+            }
+        };
+
+        function searchCertificate() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            if (!searchTerm) { alert('Please enter a mobile number or UID'); return; }
+
+            const beneficiary = demoBeneficiaries[searchTerm] || demoBeneficiaries[searchTerm.toUpperCase()];
+
+            if (beneficiary) {
+                document.getElementById('resultAvatar').textContent = beneficiary.name.charAt(0);
+                document.getElementById('resultName').textContent = beneficiary.name;
+                document.getElementById('resultUID').textContent = beneficiary.uid;
+                document.getElementById('resultMobile').textContent = beneficiary.mobile;
+                document.getElementById('resultDate').textContent = beneficiary.completionDate;
+                document.getElementById('resultCertID').textContent = beneficiary.certificateId;
+                document.getElementById('resultCard').classList.add('show');
+                document.getElementById('noResultAlert').style.display = 'none';
+            } else {
+                document.getElementById('resultCard').classList.remove('show');
+                document.getElementById('noResultAlert').style.display = 'block';
+            }
+        }
+
+        function generateCertificate() {
+            const name = document.getElementById('resultName').textContent;
+            alert(`Generating certificate for ${name}...`);
+            window.open('certificate.html', '_blank');
+        }
+
+        function viewProgress() {
+            alert('Redirecting to progress details...');
+            window.location.href = 'analytics.html';
+        }
+    </script>
+</body>
+
+</html>

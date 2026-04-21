@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - LMS Solution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Settings Content fills full width (no in-page tabs) */
+        .settings-content {
+            padding: var(--space-2xl);
+            background: var(--gray-50);
+            min-height: calc(100vh - 64px);
+        }
+
+        .settings-panel {
+            display: none;
+        }
+
+        .settings-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-xl);
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+
+        .settings-header h2 {
+            margin: 0;
+            font-size: var(--text-2xl);
+        }
+
+        .settings-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: var(--space-xl);
+            border: 1px solid var(--gray-100);
+        }
+
+        .mini-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .mini-table th {
+            text-align: left;
+            padding: var(--space-md);
+            font-size: var(--text-sm);
+            color: var(--gray-500);
+            border-bottom: 2px solid var(--gray-100);
+            font-weight: 600;
+        }
+
+        .mini-table td {
+            padding: var(--space-md);
+            font-size: var(--text-sm);
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .mini-table tr:hover {
+            background: var(--gray-50);
+        }
+
+        .search-bar {
+            display: flex;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-lg);
+        }
+
+        .search-bar input {
+            flex: 1;
+        }
+
+        .perm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--space-sm);
+        }
+
+        .perm-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm) var(--space-md);
+            background: var(--gray-50);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+        }
+
+        .perm-item input[type="checkbox"] {
+            accent-color: var(--primary-500);
+            width: 16px;
+            height: 16px;
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--gray-300);
+            border-radius: var(--radius-xl);
+            padding: var(--space-2xl);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--gray-50);
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary-400);
+            background: var(--primary-50);
+        }
+
+        .upload-zone-icon {
+            font-size: 3rem;
+            margin-bottom: var(--space-md);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            display: inline-block;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: var(--gray-300);
+            border-radius: 24px;
+            transition: 0.3s;
+        }
+
+        .toggle-slider:before {
+            content: '';
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle-switch input:checked+.toggle-slider {
+            background: var(--success);
+        }
+
+        .toggle-switch input:checked+.toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .beneficiary-fields {
+            display: none;
+        }
+
+        .beneficiary-fields.show {
+            display: block;
+        }
+
+
+
+
+
+        @media (max-width: 768px) {
+            .settings-content {
+                padding: var(--space-lg);
+            }
+
+            .mini-table {
+                font-size: var(--text-xs);
+            }
+
+            .mini-table th,
+            .mini-table td {
+                padding: var(--space-sm);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar"
+        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: var(--shadow-lg); padding: var(--space-md) var(--space-lg); position: sticky; top: 0; z-index: var(--z-sticky); display: flex; align-items: center; justify-content: space-between;">
+        <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()"
+            style="color:white;background:rgba(255,255,255,0.2);border:none;">☰</button>
+        <a href="landing.html" class="navbar-brand" style="color:white;-webkit-text-fill-color:white;">📚 LMS
+            Solution</a>
+        <div class="navbar-actions" style="display:flex;align-items:center;gap:var(--space-sm);">
+            <div id="roleSwitcher"></div>
+            <div class="navbar-user" onclick="toggleUserDropdown(event)">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">User</div>
+                    <div class="user-role" id="userRole">Beneficiary</div>
+                </div>
+                <div class="user-dropdown">
+                    <a href="profile.html" class="dropdown-item">👤 My Profile</a>
+                    <a href="change-password.html" class="dropdown-item">🔒 Change Password</a>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-nav" onclick="logout()">🚪 Logout</button>
+        </div>
+    </nav>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header" style="display:flex;align-items:center;justify-content:space-between;">
+            <a href="landing.html" class="sidebar-logo" style="text-decoration:none;">📚 LMS</a>
+            <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">«</button>
+        </div>
+        <nav class="sidebar-nav" id="sidebarNav"></nav>
+        <div class="sidebar-footer"><button class="btn btn-danger btn-full" onclick="logout()">🚪 <span class="sidebar-btn-text">Logout</span></button></div>
+    </aside>
+
+    <main class="main-content">
+        <div class="settings-content">
+            <!-- ===== USERS TAB ===== -->
+            <div class="settings-panel active" id="panel-users">
+                <div class="settings-header">
+                    <h2><i class="fas fa-users"></i> User Management</h2>
+                    <div style="display: flex; gap: var(--space-sm); flex-wrap:wrap;">
+                        <button class="btn btn-secondary" onclick="openModal('bulkUploadModal')">📤 Bulk Upload</button>
+                        <button class="btn btn-primary" onclick="openAddUserModal()">+ Add User</button>
+                    </div>
+                </div>
+                <div class="settings-card">
+                    <div class="search-bar">
+                        <input type="text" class="form-input" placeholder="Search users by name or mobile..."
+                            id="userSearch" oninput="filterUsers()">
+                        <select class="form-select" style="width: auto;" id="roleFilter" onchange="filterUsers()">
+                            <option value="">All Roles</option>
+                            <option value="admin">Admin</option>
+                            <option value="headoffice">Head Office</option>
+                            <option value="unitmanager">Unit Manager</option>
+                            <option value="beneficiary">Beneficiary</option>
+                        </select>
+                    </div>
+                    <div class="table-wrapper" style="overflow-x:auto;">
+                        <table class="mini-table" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Mobile</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>District</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersBody"></tbody>
+                        </table>
+                        <div id="usersPagination"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== ROLES TAB ===== -->
+            <div class="settings-panel" id="panel-roles">
+                <div class="settings-header">
+                    <h2><i class="fas fa-user-shield"></i> Roles & Permissions</h2>
+                    <button class="btn btn-primary" onclick="openAddRoleModal()">+ Add Role</button>
+                </div>
+                <!-- Role Selector Dropdown -->
+                <div class="form-group" style="max-width: 300px; margin-bottom: var(--space-xl);">
+                    <label class="form-label">Select Role</label>
+                    <select class="form-select" id="roleDropdown"
+                        onchange="selectRole(this.value ? parseInt(this.value) : null)">
+                        <option value="">-- Choose a Role --</option>
+                    </select>
+                </div>
+                <!-- Permission Tree -->
+                <div class="settings-card" id="permTreeCard" style="display:none;">
+                    <div
+                        style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-lg);">
+                        <div>
+                            <h3 style="margin:0;" id="selectedRoleName">Role</h3>
+                            <span class="badge badge-primary" id="selectedRoleKey"
+                                style="margin-top:var(--space-xs);display:inline-block;">key</span>
+                        </div>
+                        <div style="display:flex;gap:var(--space-sm);">
+                            <button class="btn btn-sm btn-secondary" id="editSelectedRole"
+                                onclick="editSelectedRole()">✏️ Edit</button>
+                            <button class="btn btn-sm btn-danger" id="deleteSelectedRole"
+                                onclick="deleteSelectedRole()">🗑️ Delete</button>
+                        </div>
+                    </div>
+                    <div id="permTree"></div>
+                </div>
+            </div>
+
+            <!-- ===== COURSES TAB ===== -->
+            <div class="settings-panel" id="panel-courses">
+                <div class="settings-header">
+                    <h2><i class="fas fa-book"></i> Course Management</h2>
+                    <button class="btn btn-primary" onclick="openAddCourseModal()">+ Add Course</button>
+                </div>
+                <div class="settings-card">
+                    <div class="table-wrapper" style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+                    <table class="mini-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Course</th>
+                                <th>Modules</th>
+                                <th>Category</th>
+                                <th>Pre-Exam</th>
+                                <th>Post-Exam</th>
+                                <th>Exam Config</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="coursesBody"></tbody>
+                    </table>
+                    </div>
+                    <div id="coursesPagination"></div>
+                </div>
+            </div>
+
+            <!-- ===== MODULES TAB ===== -->
+            <div class="settings-panel" id="panel-modules">
+                <div class="settings-header">
+                    <h2><i class="fas fa-boxes"></i> Module Management</h2>
+                    <button class="btn btn-primary" onclick="openAddModuleModal()">+ Add Module</button>
+                </div>
+                <div class="settings-card">
+                    <div class="table-wrapper" style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+                    <table class="mini-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Module</th>
+                                <th>Course</th>
+                                <th>Duration</th>
+                                <th>Type</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modulesBody"></tbody>
+                    </table>
+                    </div>
+                    <div id="modulesPagination"></div>
+                </div>
+            </div>
+
+            <!-- ===== QUESTIONS TAB ===== -->
+            <div class="settings-panel" id="panel-questions">
+                <div class="settings-header">
+                    <h2><i class="fas fa-question-circle"></i> Questions Bank</h2>
+                    <button class="btn btn-primary" onclick="openAddQuestionModal()">+ Add Question</button>
+                </div>
+                <div class="settings-card">
+                    <div class="table-wrapper" style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+                    <table class="mini-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Question</th>
+                                <th>Category</th>
+                                <th>Correct Answer</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="questionsBody"></tbody>
+                    </table>
+                    </div>
+                    <div id="questionsPagination"></div>
+                </div>
+            </div>
+
+            <!-- ===== EXAMS TAB ===== -->
+            <div class="settings-panel" id="panel-exams">
+                <div class="settings-header">
+                    <h2><i class="fas fa-edit"></i> Pre/Post Exam Setup</h2>
+                    <button class="btn btn-primary" onclick="openAddExamModal()">+ Create Exam</button>
+                </div>
+                <div class="settings-card">
+                    <div class="table-wrapper" style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+                    <table class="mini-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Exam Name</th>
+                                <th>Type</th>
+                                <th>Questions</th>
+                                <th>Time</th>
+                                <th>Pass %</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="examsBody"></tbody>
+                    </table>
+                    </div>
+                    <div id="examsPagination"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bulk Upload Modal -->
+    <div class="modal-backdrop" id="bulkUploadModal">
+        <div class="modal" style="max-width:720px;max-height:85vh;display:flex;flex-direction:column;">
+            <div class="modal-header">
+                <h3 class="modal-title">📤 Bulk User Upload</h3><button class="modal-close"
+                    onclick="closeModal('bulkUploadModal')">✖</button>
+            </div>
+            <div class="modal-body" style="overflow-y:auto;flex:1;">
+                <div class="alert alert-info" style="margin-bottom:var(--space-lg);"><strong>ℹ️</strong> Download the
+                    template, fill in details, upload. Users get SMS with credentials.</div>
+                <div style="display:flex;gap:var(--space-md);flex-wrap:wrap;margin-bottom:var(--space-xl);">
+                    <button class="btn btn-secondary" onclick="downloadTemplate('regular')">📄 Regular User
+                        Template</button>
+                    <button class="btn btn-secondary" onclick="downloadTemplate('beneficiary')">📄 Beneficiary
+                        Template</button>
+                </div>
+                <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-zone-icon">📤</div>
+                    <p style="font-weight:600;">Click to upload or drag & drop</p>
+                    <p style="font-size:var(--text-sm);color:var(--gray-500);">.xlsx, .xls files</p>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none;"
+                        onchange="handleFileUpload(event)">
+                </div>
+                <div id="uploadPreview" style="display:none;margin-top:var(--space-xl);">
+                    <h4>Preview</h4>
+                    <div style="overflow-x:auto;">
+                        <table class="mini-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Mobile</th>
+                                    <th>Role</th>
+                                    <th>District</th>
+                                    <th>Upazila</th>
+                                </tr>
+                            </thead>
+                            <tbody id="previewBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="alert alert-success" style="margin-top:var(--space-md);">? <strong
+                            id="uploadCount">5</strong> users ready.</div>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary"
+                    onclick="closeModal('bulkUploadModal')">Cancel</button><button class="btn btn-primary"
+                    id="bulkSubmitBtn" onclick="submitBulkUpload()" disabled>Upload & Create</button></div>
+        </div>
+    </div>
+
+    <!-- Add/Edit User Modal -->
+    <div class="modal-backdrop" id="addUserModal">
+        <div class="modal" style="max-width:680px;max-height:85vh;display:flex;flex-direction:column;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="userModalTitle">Add New User</h3><button class="modal-close"
+                    onclick="closeModal('addUserModal')">✖</button>
+            </div>
+            <div class="modal-body" style="overflow-y:auto;flex:1;">
+                <input type="hidden" id="editUserId" value="">
+                <div class="grid grid-cols-1 grid-md-2 gap-md">
+                    <div class="form-group"><label class="form-label">Full Name *</label><input type="text"
+                            class="form-input" id="uName"></div>
+                    <div class="form-group"><label class="form-label">Mobile *</label><input type="tel"
+                            class="form-input" id="uMobile" placeholder="01XXXXXXXXX"></div>
+                </div>
+                <div class="grid grid-cols-1 grid-md-2 gap-md">
+                    <div class="form-group"><label class="form-label">Role *</label>
+                        <select class="form-select" id="uRole" onchange="toggleBeneficiaryFields()">
+                            <option value="beneficiary">Beneficiary</option>
+                            <option value="unitmanager">Unit Manager</option>
+                            <option value="territorymanager">Territory Manager</option>
+                            <option value="headoffice">Head Office</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="uEmailGroup"><label class="form-label">Email (Optional)</label><input
+                            type="email" class="form-input" id="uEmail"></div>
+                </div>
+                <div class="grid grid-cols-1 grid-md-2 gap-md">
+                    <div class="form-group"><label class="form-label">District</label><select class="form-select"
+                            id="uDistrict" onchange="populateUpazilas('uDistrict','uUpazila')">
+                            <option value="">Select</option>
+                        </select></div>
+                    <div class="form-group"><label class="form-label">Upazila</label><select class="form-select"
+                            id="uUpazila">
+                            <option value="">Select</option>
+                        </select></div>
+                </div>
+                <div class="beneficiary-fields" id="beneficiaryFieldsSection">
+                    <hr style="margin:var(--space-lg) 0;">
+                    <h4 style="margin-bottom:var(--space-md);">👤 Beneficiary Details (Step 1: Basic Info)</h4>
+                    <div class="grid grid-cols-1 grid-md-2 gap-md">
+                        <div class="form-group"><label class="form-label">Age (বয়স) *</label><input type="number"
+                                class="form-input" id="uAge" min="15" max="100" placeholder="বয়স"></div>
+                        <div class="form-group"><label class="form-label">Gender (লিঙ্গ) *</label><select
+                                class="form-select" id="uGender">
+                                <option value="male">পুরুষ</option>
+                                <option value="female">নারী</option>
+                                <option value="other">অন্যান্য</option>
+                            </select></div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Marital Status (বৈবাহিক অবস্থা)</label>
+                        <select class="form-select" id="uMarital">
+                            <option value="single">অবিবাহিত</option>
+                            <option value="married">বিবাহিত</option>
+                            <option value="widow">বিধবা</option>
+                            <option value="divorced">তালাকপ্রাপ্ত</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Occupation (প্রধান পেশা) *</label>
+                        <select class="form-select" id="uOccupation">
+                            <option value="agriculture">কৃষি</option>
+                            <option value="business">ব্যবসা</option>
+                            <option value="service">চাকুরি</option>
+                            <option value="labor">দিনমজুরি</option>
+                            <option value="other">অন্যান্য</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-1 grid-md-2 gap-md">
+                        <div class="form-group"><label class="form-label">Education (শিক্ষাগত যোগ্যতা) *</label>
+                            <select class="form-select" id="uEducation">
+                                <option value="">নির্বাচন করুন</option>
+                                <option value="illiterate">নিরক্ষর</option>
+                                <option value="primary">প্রাথমিক</option>
+                                <option value="jsc">জেএসসি / সমমান</option>
+                                <option value="ssc">এসএসসি / সমমান</option>
+                                <option value="hsc">এইচএসসি / সমমান</option>
+                                <option value="graduate">স্নাতক ও তদূর্ধ্ব</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label class="form-label">Family Members (পরিবার সদস্য
+                                সংখ্যা)</label><input type="number" class="form-input" id="uFamilyMembers" min="1"
+                                placeholder="যেমন: ৪"></div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Union (ইউনিয়ন)</label><input type="text"
+                            class="form-input" id="uUnion" placeholder="ইউনিয়নের নাম"></div>
+                    <div class="form-group"><label class="form-label">Address (ঠিকানা)</label><input type="text"
+                            class="form-input" id="uAddress" placeholder="বিস্তারিত ঠিকানা"></div>
+
+                    <hr style="margin:var(--space-lg) 0;">
+                    <h4 style="margin-bottom:var(--space-md);">💰 Step 2: Income & Remittance</h4>
+                    <div class="form-group"><label class="form-label">Monthly Income (মাসিক আয়)</label><input
+                            type="number" class="form-input" id="uMonthlyIncome" min="0" placeholder="টাকায়"></div>
+                    <div class="grid grid-cols-1 grid-md-2 gap-md">
+                        <div class="form-group"><label class="form-label">Other Income? (অন্যান্য আয়?)</label><select
+                                class="form-select" id="uHasOtherIncome"
+                                onchange="document.getElementById('otherIncomeField').style.display=this.value==='yes'?'block':'none'">
+                                <option value="no">না</option>
+                                <option value="yes">হ্যাঁ</option>
+                            </select></div>
+                        <div class="form-group" id="otherIncomeField" style="display:none;"><label
+                                class="form-label">Other Income Amount</label><input type="number" class="form-input"
+                                id="uOtherIncome" min="0"></div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Income Source (আয়ের উৎস)</label><input type="text"
+                            class="form-input" id="uIncomeSource" placeholder="যেমন: কৃষি, ব্যবসা, বৈদেশিক আয়"></div>
+                    <div class="form-group"><label class="form-label">Has Migrant Member? (প্রবাসী
+                            সদস্য?)</label><select class="form-select" id="uHasMigrant"
+                            onchange="document.getElementById('migrantDetailsSection').style.display=this.value==='yes'?'block':'none'">
+                            <option value="no">না</option>
+                            <option value="yes">হ্যাঁ</option>
+                        </select></div>
+                    <div id="migrantDetailsSection"
+                        style="display:none;padding:var(--space-md);background:var(--gray-50);border-radius:var(--radius-lg);margin-top:var(--space-sm);">
+                        <div class="grid grid-cols-1 grid-md-2 gap-md">
+                            <div class="form-group"><label class="form-label">Relation (সম্পর্ক)</label><select
+                                    class="form-select" id="uMigrantRelation">
+                                    <option value="">নির্বাচন করুন</option>
+                                    <option value="spouse">স্বামী/স্ত্রী</option>
+                                    <option value="father">পিতা</option>
+                                    <option value="mother">মাতা</option>
+                                    <option value="brother">ভাই</option>
+                                    <option value="sister">বোন</option>
+                                    <option value="son">ছেলে</option>
+                                    <option value="daughter">মেয়ে</option>
+                                    <option value="self">নিজে</option>
+                                </select></div>
+                            <div class="form-group"><label class="form-label">Country (দেশ)</label><input type="text"
+                                    class="form-input" id="uMigrantCountry" placeholder="যেমন: সৌদি আরব"></div>
+                        </div>
+                        <div class="grid grid-cols-1 grid-md-2 gap-md">
+                            <div class="form-group"><label class="form-label">Years Abroad (বছর)</label><input
+                                    type="number" class="form-input" id="uYearsAbroad" min="0"></div>
+                            <div class="form-group"><label class="form-label">Remittance Frequency</label><select
+                                    class="form-select" id="uRemitFreq">
+                                    <option value="">নির্বাচন করুন</option>
+                                    <option value="monthly">মাসিক ভিত্তিতে</option>
+                                    <option value="bimonthly">৩ মাস পরপর</option>
+                                    <option value="quarterly">৬ মাস পরপর</option>
+                                    <option value="irregular">অনিয়মিত</option>
+                                </select></div>
+                        </div>
+                        <div class="form-group"><label class="form-label">Remittance Channel</label><select
+                                class="form-select" id="uRemitChannel">
+                                <option value="">নির্বাচন করুন</option>
+                                <option value="bank">ব্যাংক</option>
+                                <option value="mfs">এমএফএস</option>
+                                <option value="exchange">মানি এক্সচেঞ্জ</option>
+                                <option value="hundi">হুন্ডি</option>
+                                <option value="other">অন্যান্য</option>
+                            </select></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary"
+                    onclick="closeModal('addUserModal')">Cancel</button><button class="btn btn-primary"
+                    onclick="saveUser()">Save User</button></div>
+        </div>
+    </div>
+
+    <!-- Add Role Modal -->
+    <div class="modal-backdrop" id="addRoleModal">
+        <div class="modal" style="max-width:600px;max-height:85vh;display:flex;flex-direction:column;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="roleModalTitle">Add Role</h3><button class="modal-close"
+                    onclick="closeModal(\'addRoleModal\')">✖</button>
+            </div>
+            <div class="modal-body" style="overflow-y:auto;flex:1;">
+                <input type="hidden" id="editRoleId" value="">
+                <div class="form-group"><label class="form-label">Role Name *</label><input type="text"
+                        class="form-input" id="rName"></div>
+                <div class="form-group"><label class="form-label">Role Key *</label><input type="text"
+                        class="form-input" id="rKey" placeholder="e.g. fieldofficer"></div>
+                <div class="form-group"><label class="form-label">Permissions</label>
+                    <div class="perm-grid" id="rolePermsList"></div>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary"
+                    onclick="closeModal('addRoleModal')">Cancel</button><button class="btn btn-primary"
+                    onclick="saveRole()">Save Role</button></div>
+        </div>
+    </div>
+
+    <!-- Add Course Modal -->
+    <div class="modal-backdrop" id="addCourseModal">
+        <div class="modal" style="max-width:680px;max-height:85vh;display:flex;flex-direction:column;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="courseModalTitle">Add Course</h3><button class="modal-close"
+                    onclick="closeModal(\'addCourseModal\')">✖</button>
+            </div>
+            <div class="modal-body" style="overflow-y:auto;flex:1;">
+                <input type="hidden" id="editCourseId" value="">
+                <div class="form-group"><label class="form-label">Title *</label><input type="text" class="form-input"
+                        id="cTitle"></div>
+                <div class="form-group"><label class="form-label">Description</label><textarea class="form-input"
+                        id="cDesc" rows="2"></textarea></div>
+                <div class="grid grid-cols-1 grid-md-2 gap-md">
+                    <div class="form-group"><label class="form-label">Category</label><input type="text"
+                            class="form-input" id="cCategory"></div>
+                    <div class="form-group"><label class="form-label">Duration</label><input type="text"
+                            class="form-input" id="cDuration"></div>
+                </div>
+                <div class="grid grid-cols-1 grid-md-2 gap-md">
+                    <div class="form-group"><label class="form-label">Pre-Exam</label><select class="form-select"
+                            id="cPreExam">
+                            <option value="">None</option>
+                        </select></div>
+                    <div class="form-group"><label class="form-label">Post-Exam</label><select class="form-select"
+                            id="cPostExam">
+                            <option value="">None</option>
+                        </select></div>
+                </div>
+                <div class="grid grid-cols-1 grid-md-2 gap-md" style="margin-top:var(--space-md);">
+                    <label class="perm-item"><input type="checkbox" id="cPreMandatory"> Pre-Exam Mandatory</label>
+                    <label class="perm-item"><input type="checkbox" id="cPostMandatory"> Post-Exam Mandatory</label>
+                </div>
+                <hr style="margin:var(--space-lg) 0;">
+                <h4 style="margin-bottom:var(--space-md);">🖼️ Thumbnail & Video Config</h4>
+                <div class="form-group"><label class="form-label">Course Thumbnail</label><input type="file"
+                        class="form-input" id="cThumbnail" accept="image/*" style="padding:var(--space-sm);"></div>
+                <div class="grid grid-cols-1 grid-md-2 gap-md">
+                    <label class="perm-item"><input type="checkbox" id="cAllowSeek" checked> Allow Video
+                        Seek/Scroll</label>
+                    <label class="perm-item"><input type="checkbox" id="cAllowFastForward" checked> Allow Fast
+                        Forward</label>
+                </div>
+                <div class="form-group"><label class="form-label">Default Subtitles</label>
+                    <select class="form-select" id="cSubtitles" multiple size="3">
+                        <option value="Bangla" selected>Bangla</option>
+                        <option value="English">English</option>
+                        <option value="Hindi">Hindi</option>
+                    </select>
+                    <span style="font-size:var(--text-xs);color:var(--gray-500);">Hold Ctrl to select multiple</span>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary"
+                    onclick="closeModal('addCourseModal')">Cancel</button><button class="btn btn-primary"
+                    onclick="saveCourse()">Save Course</button></div>
+        </div>
+    </div>
+
+    <!-- Add Module Modal -->
+    <div class="modal-backdrop" id="addModuleModal">
+        <div class="modal" style="max-width:600px;max-height:85vh;display:flex;flex-direction:column;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="moduleModalTitle">Add Module</h3><button class="modal-close"
+                    onclick="closeModal(\'addModuleModal\')">✖</button>
+            </div>
+            <div class="modal-body" style="overflow-y:auto;flex:1;">
+                <input type="hidden" id="editModuleCourseId" value=""><input type="hidden" id="editModuleId" value="">
+                <div class="form-group"><label class="form-label">Course *</label><select class="form-select"
+                        id="mCourse">
+                        <option value="">Select</option>
+                    </select></div>
+                <div class="form-group"><label class="form-label">Title *</label><input type="text" class="form-input"
+                        id="mTitle"></div>
+                <div class="form-group"><label class="form-label">Description</label><textarea class="form-input"
+                        id="mDesc" rows="2"></textarea></div>
+                <div class="form-group"><label class="form-label">Learning Objectives</label><textarea
+                        class="form-input" id="mLearningObjectives" rows="3"
+                        placeholder="Enter each objective on a new line&#10;e.g. Understand basic financial concepts&#10;Learn how to create a budget"></textarea>
+                    <span style="font-size:var(--text-xs);color:var(--gray-500);">One objective per line</span>
+                </div>
+                <div class="form-group"><label class="form-label">Key Topics Covered</label><textarea class="form-input"
+                        id="mKeyTopics" rows="3"
+                        placeholder="Enter each topic on a new line&#10;e.g. Financial Literacy Basics&#10;Budgeting Principles"></textarea>
+                    <span style="font-size:var(--text-xs);color:var(--gray-500);">One topic per line</span>
+                </div>
+                <div class="grid grid-cols-1 grid-md-2 gap-md">
+                    <div class="form-group"><label class="form-label">Duration</label><input type="text"
+                            class="form-input" id="mDuration"></div>
+                    <div class="form-group"><label class="form-label">Type</label><select class="form-select" id="mType"
+                            onchange="toggleModuleFields()">
+                            <option value="Video Lesson">Video Lesson</option>
+                            <option value="Reading Material">Reading Material</option>
+                            <option value="Interactive">Interactive</option>
+                        </select></div>
+                </div>
+                <div id="mVideoConfigSection">
+                    <div class="grid grid-cols-1 grid-md-2 gap-md">
+                        <div class="form-group"><label class="form-label">Video URL (YouTube/Vimeo)</label><input
+                                type="url" class="form-input" id="mVideoUrl"></div>
+                        <div class="form-group"><label class="form-label">OR Upload Video File</label><input type="file"
+                                class="form-input" id="mVideoFile" accept="video/mp4,video/x-m4v,video/*"
+                                style="padding:var(--space-sm);"></div>
+                    </div>
+                    <hr style="margin:var(--space-lg) 0;">
+                    <h4 style="margin-bottom:var(--space-md);">🎥 Media & Config</h4>
+                    <div class="grid grid-cols-1 grid-md-2 gap-md">
+                        <div class="form-group"><label class="form-label">Module Thumbnail</label><input type="file"
+                                class="form-input" id="mThumbnail" accept="image/*" style="padding:var(--space-sm);">
+                        </div>
+                        <div class="form-group"><label class="form-label">Subtitle File (.srt / .vtt)</label><input
+                                type="file" class="form-input" id="mSubtitleFile" accept=".srt,.vtt"
+                                style="padding:var(--space-sm);"></div>
+                    </div>
+                    <div class="grid grid-cols-1 grid-md-2 gap-md">
+                        <label class="perm-item"><input type="checkbox" id="mAllowSeek" checked> Allow Seek</label>
+                        <label class="perm-item"><input type="checkbox" id="mAllowFastForward" checked> Allow Fast
+                            Forward</label>
+                    </div>
+                    <div class="form-group"><label class="form-label">Subtitle Language</label>
+                        <select class="form-select" id="mSubtitleLang">
+                            <option value="Bangla">Bangla</option>
+                            <option value="English">English</option>
+                            <option value="None">None</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary"
+                    onclick="closeModal('addModuleModal')">Cancel</button><button class="btn btn-primary"
+                    onclick="saveModule()">Save Module</button></div>
+        </div>
+    </div>
+
+    <!-- Add Question Modal -->
+    <div class="modal-backdrop" id="addQuestionModal">
+        <div class="modal" style="max-width:680px;max-height:85vh;display:flex;flex-direction:column;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="questionModalTitle">Add Question</h3><button class="modal-close"
+                    onclick="closeModal(\'addQuestionModal\')">✖</button>
+            </div>
+            <div class="modal-body" style="overflow-y:auto;flex:1;">
+                <input type="hidden" id="editQuestionId" value="">
+                <div class="form-group"><label class="form-label">Question *</label><textarea class="form-input"
+                        id="qText" rows="2"></textarea></div>
+                <div class="grid grid-cols-1 grid-md-2 gap-md">
+                    <div class="form-group"><label class="form-label">Option A *</label><input type="text"
+                            class="form-input" id="qOptA"></div>
+                    <div class="form-group"><label class="form-label">Option B *</label><input type="text"
+                            class="form-input" id="qOptB"></div>
+                    <div class="form-group"><label class="form-label">Option C</label><input type="text"
+                            class="form-input" id="qOptC"></div>
+                    <div class="form-group"><label class="form-label">Option D</label><input type="text"
+                            class="form-input" id="qOptD"></div>
+                </div>
+                <div class="grid grid-cols-1 grid-md-2 gap-md">
+                    <div class="form-group"><label class="form-label">Correct *</label><select class="form-select"
+                            id="qCorrect">
+                            <option value="0">A</option>
+                            <option value="1">B</option>
+                            <option value="2">C</option>
+                            <option value="3">D</option>
+                        </select></div>
+                    <div class="form-group"><label class="form-label">Category</label><input type="text"
+                            class="form-input" id="qCategory"></div>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary"
+                    onclick="closeModal('addQuestionModal')">Cancel</button><button class="btn btn-primary"
+                    onclick="saveQuestion()">Save</button></div>
+        </div>
+    </div>
+
+    <!-- Add Exam Modal -->
+    <div class="modal-backdrop" id="addExamModal">
+        <div class="modal" style="max-width:680px;max-height:85vh;display:flex;flex-direction:column;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="examModalTitle">Create Exam</h3><button class="modal-close"
+                    onclick="closeModal(\'addExamModal\')">✖</button>
+            </div>
+            <div class="modal-body" style="overflow-y:auto;flex:1;">
+                <input type="hidden" id="editExamId" value="">
+                <div class="grid grid-cols-1 grid-md-2 gap-md">
+                    <div class="form-group"><label class="form-label">Exam Name *</label><input type="text"
+                            class="form-input" id="eName"></div>
+                    <div class="form-group"><label class="form-label">Type *</label><select class="form-select"
+                            id="eType">
+                            <option value="pre">Pre-Exam</option>
+                            <option value="post">Post-Exam</option>
+                        </select></div>
+                    <div class="form-group"><label class="form-label">Course</label><select class="form-select"
+                            id="eCourse">
+                            <option value="">Select</option>
+                        </select></div>
+                    <div class="form-group"><label class="form-label">Time (min)</label><input type="number"
+                            class="form-input" id="eTime" value="15"></div>
+                    <div class="form-group"><label class="form-label">Pass %</label><input type="number"
+                            class="form-input" id="ePass" value="60"></div>
+                </div>
+                <div class="form-group" style="margin-top:var(--space-md);"><label class="form-label">Questions</label>
+                    <div class="perm-grid" id="examQuestionsList"></div>
+                </div>
+                <div class="form-group" style="margin-top:var(--space-md);">
+                    <label class="perm-item">
+                        <input type="checkbox" id="eCanRetake" checked> Allow Multiple Exam Attempts
+                    </label>
+                    <span style="font-size:var(--text-xs);color:var(--gray-500);display:block;margin-top:4px;">If
+                        checked, users can retake the exam and review past attempts.</span>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary"
+                    onclick="closeModal('addExamModal')">Cancel</button><button class="btn btn-primary"
+                    onclick="saveExam()">Save</button></div>
+        </div>
+    </div>
+
+    <!-- SMS Modal -->
+    <div class="modal-backdrop" id="smsModal">
+        <div class="modal" style="max-width:500px;">
+            <div class="modal-header">
+                <h3 class="modal-title">📩 Send SMS</h3><button class="modal-close"
+                    onclick="closeModal(\'smsModal\')">✖</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group"><label class="form-label">To</label><input type="text" class="form-input"
+                        id="smsTo" readonly></div>
+                <div class="form-group"><label class="form-label">Message</label><textarea class="form-input"
+                        id="smsMsg" rows="3">Your LMS login: Mobile: {mobile}, Pass: lms@123</textarea></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary"
+                    onclick="closeModal('smsModal')">Cancel</button><button class="btn btn-success"
+                    onclick="sendSms()">??
+                    Send</button></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        const role = getUserRole();
+        if (role !== 'admin' && role !== 'headoffice') { alert('Access denied.'); window.location.href = 'landing.html'; }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
+            const panel = document.getElementById('panel-' + tab);
+            if (panel) panel.classList.add('active');
+            window.location.hash = tab;
+        }
+        const initHash = window.location.hash.replace('#', '') || 'users';
+        switchTab(initHash);
+        window.addEventListener('hashchange', () => switchTab(window.location.hash.replace('#', '') || 'users'));
+
+        const allPerms = ['view_analytics', 'manage_courses', 'manage_users', 'view_reports', 'view_courses', 'take_exams', 'view_certificate', 'manage_settings', 'manage_exams', 'manage_questions'];
+        const letters = ['A', 'B', 'C', 'D'];
+
+        function populateDistricts(selId) { const s = document.getElementById(selId); if (!s) return; s.innerHTML = '<option value="">Select</option>'; demoData.districts.forEach(d => s.add(new Option(d, d))); }
+        function populateUpazilas(dId, uId) { const d = document.getElementById(dId).value; const s = document.getElementById(uId); s.innerHTML = '<option value="">Select</option>'; if (d && demoData.upazilas[d]) demoData.upazilas[d].forEach(u => s.add(new Option(u, u))); }
+        function populateCourseDD(id) { const s = document.getElementById(id); s.innerHTML = '<option value="">Select</option>'; demoData.courses.forEach(c => s.add(new Option(c.title, c.id))); }
+        function populateExamDD() { ['cPreExam', 'cPostExam'].forEach(id => { const s = document.getElementById(id); s.innerHTML = '<option value="">None</option>'; demoData.exams.forEach(e => s.add(new Option(e.name, e.id))); }); }
+        populateDistricts('uDistrict');
+
+        function toggleBeneficiaryFields() { const r = document.getElementById('uRole').value; document.getElementById('beneficiaryFieldsSection').className = r === 'beneficiary' ? 'beneficiary-fields show' : 'beneficiary-fields'; }
+        toggleBeneficiaryFields();
+
+        function toggleModuleFields() { const t = document.getElementById('mType').value; document.getElementById('mVideoConfigSection').style.display = t === 'Reading Material' ? 'none' : 'block'; }
+        toggleModuleFields();
+
+        // ===== RENDER =====
+        function renderUsers(f) {
+            const rf = document.getElementById('roleFilter').value; let u = demoData.users;
+            if (f) u = u.filter(x => x.name.toLowerCase().includes(f) || x.mobile.includes(f));
+            if (rf) u = u.filter(x => x.role === rf);
+            const pg = paginate(u, 'users', 10);
+            document.getElementById('usersBody').innerHTML = pg.rows.map(x => {
+                const isInactive = x.status !== 'Active';
+                const editBtnClass = isInactive ? 'btn btn-sm btn-secondary" disabled style="opacity:0.4;cursor:not-allowed;' : 'btn btn-sm btn-secondary';
+                const editOnclick = isInactive ? '' : ' onclick="editUser(' + x.id + ')"';
+                return '<tr' + (isInactive ? ' style="opacity:0.7;background:var(--gray-50);"' : '') + '><td>' + x.id + '</td><td><strong>' + x.name + '</strong>' + (isInactive ? ' <span style="color:var(--error);font-size:var(--text-xs);">(Inactive)</span>' : '') + '</td><td>' + x.mobile + '</td><td>' + (x.email || '-') + '</td><td><span class="badge badge-' + (x.role === 'admin' ? 'error' : x.role === 'beneficiary' ? 'primary' : 'warning') + '">' + x.role + '</span></td><td>' + x.district + '</td><td><label class="toggle-switch"><input type="checkbox" ' + (x.status === 'Active' ? 'checked' : '') + ' onchange="toggleUserStatus(' + x.id + ')"><span class="toggle-slider"></span></label></td><td style="white-space:nowrap"><button class="' + editBtnClass + '"' + editOnclick + '>✏️</button> <button class="btn btn-sm btn-warning" onclick="resetPwd(' + x.id + ')" title="Reset Password">🔑</button> <button class="btn btn-sm btn-primary" onclick="openSmsModal(\'' + x.mobile + '\')" >💬</button> <button class="btn btn-sm btn-danger" onclick="delUser(' + x.id + ')">🗑️</button></td></tr>';
+            }).join('');
+            document.getElementById('usersPagination').innerHTML = renderPaginationControls('users', pg, 'filterUsers');
+        }
+        function filterUsers() { renderUsers(document.getElementById('userSearch').value.toLowerCase()); }
+
+        let selectedRoleId = null;
+
+        const permissionGroups = {
+            'Analytics': ['view_analytics'],
+            'Courses': ['manage_courses', 'view_courses'],
+            'Content Management': ['manage_content'],
+            'Users': ['manage_users'],
+            'Reports': ['view_reports'],
+            'Exams': ['take_exams', 'manage_exams'],
+            'Certificates': ['view_certificate', 'manage_certificates']
+        };
+
+        function renderRoles() {
+            const dropdown = document.getElementById('roleDropdown');
+            if (dropdown) {
+                dropdown.innerHTML = '<option value="">-- Choose a Role --</option>' + demoData.roles.map(r =>
+                    '<option value="' + r.id + '"' + (r.id === selectedRoleId ? ' selected' : '') + '>' + r.name + '</option>'
+                ).join('');
+            }
+
+            if (selectedRoleId) {
+                const role = demoData.roles.find(r => r.id === selectedRoleId);
+                if (!role) { selectedRoleId = null; document.getElementById('permTreeCard').style.display = 'none'; return; }
+                document.getElementById('permTreeCard').style.display = 'block';
+                document.getElementById('selectedRoleName').textContent = role.name;
+                document.getElementById('selectedRoleKey').textContent = role.key;
+
+                const menuLinks = [
+                    { id: 'dashboard', label: 'Dashboard', type: 'parent' },
+                    { id: 'analytics', label: 'Analytics', type: 'parent' },
+                    { id: 'courses', label: 'Courses', type: 'parent', children: ['view_courses', 'manage_courses'] },
+                    { id: 'contents', label: 'Contents', type: 'parent', children: ['manage_content'] },
+                    { id: 'exams', label: 'Exams', type: 'parent', children: ['take_exams', 'manage_exams', 'manage_questions'] },
+                    { id: 'reports', label: 'Reports', type: 'parent', children: ['view_reports'] },
+                    { id: 'settings', label: 'Settings', type: 'parent', children: ['manage_settings', 'manage_users', 'manage_certificates'] }
+                ];
+
+                const hasAll = role.permissions.includes('all');
+                let treeHtml = '';
+                menuLinks.forEach(menu => {
+                    const children = menu.children || [];
+                    const hasAccessToAny = hasAll || role.permissions.includes(menu.id) || children.some(c => role.permissions.includes(c));
+                    const allChecked = hasAll || (children.length > 0 && children.every(c => role.permissions.includes(c))) || (children.length === 0 && role.permissions.includes(menu.id));
+
+                    treeHtml += '<div style="margin-bottom:var(--space-sm);border:1px solid var(--gray-200);border-radius:var(--radius-md);overflow:hidden;">';
+                    treeHtml += '<div style="display:flex;align-items:center;gap:var(--space-md);padding:var(--space-md) var(--space-lg);background:var(--gray-50);cursor:pointer;" onclick="const n=this.nextElementSibling; if(n) n.classList.toggle(\'hidden\'); const i=this.querySelector(\'.toggle-icon\'); if(i) i.textContent = n.classList.contains(\'hidden\') ? \'?\' : \'?\';">';
+                    if (children.length > 0) {
+                        treeHtml += '<span class="toggle-icon" style="font-size:var(--text-xs);color:var(--gray-500);width:16px;">?</span>';
+                    } else {
+                        treeHtml += '<span style="width:16px;"></span>';
+                    }
+                    treeHtml += '<input type="checkbox" ' + (allChecked ? 'checked' : '') + ' style="pointer-events:none;width:18px;height:18px;accent-color:var(--primary-600);" onclick="event.stopPropagation()">';
+                    treeHtml += '<strong style="font-size:var(--text-sm);color:var(--gray-800);">' + menu.label + '</strong>';
+                    treeHtml += '</div>';
+
+                    if (children.length > 0) {
+                        treeHtml += '<div style="padding:var(--space-sm) var(--space-lg) var(--space-sm) calc(var(--space-lg) + 32px); background: white;">';
+                        children.forEach(child => {
+                            const childChecked = hasAll || role.permissions.includes(child);
+                            treeHtml += '<label style="display:flex;align-items:center;gap:var(--space-md);padding:var(--space-xs) 0;font-size:var(--text-sm);color:var(--gray-600);cursor:pointer;margin-bottom:4px;">';
+                            treeHtml += '<input type="checkbox" ' + (childChecked ? 'checked' : '') + ' onchange="updateRolePermission(' + role.id + ', \'' + child + '\', this.checked)" style="width:16px;height:16px;accent-color:var(--primary-500);">';
+                            treeHtml += '<span>' + child.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) + '</span>';
+                            treeHtml += '</label>';
+                        });
+                        treeHtml += '</div>';
+                    }
+                    treeHtml += '</div>';
+                });
+                document.getElementById('permTree').innerHTML = treeHtml;
+            } else {
+                document.getElementById('permTreeCard').style.display = 'none';
+            }
+        }
+
+        function updateRolePermission(roleId, perm, isChecked) {
+            const role = demoData.roles.find(r => r.id === roleId);
+            if (!role) return;
+            if (role.permissions.includes('all')) {
+                alert('This role has all permissions. Edit role to revoke full access first.');
+                renderRoles(); // Revert checkbox visual
+                return;
+            }
+            if (isChecked) {
+                if (!role.permissions.includes(perm)) role.permissions.push(perm);
+            } else {
+                role.permissions = role.permissions.filter(p => p !== perm);
+            }
+            _saveData();
+            renderRoles(); // Update parent tree states
+        }
+
+        function selectRole(id) {
+            selectedRoleId = id;
+            renderRoles();
+        }
+
+        function editSelectedRole() {
+            if (selectedRoleId) editRole(selectedRoleId);
+        }
+
+        function deleteSelectedRole() {
+            if (selectedRoleId) {
+                delRole(selectedRoleId);
+                selectedRoleId = null;
+            }
+        }
+
+        function renderCourses() {
+            const pg = paginate(demoData.courses, 'courses', 10);
+            document.getElementById('coursesBody').innerHTML = pg.rows.map(c => { const pre = demoData.exams.find(e => e.id === c.preExamId); const post = demoData.exams.find(e => e.id === c.postExamId); return '<tr><td>' + c.id + '</td><td><strong>' + c.title + '</strong></td><td>' + c.modules.length + '</td><td>' + c.category + '</td><td>' + (pre ? pre.name : '-') + '</td><td>' + (post ? post.name : '-') + '</td><td>' + (c.preExamMandatory ? '📝Pre ' : '') + (c.postExamMandatory ? '📝Post' : '') + '</td><td style="white-space:nowrap"><button class="btn btn-sm btn-secondary" onclick="editCourse(' + c.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="delCourse(' + c.id + ')">🗑️</button></td></tr>'; }).join('');
+            document.getElementById('coursesPagination').innerHTML = renderPaginationControls('courses', pg, 'renderCourses');
+        }
+
+        function renderModules() {
+            const allMods = demoData.courses.flatMap(c => c.modules.map(m => ({ ...m, courseName: c.title, courseId: c.id })));
+            const pg = paginate(allMods, 'modules', 10);
+            document.getElementById('modulesBody').innerHTML = pg.rows.map((m, i) => '<tr><td>' + ((pg.page - 1) * pg.size + i + 1) + '</td><td><strong>' + m.title + '</strong></td><td>' + m.courseName + '</td><td>' + m.duration + '</td><td>' + m.type + '</td><td style="white-space:nowrap"><button class="btn btn-sm btn-secondary" onclick="editModule(' + m.courseId + ',' + m.id + ')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="delModule(' + m.courseId + ',' + m.id + ')"><i class="fas fa-trash"></i></button></td></tr>').join('');
+            document.getElementById('modulesPagination').innerHTML = renderPaginationControls('modules', pg, 'renderModules');
+        }
+
+        function renderQuestions() {
+            const pg = paginate(demoData.questions, 'questions', 10);
+            document.getElementById('questionsBody').innerHTML = pg.rows.map(q => '<tr><td>' + q.id + '</td><td style="max-width:300px">' + q.text + '</td><td><span class="badge badge-info">' + q.category + '</span></td><td>' + letters[q.correct] + '. ' + q.options[q.correct] + '</td><td style="white-space:nowrap"><button class="btn btn-sm btn-secondary" onclick="editQuestion(' + q.id + ')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="delQuestion(' + q.id + ')"><i class="fas fa-trash"></i></button></td></tr>').join('');
+            document.getElementById('questionsPagination').innerHTML = renderPaginationControls('questions', pg, 'renderQuestions');
+        }
+
+        function renderExams() {
+            const pg = paginate(demoData.exams, 'exams', 10);
+            document.getElementById('examsBody').innerHTML = pg.rows.map(e => '<tr><td>' + e.id + '</td><td><strong>' + e.name + '</strong></td><td><span class="badge badge-' + (e.type === 'pre' ? 'warning' : 'success') + '">' + (e.type === 'pre' ? 'Pre' : 'Post') + '</span></td><td>' + e.questionIds.length + '</td><td>' + e.timeLimit + 'm</td><td>' + e.passMark + '%</td><td style="white-space:nowrap"><button class="btn btn-sm btn-secondary" onclick="editExamItem(' + e.id + ')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="delExam(' + e.id + ')"><i class="fas fa-trash"></i></button></td></tr>').join('');
+            document.getElementById('examsPagination').innerHTML = renderPaginationControls('exams', pg, 'renderExams');
+        }
+
+        function renderAll() { renderUsers(); renderRoles(); renderCourses(); renderModules(); renderQuestions(); renderExams(); }
+        renderAll();
+
+        // ===== CRUD: USERS =====
+        function openAddUserModal() { document.getElementById('editUserId').value = ''; document.getElementById('userModalTitle').textContent = 'Add New User'; document.getElementById('uName').value = ''; document.getElementById('uMobile').value = ''; document.getElementById('uEmail').value = ''; document.getElementById('uRole').value = 'beneficiary'; toggleBeneficiaryFields(); openModal('addUserModal'); }
+        function editUser(id) { const u = demoData.users.find(x => x.id === id); if (!u) return; document.getElementById('editUserId').value = id; document.getElementById('userModalTitle').textContent = 'Edit User'; document.getElementById('uName').value = u.name; document.getElementById('uMobile').value = u.mobile; document.getElementById('uEmail').value = u.email || ''; document.getElementById('uRole').value = u.role; document.getElementById('uDistrict').value = u.district || ''; populateUpazilas('uDistrict', 'uUpazila'); setTimeout(() => document.getElementById('uUpazila').value = u.upazila || '', 50); toggleBeneficiaryFields(); openModal('addUserModal'); }
+        function saveUser() { const id = document.getElementById('editUserId').value; const d = { name: document.getElementById('uName').value, mobile: document.getElementById('uMobile').value, email: document.getElementById('uEmail').value, role: document.getElementById('uRole').value, district: document.getElementById('uDistrict').value, upazila: document.getElementById('uUpazila').value, status: 'Active' }; if (!d.name || !d.mobile) { alert('Name & Mobile required'); return; } if (id) { updateItem('users', parseInt(id), d); } else { addItem('users', d); } closeModal('addUserModal'); renderUsers(); alert('? User saved! SMS sent.'); }
+        function toggleUserStatus(id) { const u = demoData.users.find(x => x.id === id); if (u) { u.status = u.status === 'Active' ? 'Inactive' : 'Active'; _saveData(); renderUsers(); } }
+        function delUser(id) { if (confirm('Delete user?')) { deleteItem('users', id); renderUsers(); } }
+        function openSmsModal(m) { document.getElementById('smsTo').value = m; openModal('smsModal'); }
+        function sendSms() { alert('📩 SMS sent to ' + document.getElementById('smsTo').value); closeModal('smsModal'); }
+        function resetPwd(id) { const u = demoData.users.find(x => x.id === id); if (!u) return; if (!confirm('Reset password for ' + u.name + ' (' + u.mobile + ') to default (lms@123)?')) return; const pwd = resetUserPassword(u.mobile); alert('? Password for ' + u.name + ' has been reset to: ' + pwd); }
+
+        // ===== CRUD: ROLES =====
+        function openRolePerms(p) { document.getElementById('rolePermsList').innerHTML = allPerms.map(x => '<label class="perm-item"><input type="checkbox" value="' + x + '" ' + (p && (p.includes('all') || p.includes(x)) ? 'checked' : '') + '> ' + x.replace(/_/g, ' ') + '</label>').join(''); }
+        function openAddRoleModal() { document.getElementById('editRoleId').value = ''; document.getElementById('roleModalTitle').textContent = 'Add Role'; document.getElementById('rName').value = ''; document.getElementById('rKey').value = ''; openRolePerms([]); openModal('addRoleModal'); }
+        function editRole(id) { const r = demoData.roles.find(x => x.id === id); if (!r) return; document.getElementById('editRoleId').value = id; document.getElementById('roleModalTitle').textContent = 'Edit Role'; document.getElementById('rName').value = r.name; document.getElementById('rKey').value = r.key; openRolePerms(r.permissions); openModal('addRoleModal'); }
+        function saveRole() { const id = document.getElementById('editRoleId').value; const perms = [...document.querySelectorAll('#rolePermsList input:checked')].map(c => c.value); const d = { name: document.getElementById('rName').value, key: document.getElementById('rKey').value, permissions: perms }; if (!d.name) { alert('Name required'); return; } if (id) { updateItem('roles', parseInt(id), d); } else { addItem('roles', d); } closeModal('addRoleModal'); renderRoles(); }
+        function delRole(id) { if (confirm('Delete role?')) { deleteItem('roles', id); renderRoles(); } }
+
+        // ===== CRUD: COURSES =====
+        function openAddCourseModal() { document.getElementById('editCourseId').value = ''; document.getElementById('courseModalTitle').textContent = 'Add Course'; document.getElementById('cTitle').value = ''; document.getElementById('cDesc').value = ''; document.getElementById('cCategory').value = ''; document.getElementById('cDuration').value = ''; document.getElementById('cPreMandatory').checked = false; document.getElementById('cPostMandatory').checked = false; populateExamDD(); openModal('addCourseModal'); }
+        function editCourse(id) { const c = demoData.courses.find(x => x.id === id); if (!c) return; populateExamDD(); document.getElementById('editCourseId').value = id; document.getElementById('courseModalTitle').textContent = 'Edit Course'; document.getElementById('cTitle').value = c.title; document.getElementById('cDesc').value = c.description; document.getElementById('cCategory').value = c.category; document.getElementById('cDuration').value = c.duration; document.getElementById('cPreExam').value = c.preExamId || ''; document.getElementById('cPostExam').value = c.postExamId || ''; document.getElementById('cPreMandatory').checked = c.preExamMandatory; document.getElementById('cPostMandatory').checked = c.postExamMandatory; openModal('addCourseModal'); }
+        function saveCourse() { const id = document.getElementById('editCourseId').value; const d = { title: document.getElementById('cTitle').value, description: document.getElementById('cDesc').value, category: document.getElementById('cCategory').value, duration: document.getElementById('cDuration').value, preExamId: parseInt(document.getElementById('cPreExam').value) || null, postExamId: parseInt(document.getElementById('cPostExam').value) || null, preExamMandatory: document.getElementById('cPreMandatory').checked, postExamMandatory: document.getElementById('cPostMandatory').checked }; if (!d.title) { alert('Title required'); return; } if (id) { updateItem('courses', parseInt(id), d); } else { d.modules = []; d.thumbnail = ''; d.videoConfig = { allowSeek: true, allowFastForward: true, subtitles: ['Bangla'] }; addItem('courses', d); } closeModal('addCourseModal'); renderCourses(); renderModules(); }
+        function delCourse(id) { if (confirm('Delete course?')) { deleteItem('courses', id); renderCourses(); renderModules(); } }
+
+        // ===== CRUD: MODULES =====
+        function openAddModuleModal() { document.getElementById('editModuleCourseId').value = ''; document.getElementById('editModuleId').value = ''; document.getElementById('moduleModalTitle').textContent = 'Add Module'; document.getElementById('mTitle').value = ''; document.getElementById('mDesc').value = ''; document.getElementById('mLearningObjectives').value = ''; document.getElementById('mKeyTopics').value = ''; document.getElementById('mDuration').value = ''; document.getElementById('mVideoUrl').value = ''; populateCourseDD('mCourse'); openModal('addModuleModal'); }
+        function editModule(cId, mId) { const c = demoData.courses.find(x => x.id === cId); if (!c) return; const m = c.modules.find(x => x.id === mId); if (!m) return; populateCourseDD('mCourse'); document.getElementById('editModuleCourseId').value = cId; document.getElementById('editModuleId').value = mId; document.getElementById('moduleModalTitle').textContent = 'Edit Module'; document.getElementById('mCourse').value = cId; document.getElementById('mTitle').value = m.title; document.getElementById('mDesc').value = m.description || ''; document.getElementById('mLearningObjectives').value = (m.learningObjectives || []).join('\n'); document.getElementById('mKeyTopics').value = (m.keyTopics || []).join('\n'); document.getElementById('mDuration').value = m.duration; document.getElementById('mType').value = m.type; document.getElementById('mVideoUrl').value = m.videoUrl || ''; toggleModuleFields(); openModal('addModuleModal'); }
+        function saveModule() { const oCid = parseInt(document.getElementById('editModuleCourseId').value); const mId = parseInt(document.getElementById('editModuleId').value); const cId = parseInt(document.getElementById('mCourse').value); const c = demoData.courses.find(x => x.id === cId); if (!c) { alert('Select course'); return; } const loText = document.getElementById('mLearningObjectives').value.trim(); const ktText = document.getElementById('mKeyTopics').value.trim(); const d = { title: document.getElementById('mTitle').value, description: document.getElementById('mDesc').value, duration: document.getElementById('mDuration').value, type: document.getElementById('mType').value, videoUrl: document.getElementById('mVideoUrl').value, thumbnail: '', learningObjectives: loText ? loText.split('\n').map(s => s.trim()).filter(Boolean) : [], keyTopics: ktText ? ktText.split('\n').map(s => s.trim()).filter(Boolean) : [] }; if (!d.title) { alert('Title required'); return; } if (mId && oCid) { const oc = demoData.courses.find(x => x.id === oCid); if (oc) { const i = oc.modules.findIndex(x => x.id === mId); if (i !== -1) { if (oCid === cId) { Object.assign(oc.modules[i], d); } else { oc.modules.splice(i, 1); d.id = getNextId(c.modules); c.modules.push(d); } } } _saveData(); } else { d.id = getNextId(c.modules); c.modules.push(d); _saveData(); } closeModal('addModuleModal'); renderModules(); renderCourses(); }
+        function delModule(cId, mId) { if (!confirm('Delete?')) return; const c = demoData.courses.find(x => x.id === cId); if (c) { c.modules = c.modules.filter(m => m.id !== mId); _saveData(); renderModules(); renderCourses(); } }
+
+        // ===== CRUD: QUESTIONS =====
+        function openAddQuestionModal() { document.getElementById('editQuestionId').value = ''; document.getElementById('questionModalTitle').textContent = 'Add Question'; document.getElementById('qText').value = ''; document.getElementById('qOptA').value = ''; document.getElementById('qOptB').value = ''; document.getElementById('qOptC').value = ''; document.getElementById('qOptD').value = ''; document.getElementById('qCategory').value = ''; openModal('addQuestionModal'); }
+        function editQuestion(id) { const q = demoData.questions.find(x => x.id === id); if (!q) return; document.getElementById('editQuestionId').value = id; document.getElementById('questionModalTitle').textContent = 'Edit Question'; document.getElementById('qText').value = q.text; document.getElementById('qOptA').value = q.options[0] || ''; document.getElementById('qOptB').value = q.options[1] || ''; document.getElementById('qOptC').value = q.options[2] || ''; document.getElementById('qOptD').value = q.options[3] || ''; document.getElementById('qCorrect').value = q.correct; document.getElementById('qCategory').value = q.category; openModal('addQuestionModal'); }
+        function saveQuestion() { const id = document.getElementById('editQuestionId').value; const d = { text: document.getElementById('qText').value, options: [document.getElementById('qOptA').value, document.getElementById('qOptB').value, document.getElementById('qOptC').value, document.getElementById('qOptD').value].filter(Boolean), correct: parseInt(document.getElementById('qCorrect').value), category: document.getElementById('qCategory').value }; if (!d.text) { alert('Text required'); return; } if (id) { updateItem('questions', parseInt(id), d); } else { addItem('questions', d); } closeModal('addQuestionModal'); renderQuestions(); }
+        function delQuestion(id) { if (confirm('Delete?')) { deleteItem('questions', id); renderQuestions(); } }
+
+        // ===== CRUD: EXAMS =====
+        function populateExamQs(sel) { document.getElementById('examQuestionsList').innerHTML = demoData.questions.map(q => '<label class="perm-item"><input type="checkbox" value="' + q.id + '" ' + (sel && sel.includes(q.id) ? 'checked' : '') + '> ' + q.text.substring(0, 50) + '...</label>').join(''); }
+        function openAddExamModal() { document.getElementById('editExamId').value = ''; document.getElementById('examModalTitle').textContent = 'Create Exam'; document.getElementById('eName').value = ''; document.getElementById('eTime').value = '15'; document.getElementById('ePass').value = '60'; document.getElementById('eCanRetake').checked = true; populateCourseDD('eCourse'); populateExamQs([]); openModal('addExamModal'); }
+        function editExamItem(id) { const e = demoData.exams.find(x => x.id === id); if (!e) return; document.getElementById('editExamId').value = id; document.getElementById('examModalTitle').textContent = 'Edit Exam'; document.getElementById('eName').value = e.name; document.getElementById('eType').value = e.type; populateCourseDD('eCourse'); document.getElementById('eCourse').value = e.courseId || ''; document.getElementById('eTime').value = e.timeLimit; document.getElementById('ePass').value = e.passMark; document.getElementById('eCanRetake').checked = e.canRetake !== false; populateExamQs(e.questionIds); openModal('addExamModal'); }
+        function saveExam() { const id = document.getElementById('editExamId').value; const qIds = [...document.querySelectorAll('#examQuestionsList input:checked')].map(c => parseInt(c.value)); const d = { name: document.getElementById('eName').value, type: document.getElementById('eType').value, courseId: parseInt(document.getElementById('eCourse').value) || null, questionIds: qIds, timeLimit: parseInt(document.getElementById('eTime').value), passMark: parseInt(document.getElementById('ePass').value), canRetake: document.getElementById('eCanRetake').checked }; if (!d.name) { alert('Name required'); return; } if (id) { updateItem('exams', parseInt(id), d); } else { addItem('exams', d); } closeModal('addExamModal'); renderExams(); }
+        function delExam(id) { if (confirm('Delete?')) { deleteItem('exams', id); renderExams(); } }
+
+        // ===== BULK UPLOAD =====
+        function downloadTemplate(type) { alert(type === 'beneficiary' ? '📄 Beneficiary: Name, Mobile, Age, Gender, District, Upazila, Union, Education, Occupation, Address' : '📄 Regular: Name, Mobile, Email, Role, District, Upazila'); }
+        function handleFileUpload(e) { const f = e.target.files[0]; if (!f) return; const d = [{ n: 'Aminul Islam', m: '01711111111', r: 'Beneficiary', d: 'Chattogram', u: 'Anwara' }, { n: 'Roksana Begum', m: '01722222222', r: 'Beneficiary', d: 'Feni', u: 'Feni Sadar' }, { n: 'Jahidul Hasan', m: '01733333333', r: 'Unit Manager', d: 'Cumilla', u: 'Cumilla Sadar' }, { n: 'Salma Khatun', m: '01744444444', r: 'Beneficiary', d: 'Tangail', u: 'Tangail Sadar' }, { n: 'Moktar Ali', m: '01755555555', r: 'Beneficiary', d: 'Narsingdi', u: 'Narsingdi Sadar' }]; document.getElementById('previewBody').innerHTML = d.map(x => '<tr><td>' + x.n + '</td><td>' + x.m + '</td><td>' + x.r + '</td><td>' + x.d + '</td><td>' + x.u + '</td></tr>').join(''); document.getElementById('uploadCount').textContent = d.length; document.getElementById('uploadPreview').style.display = 'block'; document.getElementById('bulkSubmitBtn').disabled = false; }
+        function submitBulkUpload() { alert('? 5 users created! SMS sent.'); closeModal('bulkUploadModal'); renderUsers(); }
+    </script>
+</body>
+
+</html>

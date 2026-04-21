@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - LMS Solution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Welcome banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl) var(--space-2xl);
+            color: white;
+            margin-bottom: var(--space-2xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+        }
+
+        .welcome-banner h1 {
+            font-size: var(--text-2xl);
+            font-weight: 700;
+            margin-bottom: var(--space-sm);
+        }
+
+        .welcome-banner p {
+            opacity: 0.9;
+            font-size: var(--text-base);
+        }
+
+        /* Menu grid */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-lg);
+        }
+
+        .menu-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--gray-800);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary-200);
+        }
+
+        .menu-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .menu-card-icon {
+            font-size: 2.5rem;
+            margin-bottom: var(--space-sm);
+            display: block;
+        }
+
+        .menu-card-title {
+            font-size: var(--text-base);
+            font-weight: 700;
+            margin-bottom: var(--space-xs);
+            color: var(--gray-900);
+        }
+
+        .menu-card-desc {
+            font-size: var(--text-sm);
+            color: var(--gray-500);
+        }
+
+        .menu-card.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .menu-card.primary .menu-card-title,
+        .menu-card.primary .menu-card-desc {
+            color: white;
+        }
+
+        .menu-card.primary .menu-card-desc {
+            opacity: 0.9;
+        }
+
+        .menu-card.primary::before {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .section-title {
+            font-size: var(--text-xl);
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: var(--space-lg);
+        }
+
+        .section-divider {
+            border: none;
+            height: 2px;
+            background: var(--gray-100);
+            margin: var(--space-2xl) 0;
+        }
+
+        @media (min-width: 640px) {
+            .menu-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .menu-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">☰</button>
+        <a href="landing.html" class="navbar-brand">
+            📚 LMS Solution
+        </a>
+        <div class="navbar-actions">
+            <div id="roleSwitcher"></div>
+            <div class="navbar-user" onclick="toggleUserDropdown(event)">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">User</div>
+                    <div class="user-role" id="userRole">Role</div>
+                </div>
+                <div class="user-dropdown">
+                    <a href="profile.html" class="dropdown-item">👤 My Profile</a>
+                    <a href="change-password.html" class="dropdown-item">🔒 Change Password</a>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-nav" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header" style="display:flex;align-items:center;justify-content:space-between;">
+            <a href="landing.html" class="sidebar-logo" style="text-decoration:none;">📚 LMS</a>
+            <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">«</button>
+        </div>
+        <nav class="sidebar-nav" id="sidebarNav">
+            <!-- Menu items will be populated by JavaScript -->
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn btn-danger btn-full" onclick="logout()">
+                🚪 <span class="sidebar-btn-text">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <h1 id="welcomeHeading">Welcome to LMS Solution</h1>
+                <p id="welcomeMessage">Manage your learning management system with ease. Select a feature below to get
+                    started.</p>
+            </div>
+
+            <!-- Quick Access -->
+            <h2 class="section-title">📌 Quick Access</h2>
+            <div class="menu-grid" id="mainMenu">
+                <!-- Will be populated by JavaScript based on role -->
+            </div>
+
+            <!-- Admin Tools Section (visible only to admins) -->
+            <div id="adminSection" style="display: none;">
+                <hr class="section-divider">
+                <h2 class="section-title">⚙️ Administration</h2>
+                <div class="menu-grid" id="adminMenu">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        // Populate menu based on role
+        function populateMenu() {
+            const role = getUserRole();
+            const mainMenu = document.getElementById('mainMenu');
+            const adminMenu = document.getElementById('adminMenu');
+            const adminSection = document.getElementById('adminSection');
+
+            // Common menu items for everyone
+            const commonItems = [
+                { icon: '📊', title: 'Analytics', desc: 'View insights & metrics', href: 'analytics.html', primary: true },
+                { icon: '📚', title: 'Courses', desc: 'Browse courses', href: 'courses.html' },
+
+            ];
+
+            // Items for staff/managers
+            const staffItems = [
+                { icon: '📄', title: 'Reports', desc: 'Generate reports', href: 'reports.html' },
+                { icon: '🎓', title: 'Certificates', desc: 'Search certificates', href: 'certificate-search.html' },
+            ];
+
+            // Admin-only items
+            const adminItems = [
+                { icon: '🔐', title: 'Roles', desc: 'Manage roles', href: 'settings.html#roles' },
+                { icon: '👤', title: 'Users', desc: 'User management', href: 'settings.html#users' },
+                { icon: '📚', title: 'Course Setup', desc: 'Create courses', href: 'settings.html#courses' },
+                { icon: '📝', title: 'Exam Setup', desc: 'Configure exams', href: 'settings.html#exams' },
+            ];
+
+            // Profile for everyone
+            const profileItem = { icon: '👤', title: 'Profile', desc: 'Your profile', href: 'profile.html' };
+
+            if (role === 'beneficiary') {
+                mainMenu.innerHTML = [
+                    { icon: '📚', title: 'My Learning', desc: 'Continue learning', href: 'contents.html', primary: true },
+                    { icon: '📊', title: 'My Progress', desc: 'Track progress', href: 'my-progress.html' },
+                    profileItem,
+                    { icon: '🎓', title: 'Certificate', desc: 'Download certificate', href: 'certificate.html' }
+                ].map(item => createMenuCard(item)).join('');
+                document.getElementById('welcomeHeading').textContent = 'Welcome Back!';
+                document.getElementById('welcomeMessage').textContent = 'Continue your learning journey. Access your courses and track your progress.';
+            } else {
+                const menuItems = [...commonItems, ...staffItems, profileItem];
+                mainMenu.innerHTML = menuItems.map(item => createMenuCard(item)).join('');
+
+                if (role === 'admin') {
+                    adminSection.style.display = 'block';
+                    adminMenu.innerHTML = adminItems.map(item => createMenuCard(item)).join('');
+                }
+            }
+        }
+
+        function createMenuCard(item) {
+            return `
+                <a href="${item.href}" class="menu-card ${item.primary ? 'primary' : ''}">
+                    <span class="menu-card-icon">${item.icon}</span>
+                    <div class="menu-card-title">${item.title}</div>
+                    <div class="menu-card-desc">${item.desc}</div>
+                </a>
+            `;
+        }
+
+        // Initialize
+        populateMenu();
+    </script>
+</body>
+
+</html>

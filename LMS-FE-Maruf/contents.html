@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contents - LMS Solution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+/* Course Header */
+        .course-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: var(--space-2xl) var(--space-lg);
+            margin-bottom: var(--space-2xl);
+            border-radius: var(--radius-2xl);
+            text-align: center;
+        }
+
+        .course-header h1 {
+            color: white;
+            margin-bottom: var(--space-md);
+        }
+
+        .course-header p {
+            font-size: var(--text-lg);
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .course-stats {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-2xl);
+            margin-top: var(--space-xl);
+            flex-wrap: wrap;
+        }
+
+        .course-stat {
+            text-align: center;
+        }
+
+        .course-stat-value {
+            font-size: var(--text-3xl);
+            font-weight: 700;
+            display: block;
+        }
+
+        .course-stat-label {
+            font-size: var(--text-sm);
+            opacity: 0.8;
+        }
+
+        /* Module Cards */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .module-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-base);
+            border: 1px solid var(--gray-100);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .module-card:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-4px);
+            border-color: var(--primary-200);
+        }
+
+        .module-card.module-locked {
+            opacity: 0.7;
+            background: var(--gray-50);
+            filter: grayscale(0.8);
+        }
+
+        .module-card.module-locked:hover {
+            transform: none;
+            box-shadow: var(--shadow-sm);
+            border-color: var(--gray-200);
+        }
+
+        .module-card.completed {
+            border-color: var(--success);
+            background: linear-gradient(to bottom, #f0fdf4, white);
+        }
+
+        .module-thumbnail-container {
+            position: relative;
+            width: 100%;
+            height: 160px;
+            overflow: hidden;
+        }
+
+        .module-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform var(--transition-slow);
+        }
+
+        .module-card:hover:not(.module-locked) .module-thumbnail {
+            transform: scale(1.05);
+        }
+
+        .module-status-badge {
+            position: absolute;
+            top: var(--space-sm);
+            right: var(--space-sm);
+            z-index: 10;
+        }
+
+        .module-content {
+            padding: var(--space-md);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-xs);
+        }
+
+        .module-number {
+            font-size: var(--text-xs);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary-600);
+            background: var(--primary-50);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+        }
+
+        .module-type {
+            font-size: var(--text-xs);
+            color: var(--gray-500);
+        }
+
+        .module-title {
+            font-size: var(--text-lg);
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: var(--space-xs);
+            line-height: 1.3;
+            /* Clamp to 2 lines */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .module-description {
+            font-size: var(--text-sm);
+            color: var(--gray-600);
+            margin-bottom: var(--space-md);
+            line-height: 1.5;
+            /* Clamp to 3 lines */
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex: 1;
+            /* Push footer down */
+        }
+
+        .module-footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: var(--space-md);
+            border-top: 1px solid var(--gray-100);
+        }
+
+        .module-duration {
+            font-size: var(--text-xs);
+            color: var(--gray-500);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .module-action-btn {
+            font-size: var(--text-sm);
+            padding: 0.4rem 0.8rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-start {
+            background: var(--gray-900);
+            color: white;
+        }
+
+        .btn-start:hover {
+            background: black;
+            transform: translateY(-1px);
+        }
+
+        .btn-locked {
+            background: var(--gray-200);
+            color: var(--gray-500);
+            cursor: not-allowed;
+        }
+
+        .btn-completed {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        /* Certificate Section */
+        .certificate-section {
+            background: var(--gradient-warm);
+            color: white;
+            padding: var(--space-2xl);
+            border-radius: var(--radius-2xl);
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+        }
+
+        .certificate-section h2 {
+            color: white;
+            margin-bottom: var(--space-md);
+        }
+
+        .certificate-section p {
+            font-size: var(--text-lg);
+            opacity: 0.9;
+            margin-bottom: var(--space-xl);
+        }
+
+        /* Admin Controls */
+        .admin-controls {
+            background: var(--gray-50);
+            padding: var(--space-xl);
+            border-radius: var(--radius-xl);
+            margin-bottom: var(--space-2xl);
+            border: 2px dashed var(--gray-300);
+        }
+
+        @media (min-width: 640px) {
+.modules-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+.modules-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1280px) {
+            .modules-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">☰</button>
+        <a href="index.html" class="navbar-brand">
+            📚 LMS Solution
+        </a>
+        <div class="navbar-actions">
+            <div id="roleSwitcher"></div>
+            <div class="navbar-user" onclick="toggleUserDropdown(event)">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">User</div>
+                    <div class="user-role" id="userRole">Beneficiary</div>
+                </div>
+                <div class="user-dropdown">
+                    <a href="profile.html" class="dropdown-item">👤 My Profile</a>
+                    <a href="change-password.html" class="dropdown-item">🔒 Change Password</a>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-secondary" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header" style="display:flex;align-items:center;justify-content:space-between;">
+            <a href="landing.html" class="sidebar-logo" style="text-decoration:none;">📚 LMS</a>
+            <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">«</button>
+        </div>
+        <nav class="sidebar-nav" id="sidebarNav">
+            <!-- Menu items will be populated by JavaScript -->
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn btn-danger btn-full" onclick="logout()">
+                🚪 <span class="sidebar-btn-text">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Admin Controls (visible only to admin) -->
+            <div class="admin-controls" id="adminControls" style="display: none;">
+                <h3>📝 Content Management</h3>
+                <p class="text-muted">Upload and configure course modules</p>
+                <div class="flex gap-md" style="margin-top: var(--space-lg); flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="openModal('addContentModal')">
+                        ➕ Add New Content
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal('addModuleModal')">
+                        ➕ Add New Module
+                    </button>
+                    <button class="btn btn-secondary" onclick="openModal('moduleSettingsModal')">
+                        ⚙️ Module Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Header -->
+        <div class="course-header" id="dynamicCourseHeader">
+            <!-- Populated dynamically -->
+        </div>
+
+        <!-- Modules Grid -->
+        <h2>Course Modules</h2>
+        <div class="modules-grid" id="modulesGrid">
+            <!-- Modules will be populated by JavaScript -->
+        </div>
+
+        <!-- Certificate Section -->
+        <div class="certificate-section" id="certificateSection" style="display: none;">
+            <div class="certificate-card">
+                <div class="certificate-icon">🎓</div>
+                <div class="certificate-content">
+                    <h3>Congratulations! 🎉</h3>
+                    <p>You've completed all modules. Download your certificate now!</p>
+                    📥 Download Certificate
+                    </button>
+                </div>
+
+                <!-- Modules Grid -->
+            </div>
+    </main>
+
+    <!-- Add New Content Modal -->
+    <div class="modal-backdrop" id="addContentModal">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3 class="modal-title">📚 Add New Content/Course</h3>
+                <button class="modal-close" onclick="closeModal('addContentModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="addContentForm" onsubmit="handleAddContent(event)">
+                    <div class="form-group">
+                        <label class="form-label form-label-required" for="contentTitle">Course Title</label>
+                        <input type="text" id="contentTitle" class="form-input"
+                            placeholder="e.g., Digital Financial Literacy" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label form-label-required" for="contentDescription">Course
+                            Description</label>
+                        <textarea id="contentDescription" class="form-textarea"
+                            placeholder="Describe the course objectives and content..." required></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label form-label-required" for="contentCategory">Category</label>
+                            <select id="contentCategory" class="form-select" required>
+                                <option value="">Select category</option>
+                                <option value="financial">Financial Literacy</option>
+                                <option value="digital">Digital Skills</option>
+                                <option value="business">Business Development</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="contentDuration">Total Duration</label>
+                            <input type="text" id="contentDuration" class="form-input" placeholder="e.g., 4h 30m">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="contentThumbnail">Course Thumbnail</label>
+                        <input type="file" id="contentThumbnail" class="form-input" accept="image/*">
+                        <span class="form-help">Upload a thumbnail image for the course</span>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('addContentModal')">Cancel</button>
+                <button class="btn btn-success" onclick="document.getElementById('addContentForm').requestSubmit()">
+                    ✅ Create Course
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add New Module Modal -->
+    <div class="modal-backdrop" id="addModuleModal">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3 class="modal-title">➕ Add New Module</h3>
+                <button class="modal-close" onclick="closeModal('addModuleModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="addModuleForm" onsubmit="handleAddModule(event)">
+                    <div class="form-group">
+                        <label class="form-label form-label-required" for="moduleContent">Select Content/Course</label>
+                        <select id="moduleContent" class="form-select" required>
+                            <option value="">Choose a course...</option>
+                            <option value="1">Digital Financial Literacy</option>
+                            <option value="2">Business Development</option>
+                            <option value="3">Digital Skills Training</option>
+                        </select>
+                        <span class="form-help">Select which course this module belongs to</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label form-label-required" for="moduleTitle">Module Title</label>
+                        <input type="text" id="moduleTitle" class="form-input"
+                            placeholder="e.g., Introduction to Budgeting" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label form-label-required" for="moduleDescription">Module Description</label>
+                        <textarea id="moduleDescription" class="form-textarea"
+                            placeholder="Describe what students will learn..." required></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label form-label-required" for="moduleNumber">Module Number</label>
+                            <input type="number" id="moduleNumber" class="form-input" min="1" placeholder="e.g., 6"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label form-label-required" for="moduleDuration">Duration</label>
+                            <input type="text" id="moduleDuration" class="form-input" placeholder="e.g., 45 min"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label form-label-required" for="moduleVideoUrl">Video URL (YouTube)</label>
+                        <input type="url" id="moduleVideoUrl" class="form-input"
+                            placeholder="https://www.youtube.com/watch?v=..." required>
+                        <span class="form-help">Paste the YouTube video URL</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="moduleThumbnail">Module Thumbnail</label>
+                        <input type="file" id="moduleThumbnail" class="form-input" accept="image/*">
+                        <span class="form-help">Upload a thumbnail image for this module</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="moduleObjectives">Learning Objectives (one per line)</label>
+                        <textarea id="moduleObjectives" class="form-textarea"
+                            placeholder="Understand basic concepts&#10;Learn practical skills&#10;Apply knowledge to real scenarios"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('addModuleModal')">Cancel</button>
+                <button class="btn btn-success" onclick="document.getElementById('addModuleForm').requestSubmit()">
+                    ✅ Add Module
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Module Settings Modal -->
+    <div class="modal-backdrop" id="moduleSettingsModal">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3 class="modal-title">⚙️ Module Settings</h3>
+                <button class="modal-close" onclick="closeModal('moduleSettingsModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <h4 style="margin-bottom: var(--space-lg);">Manage Existing Modules</h4>
+
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Module #</th>
+                                <th>Title</th>
+                                <th>Duration</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="moduleSettingsTable">
+                            <tr>
+                                <td>1</td>
+                                <td>Introduction to Financial Literacy</td>
+                                <td>45 min</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary"
+                                        onclick="alert('Edit module functionality')">Edit</button>
+                                    <button class="btn btn-sm btn-danger"
+                                        onclick="alert('Delete module functionality')">Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Budgeting and Saving</td>
+                                <td>50 min</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary"
+                                        onclick="alert('Edit module functionality')">Edit</button>
+                                    <button class="btn btn-sm btn-danger"
+                                        onclick="alert('Delete module functionality')">Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Banking Services and Digital Payments</td>
+                                <td>55 min</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary"
+                                        onclick="alert('Edit module functionality')">Edit</button>
+                                    <button class="btn btn-sm btn-danger"
+                                        onclick="alert('Delete module functionality')">Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>Remittance Management</td>
+                                <td>40 min</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary"
+                                        onclick="alert('Edit module functionality')">Edit</button>
+                                    <button class="btn btn-sm btn-danger"
+                                        onclick="alert('Delete module functionality')">Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>Investment and Insurance</td>
+                                <td>60 min</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary"
+                                        onclick="alert('Edit module functionality')">Edit</button>
+                                    <button class="btn btn-sm btn-danger"
+                                        onclick="alert('Delete module functionality')">Delete</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top: var(--space-xl);">
+                    <h4 style="margin-bottom: var(--space-md);">Module Order</h4>
+                    <p class="text-muted" style="margin-bottom: var(--space-md);">Drag and drop to reorder modules
+                        (functionality to be implemented in backend)</p>
+                    <div class="alert alert-info">
+                        <strong>ℹ️ Note:</strong> Module reordering, editing, and deletion will be fully implemented in
+                        the backend with .NET Core.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal('moduleSettingsModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Render modules using real data from demoData.courses
+        function renderModules() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const courseId = parseInt(urlParams.get('courseId')) || 1;
+
+            const currentCourse = demoData.courses.find(c => c.id === courseId);
+            if (!currentCourse) {
+                document.getElementById('dynamicCourseHeader').innerHTML = '<h1>Course not found</h1>';
+                return;
+            }
+
+            const courseModules = currentCourse.modules;
+            const progress = getModuleProgress();
+            const examResults = JSON.parse(localStorage.getItem('examResults') || '{}');
+
+            // Check pre-exam gating
+            let preExamPassed = true;
+            if (currentCourse.preExamMandatory && currentCourse.preExamId) {
+                const preResult = examResults[currentCourse.preExamId];
+                preExamPassed = preResult && preResult.passed;
+            }
+
+            const completedCount = courseModules.filter(m => progress[courseId + '_' + m.id] === true).length;
+
+            // Render Header
+            const headerObj = document.getElementById('dynamicCourseHeader');
+            headerObj.innerHTML = `
+            <div>
+                <h1>📚 ${currentCourse.title}</h1>
+                <p class="course-description">${currentCourse.description}</p>
+            </div>
+            <div class="course-stats">
+                <div class="stat-item">
+                    <span class="stat-icon">📖</span>
+                    <div>
+                        <div class="stat-value">${courseModules.length}</div>
+                        <div class="stat-label">Modules</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">✅</span>
+                    <div>
+                        <div class="stat-value" id="completedModules">${completedCount}</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">⏱️</span>
+                    <div>
+                        <div class="stat-value">${currentCourse.duration}</div>
+                        <div class="stat-label">Total Duration</div>
+                    </div>
+                </div>
+            </div>`;
+
+            // Pre-exam gate banner
+            if (!preExamPassed && currentCourse.preExamMandatory) {
+                const preExam = demoData.exams.find(e => e.id === currentCourse.preExamId);
+                const examName = preExam ? preExam.name : 'Pre-Exam';
+                document.getElementById('modulesGrid').innerHTML = `
+                    <div style="grid-column:1/-1;text-align:center;padding:var(--space-3xl);">
+                        <div style="font-size:4rem;margin-bottom:var(--space-lg);">📝</div>
+                        <h2 style="margin-bottom:var(--space-md);">Pre-Exam Required</h2>
+                        <p class="text-muted" style="margin-bottom:var(--space-xl);max-width:500px;margin-left:auto;margin-right:auto;">You must complete the <strong>${examName}</strong> before accessing the course modules.</p>
+                        <a href="exam.html?examId=${currentCourse.preExamId}&courseId=${courseId}" class="btn btn-primary btn-lg">📝 Take ${examName}</a>
+                    </div>`;
+                return;
+            }
+
+            const modulesGrid = document.getElementById('modulesGrid');
+            modulesGrid.innerHTML = courseModules.map((module, index) => {
+                const moduleKey = courseId + '_' + module.id;
+                const isCompleted = progress[moduleKey] === true;
+                const prevKey = index > 0 ? courseId + '_' + courseModules[index - 1].id : null;
+                const isAccessible = index === 0 || progress[prevKey] === true;
+
+                let statusBadge = '';
+                let statusClass = '';
+                let actionBtnClass = 'btn-start';
+                let buttonText = 'Start';
+                let buttonDisabled = '';
+                let onClick = `onclick="window.location.href='module-detail.html?courseId=${courseId}&moduleId=${module.id}'"`;
+
+                if (!isAccessible) {
+                    statusBadge = '<span class="badge badge-secondary">🔒 Locked</span>';
+                    statusClass = 'module-locked';
+                    actionBtnClass = 'btn-locked';
+                    buttonText = '🔒 Locked';
+                    buttonDisabled = 'disabled';
+                    onClick = '';
+                } else if (isCompleted) {
+                    statusBadge = '<span class="badge badge-success">✅ Completed</span>';
+                    statusClass = 'completed';
+                    actionBtnClass = 'btn-completed';
+                    buttonText = '🔄 Review';
+                }
+
+                return `
+          <div class="module-card ${statusClass}" ${onClick} style="cursor: ${isAccessible ? 'pointer' : 'default'}">
+            <div class="module-thumbnail-container">
+                <div class="module-status-badge">${statusBadge}</div>
+                <div class="module-thumbnail" style="background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;color:white;font-size:2rem;">${index + 1}</div>
+            </div>
+            <div class="module-content">
+              <div class="module-header">
+                <span class="module-number">Module ${index + 1}</span>
+                <span class="module-type">${module.type}</span>
+              </div>
+              <h3 class="module-title">${module.title}</h3>
+              <p class="module-description">${module.description || ''}</p>
+               <div class="module-footer">
+                    <div class="module-duration">⏱️ ${module.duration}</div>
+                    <button class="module-action-btn ${actionBtnClass}" ${buttonDisabled}>${buttonText}</button>
+               </div>
+            </div>
+          </div>
+        `;
+            }).join('');
+
+            // Show certificate section if all modules completed
+            const certSection = document.getElementById('certificateSection');
+            if (certSection && completedCount === courseModules.length && courseModules.length > 0) {
+                // Check post-exam requirement
+                if (currentCourse.postExamMandatory && currentCourse.postExamId) {
+                    const postResult = examResults[currentCourse.postExamId];
+                    if (postResult && postResult.passed) {
+                        certSection.style.display = 'block';
+                    } else {
+                        certSection.style.display = 'block';
+                        certSection.innerHTML = `
+                            <div style="text-align:center;padding:var(--space-xl);background:white;border-radius:var(--radius-xl);box-shadow:var(--shadow-md);">
+                                <h3 style="margin-bottom:var(--space-md);">📝 Post-Exam Required for Certificate</h3>
+                                <p class="text-muted" style="margin-bottom:var(--space-lg);">You've completed all modules! Take the post-exam to earn your certificate.</p>
+                                <a href="exam.html?examId=${currentCourse.postExamId}&courseId=${courseId}" class="btn btn-primary btn-lg">📝 Take Post-Exam</a>
+                            </div>`;
+                    }
+                } else {
+                    certSection.style.display = 'block';
+                }
+            }
+        }
+
+        function downloadCertificate() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const courseId = urlParams.get('courseId') || 1;
+            window.open('certificate.html?courseId=' + courseId, '_blank');
+        }
+
+        // Show admin controls for admin role
+        const role = getUserRole();
+        if (role === 'admin') {
+            const adminEl = document.getElementById('adminControls');
+            if (adminEl) adminEl.style.display = 'block';
+        }
+
+        // Initialize
+        renderModules();
+    </script>
+</body>
+
+</html>

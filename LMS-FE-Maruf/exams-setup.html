@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exams Setup - LMS Solution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+.page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-2xl);
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+
+        .exam-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: var(--space-lg);
+            border: 1px solid var(--gray-200);
+        }
+
+        .question-block {
+            background: var(--gray-50);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-md);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">📚 LMS Solution</a>
+        <a href="index.html" class="btn btn-sm btn-secondary">Back to Dashboard</a>
+    </nav>
+
+    <main class="main-content" style="padding: var(--space-2xl);">
+        <div class="container">
+            <div class="page-header">
+                <div>
+                    <h1>📝 Exams Setup</h1>
+                    <p class="text-muted">Configure Pre-Exams and Post-Exams</p>
+                </div>
+                <button class="btn btn-primary" onclick="openModal('addExamModal')">➕ Create New Exam</button>
+            </div>
+
+            <div class="grid" id="examsGrid"
+                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: var(--space-lg);">
+                <!-- Exams populated by JS -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Exam Modal -->
+    <div class="modal-backdrop" id="addExamModal">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Exam</h3>
+                <button class="modal-close" onclick="closeModal('addExamModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="addExamForm" onsubmit="handleAddExam(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label form-label-required">Exam Title</label>
+                            <input type="text" id="examTitle" class="form-input"
+                                placeholder="e.g., Digital Financial Literacy Pre-Exam" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label form-label-required">Exam Type</label>
+                            <select id="examType" class="form-select" required>
+                                <option value="pre">Pre-Exam</option>
+                                <option value="post">Post-Exam</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr style="margin: var(--space-lg) 0; border: 0; border-top: 1px solid var(--gray-200);">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+                        <h4 style="margin: 0;">Questions</h4>
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="addQuestionField()">➕ Add
+                            Question</button>
+                    </div>
+
+                    <div id="questionsContainer">
+                        <!-- Questions injected here -->
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('addExamModal')">Cancel</button>
+                <button class="btn btn-success" onclick="document.getElementById('addExamForm').requestSubmit()">✅ Save
+                    Exam</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        let exams = JSON.parse(localStorage.getItem('examsData')) || [];
+        let questionCount = 0;
+
+        function renderExams() {
+            const grid = document.getElementById('examsGrid');
+            if (exams.length === 0) {
+                grid.innerHTML = '<p class="text-muted">No exams configured yet. Click "Create New Exam" to get started.</p>';
+                return;
+            }
+
+            grid.innerHTML = exams.map(exam => `
+                <div class="exam-card">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-md);">
+                        <h3 style="margin: 0; font-size: var(--text-lg);">${exam.title}</h3>
+                        <span class="badge ${exam.type === 'pre' ? 'badge-primary' : 'badge-success'}">${exam.type.toUpperCase()}</span>
+                    </div>
+                    <p class="text-muted" style="margin-bottom: var(--space-sm);">Questions: ${exam.questions ? exam.questions.length : 0}</p>
+                    <button class="btn btn-sm btn-danger" onclick="deleteExam('${exam.id}')">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        function addQuestionField() {
+            questionCount++;
+            const container = document.getElementById('questionsContainer');
+            const div = document.createElement('div');
+            div.className = 'question-block';
+            div.innerHTML = `
+                <div class="form-group" style="margin-bottom: var(--space-sm);">
+                    <label class="form-label">Question ${questionCount}</label>
+                    <input type="text" class="form-input q-text" placeholder="Enter question..." required>
+                </div>
+                <div class="form-row" style="margin-bottom: var(--space-sm);">
+                    <input type="text" class="form-input q-opt1" placeholder="Option 1" required>
+                    <input type="text" class="form-input q-opt2" placeholder="Option 2" required>
+                </div>
+                <div class="form-row" style="margin-bottom: var(--space-sm);">
+                    <input type="text" class="form-input q-opt3" placeholder="Option 3" required>
+                    <input type="text" class="form-input q-opt4" placeholder="Option 4" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Correct Answer</label>
+                    <select class="form-select q-correct" required>
+                        <option value="1">Option 1</option>
+                        <option value="2">Option 2</option>
+                        <option value="3">Option 3</option>
+                        <option value="4">Option 4</option>
+                    </select>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function handleAddExam(event) {
+            event.preventDefault();
+
+            const qBlocks = document.querySelectorAll('.question-block');
+            const questions = Array.from(qBlocks).map(block => {
+                return {
+                    text: block.querySelector('.q-text').value,
+                    options: [
+                        block.querySelector('.q-opt1').value,
+                        block.querySelector('.q-opt2').value,
+                        block.querySelector('.q-opt3').value,
+                        block.querySelector('.q-opt4').value
+                    ],
+                    correctIndex: parseInt(block.querySelector('.q-correct').value) - 1
+                };
+            });
+
+            if (questions.length === 0) {
+                alert("Please add at least one question.");
+                return;
+            }
+
+            const newExam = {
+                id: Date.now().toString(),
+                title: document.getElementById('examTitle').value,
+                type: document.getElementById('examType').value,
+                questions: questions
+            };
+
+            exams.push(newExam);
+            localStorage.setItem('examsData', JSON.stringify(exams));
+
+            renderExams();
+            closeModal('addExamModal');
+            document.getElementById('addExamForm').reset();
+            document.getElementById('questionsContainer').innerHTML = '';
+            questionCount = 0;
+            alert('Exam created successfully!');
+        }
+
+        function deleteExam(id) {
+            if (confirm('Are you sure you want to delete this exam?')) {
+                exams = exams.filter(e => e.id !== id);
+                localStorage.setItem('examsData', JSON.stringify(exams));
+                renderExams();
+            }
+        }
+
+        // Init
+        renderExams();
+    </script>
+</body>
+
+</html>

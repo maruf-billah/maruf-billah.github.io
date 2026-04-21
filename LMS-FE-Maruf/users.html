@@ -1,0 +1,411 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - LMS Solution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+.page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-2xl);
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+
+        .filters {
+            display: flex;
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+            flex-wrap: wrap;
+        }
+
+        .filter-input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        .stat-mini {
+            background: white;
+            padding: var(--space-lg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+        }
+
+        .stat-mini-value {
+            font-size: var(--text-3xl);
+            font-weight: 700;
+            color: var(--primary-600);
+        }
+
+        .stat-mini-label {
+            font-size: var(--text-sm);
+            color: var(--gray-600);
+        }
+
+        
+
+        
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">☰</button>
+        <a href="landing.html" class="navbar-brand">
+            📚 LMS Solution
+        </a>
+        <div class="navbar-actions">
+            <div id="roleSwitcher"></div>
+            <div class="navbar-user" onclick="toggleUserDropdown(event)">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">User</div>
+                    <div class="user-role" id="userRole">Beneficiary</div>
+                </div>
+                <div class="user-dropdown">
+                    <a href="profile.html" class="dropdown-item">👤 My Profile</a>
+                    <a href="change-password.html" class="dropdown-item">🔒 Change Password</a>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-nav" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header" style="display:flex;align-items:center;justify-content:space-between;">
+            <a href="landing.html" class="sidebar-logo" style="text-decoration:none;">📚 LMS</a>
+            <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">«</button>
+        </div>
+        <nav class="sidebar-nav" id="sidebarNav">
+            <!-- Menu items will be populated by JavaScript -->
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn btn-danger btn-full" onclick="logout()">
+                🚪 <span class="sidebar-btn-text">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">«</button>
+        </div>
+        <nav class="sidebar-nav" id="sidebarNav">
+            <!-- Menu items will be populated by JavaScript -->
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn btn-danger btn-full" onclick="logout()">
+                🚪 <span class="sidebar-btn-text">Logout</span>
+            </button>
+        </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="container">
+                <div class="page-header">
+                    <div>
+                        <h1>👤 User Management</h1>
+                        <p class="text-muted">Manage system users and their roles</p>
+                    </div>
+                    <div style="display: flex; gap: var(--space-md);">
+                        <button class="btn btn-secondary" onclick="openModal('bulkUploadModal')">
+                            📁 Bulk Upload (Excel)
+                        </button>
+                        <button class="btn btn-primary" onclick="openModal('addUserModal')">
+                            ➕ Add New User
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="stats-row">
+                    <div class="stat-mini">
+                        <div class="stat-mini-value">1,390</div>
+                        <div class="stat-mini-label">Total Users</div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="stat-mini-value">1,248</div>
+                        <div class="stat-mini-label">Beneficiaries</div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="stat-mini-value">135</div>
+                        <div class="stat-mini-label">Staff Members</div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="stat-mini-value">7</div>
+                        <div class="stat-mini-label">Admins</div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="filters">
+                    <input type="text" class="form-input filter-input" placeholder="🔍 Search users..." id="searchInput"
+                        oninput="filterUsers()">
+                    <select class="form-select" id="roleFilter" onchange="filterUsers()">
+                        <option value="">All Roles</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Head Office">Head Office</option>
+                        <option value="Territory Manager">Territory Manager</option>
+                        <option value="Unit Manager">Unit Manager</option>
+                        <option value="RO">Regional Officer</option>
+                        <option value="Beneficiary">Beneficiary</option>
+                    </select>
+                    <select class="form-select" id="statusFilter" onchange="filterUsers()">
+                        <option value="">All Status</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+
+                <!-- Users Table -->
+                <div class="card">
+                    <div class="table-wrapper">
+                        <table class="table" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>District</th>
+                                    <th>Status</th>
+                                    <th>Last Login</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr>
+                                    <td><strong>Admin User</strong></td>
+                                    <td>admin@lms.com</td>
+                                    <td><span class="badge badge-error">Admin</span></td>
+                                    <td>-</td>
+                                    <td><span class="badge badge-success">Active</span></td>
+                                    <td>Today, 10:30 AM</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="alert('Edit functionality coming soon')">Edit</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Karim Rahman</strong></td>
+                                    <td>karim@lms.com</td>
+                                    <td><span class="badge badge-warning">Head Office</span></td>
+                                    <td>Dhaka</td>
+                                    <td><span class="badge badge-success">Active</span></td>
+                                    <td>Today, 9:15 AM</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="alert('Edit functionality coming soon')">Edit</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fatima Begum</strong></td>
+                                    <td>fatima@lms.com</td>
+                                    <td><span class="badge badge-info">Territory Manager</span></td>
+                                    <td>Chittagong</td>
+                                    <td><span class="badge badge-success">Active</span></td>
+                                    <td>Yesterday</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="alert('Edit functionality coming soon')">Edit</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Mohammad Ali</strong></td>
+                                    <td>ali@lms.com</td>
+                                    <td><span class="badge badge-info">Unit Manager</span></td>
+                                    <td>Cumilla</td>
+                                    <td><span class="badge badge-success">Active</span></td>
+                                    <td>2 days ago</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="alert('Edit functionality coming soon')">Edit</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Rashida Khatun</strong></td>
+                                    <td>rashida@lms.com</td>
+                                    <td><span class="badge badge-primary">RO</span></td>
+                                    <td>Feni</td>
+                                    <td><span class="badge badge-success">Active</span></td>
+                                    <td>3 days ago</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="alert('Edit functionality coming soon')">Edit</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Abdul Haque</strong></td>
+                                    <td>abdul@example.com</td>
+                                    <td><span class="badge badge-success">Beneficiary</span></td>
+                                    <td>Tangail</td>
+                                    <td><span class="badge badge-success">Active</span></td>
+                                    <td>1 week ago</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="alert('Edit functionality coming soon')">Edit</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Sadia Islam</strong></td>
+                                    <td>sadia@example.com</td>
+                                    <td><span class="badge badge-success">Beneficiary</span></td>
+                                    <td>Narsingdi</td>
+                                    <td><span class="badge badge-secondary">Inactive</span></td>
+                                    <td>2 weeks ago</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="alert('Edit functionality coming soon')">Edit</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Add User Modal -->
+        <div class="modal-backdrop" id="addUserModal">
+            <div class="modal modal-lg">
+                <div class="modal-header">
+                    <h3 class="modal-title">Add New User</h3>
+                    <button class="modal-close" onclick="closeModal('addUserModal')">×</button>
+                </div>
+                <div class="modal-body">
+                    <form id="addUserForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label form-label-required" for="firstName">First Name</label>
+                                <input type="text" id="firstName" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label form-label-required" for="lastName">Last Name</label>
+                                <input type="text" id="lastName" class="form-input" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label form-label-required" for="email">Email</label>
+                                <input type="email" id="email" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="phone">Phone</label>
+                                <input type="tel" id="phone" class="form-input">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label form-label-required" for="userRole">Role</label>
+                                <select id="userRole" class="form-select" required>
+                                    <option value="">Select Role</option>
+                                    <option value="admin">Administrator</option>
+                                    <option value="headoffice">Head Office</option>
+                                    <option value="territorymanager">Territory Manager</option>
+                                    <option value="unitmanager">Unit Manager</option>
+                                    <option value="ro">Regional Officer</option>
+                                    <option value="beneficiary">Beneficiary</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="userDistrict">District</label>
+                                <select id="userDistrict" class="form-select">
+                                    <option value="">Select District</option>
+                                    <option value="Chattogram">Chattogram</option>
+                                    <option value="Feni">Feni</option>
+                                    <option value="Cumilla">Cumilla</option>
+                                    <option value="Munshiganj">Munshiganj</option>
+                                    <option value="Narsingdi">Narsingdi</option>
+                                    <option value="Tangail">Tangail</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label form-label-required" for="password">Password</label>
+                                <input type="password" id="password" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label form-label-required" for="confirmPassword">Confirm
+                                    Password</label>
+                                <input type="password" id="confirmPassword" class="form-input" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal('addUserModal')">Cancel</button>
+                    <button class="btn btn-success"
+                        onclick="alert('User creation will be implemented in backend'); closeModal('addUserModal')">
+                        ✅ Submit
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk Upload Modal -->
+        <div class="modal-backdrop" id="bulkUploadModal">
+            <div class="modal modal-md">
+                <div class="modal-header">
+                    <h3 class="modal-title">Bulk Upload Users</h3>
+                    <button class="modal-close" onclick="closeModal('bulkUploadModal')">×</button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted" style="margin-bottom: var(--space-lg);">Upload an Excel (.xlsx) or CSV file
+                        containing user details. The system will automatically generate passwords and send SMS
+                        credentials to valid phone numbers.</p>
+
+                    <div
+                        style="border: 2px dashed var(--gray-300); padding: var(--space-2xl); text-align: center; border-radius: var(--radius-lg); margin-bottom: var(--space-lg); background: var(--gray-50);">
+                        <div style="font-size: 3rem; margin-bottom: var(--space-md);">📄</div>
+                        <p style="font-weight: 600; margin-bottom: var(--space-sm);">Drag and drop your file here</p>
+                        <p class="text-muted" style="font-size: var(--text-sm); margin-bottom: var(--space-md);">or</p>
+                        <input type="file" id="bulkFile"
+                            accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                            style="display: none;"
+                            onchange="document.getElementById('fileNameDisplay').textContent = this.files[0]?.name || 'No file selected'">
+                        <button class="btn btn-secondary btn-sm"
+                            onclick="document.getElementById('bulkFile').click()">Browse Files</button>
+                        <p id="fileNameDisplay"
+                            style="margin-top: var(--space-md); font-size: var(--text-sm); font-weight: 600; color: var(--primary-600);">
+                        </p>
+                    </div>
+
+                    <div
+                        style="background: var(--info-light); border: 1px solid var(--info); padding: var(--space-md); border-radius: var(--radius-md);">
+                        <p
+                            style="font-size: var(--text-sm); margin: 0; display: flex; align-items: flex-start; gap: var(--space-sm);">
+                            <span>💡</span>
+                            <span>Ensure your file has the following columns: First Name, Last Name, Email, Phone, Role,
+                                District.</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal('bulkUploadModal')">Cancel</button>
+                    <button class="btn btn-primary" onclick="handleBulkUpload()">📤 Upload & Process</button>
+                </div>
+            </div>

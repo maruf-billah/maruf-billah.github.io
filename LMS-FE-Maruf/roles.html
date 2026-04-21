@@ -1,0 +1,286 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roles Management - LMS Solution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+.page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-2xl);
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+
+        .role-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow-md);
+            border-left: 4px solid var(--primary-500);
+            transition: all var(--transition-base);
+            margin-bottom: var(--space-lg);
+        }
+
+        .role-card:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-2px);
+        }
+
+        .role-card.admin {
+            border-left-color: var(--error);
+        }
+
+        .role-card.headoffice {
+            border-left-color: var(--warning);
+        }
+
+        .role-card.manager {
+            border-left-color: var(--info);
+        }
+
+        .role-card.beneficiary {
+            border-left-color: var(--success);
+        }
+
+        .role-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+        }
+
+        .role-title {
+            font-size: var(--text-xl);
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .role-description {
+            color: var(--gray-600);
+            margin-bottom: var(--space-md);
+        }
+
+        .role-users {
+            font-size: var(--text-sm);
+            color: var(--gray-500);
+        }
+
+        
+
+        
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">☰</button>
+        <a href="landing.html" class="navbar-brand">
+            📚 LMS Solution
+        </a>
+        <div class="navbar-actions">
+            <div id="roleSwitcher"></div>
+            <div class="navbar-user" onclick="toggleUserDropdown(event)">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">User</div>
+                    <div class="user-role" id="userRole">Beneficiary</div>
+                </div>
+                <div class="user-dropdown">
+                    <a href="profile.html" class="dropdown-item">👤 My Profile</a>
+                    <a href="change-password.html" class="dropdown-item">🔒 Change Password</a>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-nav" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header" style="display:flex;align-items:center;justify-content:space-between;">
+            <a href="landing.html" class="sidebar-logo" style="text-decoration:none;">📚 LMS</a>
+            <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">«</button>
+        </div>
+        <nav class="sidebar-nav" id="sidebarNav">
+            <!-- Menu items will be populated by JavaScript -->
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn btn-danger btn-full" onclick="logout()">
+                🚪 <span class="sidebar-btn-text">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <div>
+                    <h1>🔐 Roles Management</h1>
+                    <p class="text-muted">Manage system roles and their access levels</p>
+                </div>
+                <button class="btn btn-primary" onclick="openModal('addRoleModal')">
+                    ➕ Add New Role
+                </button>
+            </div>
+
+            <!-- Roles List -->
+            <div class="role-card admin">
+                <div class="role-header">
+                    <div class="role-title">👑 Administrator</div>
+                    <span class="badge badge-error">Super Admin</span>
+                </div>
+                <p class="role-description">Full system access including user management, content management, reports,
+                    and system configuration.</p>
+                <div class="role-users">👥 2 users assigned</div>
+                <div style="margin-top: var(--space-md);">
+                    <button class="btn btn-sm btn-secondary"
+                        onclick="window.location.href='permissions.html?role=admin'">View Permissions</button>
+                    <button class="btn btn-sm btn-secondary" onclick="alert('Edit role coming soon')">Edit</button>
+                </div>
+            </div>
+
+            <div class="role-card headoffice">
+                <div class="role-header">
+                    <div class="role-title">🏢 Head Office</div>
+                    <span class="badge badge-warning">Senior Access</span>
+                </div>
+                <p class="role-description">Access to all sessions, reports, analytics, and content. Cannot modify
+                    system settings.</p>
+                <div class="role-users">👥 5 users assigned</div>
+                <div style="margin-top: var(--space-md);">
+                    <button class="btn btn-sm btn-secondary"
+                        onclick="window.location.href='permissions.html?role=headoffice'">View Permissions</button>
+                    <button class="btn btn-sm btn-secondary" onclick="alert('Edit role coming soon')">Edit</button>
+                </div>
+            </div>
+
+            <div class="role-card manager">
+                <div class="role-header">
+                    <div class="role-title">🗺️ Territory Manager</div>
+                    <span class="badge badge-info">Manager</span>
+                </div>
+                <p class="role-description">Manage sessions and view analytics for assigned territory. Can generate
+                    reports.</p>
+                <div class="role-users">👥 12 users assigned</div>
+                <div style="margin-top: var(--space-md);">
+                    <button class="btn btn-sm btn-secondary"
+                        onclick="window.location.href='permissions.html?role=territorymanager'">View
+                        Permissions</button>
+                    <button class="btn btn-sm btn-secondary" onclick="alert('Edit role coming soon')">Edit</button>
+                </div>
+            </div>
+
+            <div class="role-card manager">
+                <div class="role-header">
+                    <div class="role-title">🏠 Unit Manager</div>
+                    <span class="badge badge-info">Manager</span>
+                </div>
+                <p class="role-description">Manage sessions for assigned unit. Can view content and add training
+                    sessions.</p>
+                <div class="role-users">👥 45 users assigned</div>
+                <div style="margin-top: var(--space-md);">
+                    <button class="btn btn-sm btn-secondary"
+                        onclick="window.location.href='permissions.html?role=unitmanager'">View Permissions</button>
+                    <button class="btn btn-sm btn-secondary" onclick="alert('Edit role coming soon')">Edit</button>
+                </div>
+            </div>
+
+            <div class="role-card manager">
+                <div class="role-header">
+                    <div class="role-title">📋 Regional Officer (RO)</div>
+                    <span class="badge badge-primary">Staff</span>
+                </div>
+                <p class="role-description">View and manage sessions. Can access content and basic reporting.</p>
+                <div class="role-users">👥 78 users assigned</div>
+                <div style="margin-top: var(--space-md);">
+                    <button class="btn btn-sm btn-secondary"
+                        onclick="window.location.href='permissions.html?role=ro'">View Permissions</button>
+                    <button class="btn btn-sm btn-secondary" onclick="alert('Edit role coming soon')">Edit</button>
+                </div>
+            </div>
+
+            <div class="role-card beneficiary">
+                <div class="role-header">
+                    <div class="role-title">👤 Beneficiary</div>
+                    <span class="badge badge-success">Learner</span>
+                </div>
+                <p class="role-description">Access to learning content and modules. Can view own progress and download
+                    certificates.</p>
+                <div class="role-users">👥 1,248 users assigned</div>
+                <div style="margin-top: var(--space-md);">
+                    <button class="btn btn-sm btn-secondary"
+                        onclick="window.location.href='permissions.html?role=beneficiary'">View Permissions</button>
+                    <button class="btn btn-sm btn-secondary" onclick="alert('Edit role coming soon')">Edit</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Role Modal -->
+    <div class="modal-backdrop" id="addRoleModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Role</h3>
+                <button class="modal-close" onclick="closeModal('addRoleModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="addRoleForm">
+                    <div class="form-group">
+                        <label class="form-label form-label-required" for="roleName">Role Name</label>
+                        <input type="text" id="roleName" class="form-input" placeholder="e.g., Supervisor" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label form-label-required" for="roleDescription">Description</label>
+                        <textarea id="roleDescription" class="form-textarea"
+                            placeholder="Describe the role's responsibilities..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="roleLevel">Access Level</label>
+                        <select id="roleLevel" class="form-select">
+                            <option value="basic">Basic</option>
+                            <option value="staff">Staff</option>
+                            <option value="manager">Manager</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('addRoleModal')">Cancel</button>
+                <button class="btn btn-success"
+                    onclick="alert('Role creation will be implemented in backend'); closeModal('addRoleModal')">
+                    ✅ Submit
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Check if user is admin
+        const role = getUserRole();
+        if (role !== 'admin') {
+            alert('Access denied. This page is only accessible to administrators.');
+            window.location.href = 'landing.html';
+        }
+
+        // Update user avatar
+        const userName = getUserName();
+        document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
+    </script>
+</body>
+
+</html>
+
+

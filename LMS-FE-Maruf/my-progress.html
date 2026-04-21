@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Progress - LMS Solution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .prog-hero {
+            background: var(--gradient-primary);
+            border-radius: var(--radius-xl);
+            padding: 32px 40px;
+            color: white;
+            margin-bottom: var(--space-xl);
+            display: flex;
+            align-items: center;
+            gap: var(--space-xl);
+            flex-wrap: wrap;
+        }
+        .prog-avatar {
+            width: 90px; height: 90px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            border: 3px solid rgba(255,255,255,0.5);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; font-weight: 700; color: white;
+            overflow: hidden; flex-shrink: 0;
+        }
+        .prog-hero h2 { color: white; font-size: var(--text-2xl); margin-bottom: 4px; }
+        .prog-hero p  { opacity: 0.85; font-size: var(--text-sm); }
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl); }
+        .stat-card {
+            background: white; border-radius: var(--radius-xl); padding: var(--space-lg);
+            box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100);
+            text-align: center;
+        }
+        .stat-value { font-size: 2rem; font-weight: 800; color: var(--primary-600); line-height: 1; margin-bottom: 4px; }
+        .stat-label { font-size: var(--text-sm); color: var(--gray-500); font-weight: 500; }
+        .course-prog-card {
+            background: white; border-radius: var(--radius-xl); padding: var(--space-xl);
+            box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100);
+            margin-bottom: var(--space-lg);
+        }
+        .cprog-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-sm); margin-bottom: var(--space-md); }
+        .cprog-title { font-size: var(--text-lg); font-weight: 700; color: var(--gray-900); }
+        .cprog-bar-wrap { height: 12px; background: var(--gray-100); border-radius: var(--radius-full); margin-bottom: var(--space-lg); overflow: hidden; }
+        .cprog-bar { height: 100%; background: var(--gradient-primary); border-radius: var(--radius-full); transition: width 0.5s; }
+        .module-row {
+            display: flex; align-items: center; gap: var(--space-md); padding: var(--space-sm) 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+        .module-row:last-child { border: none; }
+        .mod-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+        .mod-done  { background: #d1fae5; color: #065f46; }
+        .mod-active { background: #dbeafe; color: #1e40af; }
+        .mod-lock  { background: var(--gray-100); color: var(--gray-400); }
+        .exam-score-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 14px; border-radius: var(--radius-full);
+            font-size: var(--text-sm); font-weight: 600;
+        }
+        @media (max-width: 640px) {
+            .prog-hero { padding: 24px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">☰</button>
+        <a href="landing.html" class="navbar-brand">📚 LMS Solution</a>
+        <div class="navbar-actions">
+            <div id="roleSwitcher"></div>
+            <div class="navbar-user" onclick="toggleUserDropdown(event)">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">User</div>
+                    <div class="user-role" id="userRole">Beneficiary</div>
+                </div>
+                <div class="user-dropdown">
+                    <a href="profile.html" class="dropdown-item">👤 My Profile</a>
+                    <a href="change-password.html" class="dropdown-item">🔒 Change Password</a>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-nav" onclick="logout()">🚪 Logout</button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header" style="display:flex;align-items:center;justify-content:space-between;">
+            <a href="landing.html" class="sidebar-logo" style="text-decoration:none;">📚 LMS</a>
+            <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">«</button>
+        </div>
+        <nav class="sidebar-nav" id="sidebarNav"></nav>
+        <div class="sidebar-footer">
+            <button class="btn btn-danger btn-full" onclick="logout()">🚪 <span class="sidebar-btn-text">Logout</span></button>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">📊 My Progress</h1>
+                    <p class="page-description">Track your learning journey and achievements.</p>
+                </div>
+            </div>
+
+            <!-- Hero Banner -->
+            <div class="prog-hero">
+                <div class="prog-avatar" id="heroAvatar">U</div>
+                <div>
+                    <h2 id="heroName">Learner</h2>
+                    <p id="heroRole">Beneficiary</p>
+                    <p id="heroJoinDate" style="margin-top:4px;"></p>
+                </div>
+                <div style="margin-left:auto;text-align:right;">
+                    <div style="font-size:3rem;font-weight:800;color:white;line-height:1;" id="overallPct">0%</div>
+                    <div style="font-size:var(--text-sm);opacity:0.85;">Overall Completion</div>
+                </div>
+            </div>
+
+            <!-- Summary Statistics -->
+            <div class="stat-grid" id="statGrid">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Course Progress Cards -->
+            <h2 style="font-size:var(--text-xl);font-weight:700;margin-bottom:var(--space-lg);color:var(--gray-900);">📚 Course Progress</h2>
+            <div id="courseProgressList">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        const userName = getUserName();
+        const role = getUserRole();
+
+        // Avatar
+        const savedPic = localStorage.getItem('userProfilePic');
+        const heroAvatar = document.getElementById('heroAvatar');
+        if (savedPic) {
+            heroAvatar.innerHTML = `<img src="${savedPic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
+        } else {
+            heroAvatar.textContent = userName.charAt(0).toUpperCase();
+        }
+
+        document.getElementById('heroName').textContent = userName.split('@')[0];
+        document.getElementById('heroRole').textContent = role.charAt(0).toUpperCase() + role.slice(1);
+
+        const joinDate = localStorage.getItem('joinDate');
+        if (joinDate) {
+            document.getElementById('heroJoinDate').textContent = '📅 Enrolled: ' + new Date(joinDate).toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+        }
+
+        // ---- Gather data ----
+        const enrollments = getEnrollments();
+        const allCourses = demoData.courses;
+        const enrolledCourses = allCourses.filter(c => enrollments[c.id] && enrollments[c.id].enrolled);
+
+        let totalModules = 0, completedModules = 0, passedExams = 0, totalExams = 0;
+
+        const courseCards = enrolledCourses.map(course => {
+            const progress = getCourseProgress(course.id);
+            const mods = course.modules || [];
+            const done = mods.filter(m => progress[m.id]).length;
+            totalModules += mods.length;
+            completedModules += done;
+            const pct = mods.length > 0 ? Math.round((done / mods.length) * 100) : 0;
+
+            // Pre/Post exam info
+            let examHtml = '';
+            if (course.preExamId) {
+                const preEx = demoData.exams.find(e => e.id === course.preExamId);
+                const preAttempts = getExamAttempts(course.preExamId, course.id);
+                const preScore = getLatestExamScore(course.preExamId, course.id);
+                totalExams++;
+                if (preAttempts.length > 0) passedExams++;
+                examHtml += `
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-sm) 0;border-bottom:1px solid var(--gray-100);">
+                        <div>
+                            <div style="font-weight:600;font-size:var(--text-sm);">📝 ${preEx ? preEx.name : 'Pre-Test'}</div>
+                            <div style="font-size:var(--text-xs);color:var(--gray-500);">${preAttempts.length} attempt${preAttempts.length !== 1 ? 's' : ''}</div>
+                        </div>
+                        <div>
+                            ${preScore ? `<span class="exam-score-pill" style="background:#dbeafe;color:#1e40af;">${preScore.percentage}%</span>` : `<span class="badge badge-secondary">Not taken</span>`}
+                            ${preAttempts.length > 0 ? `<a href="exam-results.html?examId=${course.preExamId}&courseId=${course.id}" class="btn btn-sm btn-secondary" style="margin-left:8px;">View</a>` : ''}
+                        </div>
+                    </div>`;
+            }
+            if (course.postExamId) {
+                const postEx = demoData.exams.find(e => e.id === course.postExamId);
+                const postAttempts = getExamAttempts(course.postExamId, course.id);
+                const postScore = getLatestExamScore(course.postExamId, course.id);
+                const passed = hasPassedExam(course.postExamId, course.id, postEx ? postEx.passMark || 50 : 50);
+                totalExams++;
+                if (passed) passedExams++;
+                examHtml += `
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-sm) 0;">
+                        <div>
+                            <div style="font-weight:600;font-size:var(--text-sm);">🎓 ${postEx ? postEx.name : 'Post-Test'}</div>
+                            <div style="font-size:var(--text-xs);color:var(--gray-500);">${postAttempts.length} attempt${postAttempts.length !== 1 ? 's' : ''} · Pass mark: ${postEx ? postEx.passMark || 50 : 50}%</div>
+                        </div>
+                        <div>
+                            ${postScore ? `<span class="exam-score-pill" style="${passed ? 'background:#d1fae5;color:#065f46;' : 'background:#fee2e2;color:#991b1b;'}">${postScore.percentage}%</span>` : `<span class="badge badge-secondary">Not taken</span>`}
+                            ${postAttempts.length > 0 ? `<a href="exam-results.html?examId=${course.postExamId}&courseId=${course.id}" class="btn btn-sm btn-secondary" style="margin-left:8px;">View</a>` : ''}
+                        </div>
+                    </div>`;
+            }
+
+            const moduleRows = mods.map((mod, idx) => {
+                const isDone = progress[mod.id];
+                const prevDone = idx === 0 || progress[mods[idx-1].id];
+                const locked = !isDone && !prevDone;
+                const cls = isDone ? 'mod-done' : locked ? 'mod-lock' : 'mod-active';
+                const icon = isDone ? '✓' : locked ? '🔒' : '▶';
+                return `<div class="module-row">
+                    <div class="mod-icon ${cls}">${icon}</div>
+                    <div style="flex:1;">
+                        <div style="font-size:var(--text-sm);font-weight:600;">${mod.title}</div>
+                        <div style="font-size:var(--text-xs);color:var(--gray-500);">⏱️ ${mod.duration || '—'}</div>
+                    </div>
+                    ${isDone ? '<span class="badge badge-success" style="font-size:11px;">Completed</span>' : ''}
+                </div>`;
+            }).join('');
+
+            const isCourseDone = done === mods.length && mods.length > 0 && (course.postExamId ? hasPassedExam(course.postExamId, course.id, 50) : true);
+
+            return `
+                <div class="course-prog-card">
+                    <div class="cprog-header">
+                        <div>
+                            <div class="cprog-title">${course.title}</div>
+                            <div style="font-size:var(--text-sm);color:var(--gray-500);margin-top:2px;">📂 ${course.category} · ⏱️ ${course.duration}</div>
+                        </div>
+                        <div style="display:flex;gap:var(--space-sm);align-items:center;">
+                            ${isCourseDone ? '<span class="badge badge-success">✅ Completed</span>' : `<span class="badge badge-primary">${pct}% done</span>`}
+                            <a href="course_details.html?courseId=${course.id}" class="btn btn-sm btn-primary">Continue →</a>
+                        </div>
+                    </div>
+                    <div class="cprog-bar-wrap"><div class="cprog-bar" style="width:${pct}%"></div></div>
+                    <div style="font-size:var(--text-sm);color:var(--gray-500);margin-bottom:var(--space-md);">${done} of ${mods.length} modules completed</div>
+
+                    <details style="cursor:pointer;">
+                        <summary style="font-weight:600;font-size:var(--text-sm);color:var(--primary-600);list-style:none;display:flex;align-items:center;gap:6px;margin-bottom:var(--space-sm);">
+                            📖 View Modules
+                        </summary>
+                        <div style="margin-top:var(--space-sm);">${moduleRows}</div>
+                    </details>
+
+                    ${examHtml ? `<div style="margin-top:var(--space-md);padding-top:var(--space-md);border-top:1px solid var(--gray-100);">
+                        <div style="font-weight:600;font-size:var(--text-sm);margin-bottom:var(--space-sm);">📋 Exams</div>
+                        ${examHtml}
+                    </div>` : ''}
+                </div>`;
+        }).join('');
+
+        if (enrolledCourses.length === 0) {
+            document.getElementById('courseProgressList').innerHTML = `
+                <div class="card" style="text-align:center;padding:var(--space-3xl);">
+                    <div style="font-size:3rem;margin-bottom:var(--space-md);">📚</div>
+                    <h3>No Courses Yet</h3>
+                    <p style="color:var(--gray-500);margin-bottom:var(--space-xl);">Enroll in a course to start tracking your progress.</p>
+                    <a href="courses.html" class="btn btn-primary">Browse Courses</a>
+                </div>`;
+        } else {
+            document.getElementById('courseProgressList').innerHTML = courseCards;
+        }
+
+        // Stats
+        const overallPct = totalModules > 0 ? Math.round((completedModules / totalModules) * 100) : 0;
+        document.getElementById('overallPct').textContent = overallPct + '%';
+
+        document.getElementById('statGrid').innerHTML = `
+            <div class="stat-card">
+                <div class="stat-value">${enrolledCourses.length}</div>
+                <div class="stat-label">Enrolled Courses</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${completedModules}</div>
+                <div class="stat-label">Modules Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:var(--primary-500);">${overallPct}%</div>
+                <div class="stat-label">Overall Progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:#f59e0b;">${enrolledCourses.filter(c => c.postExamId ? hasPassedExam(c.postExamId, c.id, 50) : false).length}</div>
+                <div class="stat-label">Courses Certified</div>
+            </div>`;
+    </script>
+</body>
+</html>

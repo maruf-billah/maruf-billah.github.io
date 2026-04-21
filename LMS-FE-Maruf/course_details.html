@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Details - LMS Solution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* ---- Course Hero ---- */
+        .course-hero {
+            background: linear-gradient(125deg, #093f3a, #146b5e);
+            border-radius: var(--radius-xl);
+            padding: 32px 40px;
+            color: white;
+            margin-bottom: var(--space-xl);
+            box-shadow: 0 20px 40px -16px rgba(10,78,69,0.5);
+        }
+        .course-hero h1 { color: white; font-size: var(--text-3xl); margin-bottom: var(--space-sm); }
+        .course-hero p  { opacity: 0.9; font-size: var(--text-base); margin-bottom: var(--space-lg); }
+        .hero-meta { display: flex; flex-wrap: wrap; gap: var(--space-lg); }
+        .hero-meta-item {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            padding: 6px 16px;
+            border-radius: var(--radius-full);
+            font-size: var(--text-sm);
+            font-weight: 500;
+        }
+
+        /* ---- Progress Bar ---- */
+        .progress-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--space-lg) var(--space-xl);
+            margin-bottom: var(--space-xl);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--primary-100);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-md);
+        }
+        .progress-card-label { font-weight: 600; color: var(--primary-700); }
+        .progress-bar-wrap { width: 260px; height: 10px; background: var(--gray-200); border-radius: var(--radius-full); overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: var(--gradient-primary); border-radius: var(--radius-full); transition: width 0.4s; width: 0%; }
+        .next-step-badge {
+            background: var(--primary-50);
+            color: var(--primary-700);
+            padding: 8px 20px;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            font-size: var(--text-sm);
+        }
+
+        /* ---- Timeline ---- */
+        .timeline-section { position: relative; padding-left: 56px; }
+        .timeline-rail {
+            position: absolute;
+            left: 19px;
+            top: 16px;
+            bottom: 16px;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--primary-300), var(--primary-500));
+            border-radius: 4px;
+            opacity: 0.4;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: var(--space-lg);
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -48px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid var(--primary-200);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            box-shadow: var(--shadow-sm);
+            z-index: 2;
+        }
+        .timeline-dot.dot-done  { background: var(--success); border-color: #a7f3d0; color: white; }
+        .timeline-dot.dot-active { background: white; border: 3px solid var(--primary-500); color: var(--primary-700); box-shadow: 0 0 0 5px rgba(16,185,129,0.12); }
+        .timeline-dot.dot-locked { background: var(--gray-100); border-color: var(--gray-300); color: var(--gray-400); }
+
+        .timeline-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--space-lg) var(--space-xl);
+            border: 1px solid var(--gray-200);
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow 0.15s;
+        }
+        .timeline-card:hover { box-shadow: var(--shadow-md); }
+        .timeline-card.card-pretest  { border-left: 5px solid var(--primary-500); }
+        .timeline-card.card-posttest { border-left: 5px solid #f59e0b; }
+        .timeline-card.card-locked   { background: var(--gray-50); }
+
+        .tc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-sm);
+        }
+        .tc-title { font-size: var(--text-lg); font-weight: 700; color: var(--gray-900); }
+        .tc-desc  { font-size: var(--text-sm); color: var(--gray-500); margin-bottom: var(--space-md); }
+        .tc-footer {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+            flex-wrap: wrap;
+        }
+        .tc-meta { font-size: var(--text-sm); color: var(--gray-500); display: flex; align-items: center; gap: 6px; }
+
+        /* ---- Certificate Banner ---- */
+        .cert-banner {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 1px solid #fbbf24;
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            margin-top: var(--space-xl);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+        .cert-banner-left { display: flex; align-items: center; gap: var(--space-lg); }
+        .cert-icon { font-size: 3rem; }
+
+        /* Breadcrumb */
+        .page-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-xl);
+            font-size: var(--text-sm);
+            color: var(--gray-500);
+        }
+        .page-breadcrumb a { color: var(--primary-600); text-decoration: none; font-weight: 500; }
+        .page-breadcrumb a:hover { text-decoration: underline; }
+
+        @media (max-width: 640px) {
+            .course-hero { padding: 24px 20px; }
+            .course-hero h1 { font-size: var(--text-2xl); }
+            .progress-bar-wrap { width: 100%; }
+            .progress-card { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">☰</button>
+        <a href="landing.html" class="navbar-brand">
+            📚 LMS Solution
+        </a>
+        <div class="navbar-actions">
+            <div id="roleSwitcher"></div>
+            <div class="navbar-user" onclick="toggleUserDropdown(event)">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">User</div>
+                    <div class="user-role" id="userRole">Beneficiary</div>
+                </div>
+                <div class="user-dropdown">
+                    <a href="profile.html" class="dropdown-item">👤 My Profile</a>
+                    <a href="change-password.html" class="dropdown-item">🔒 Change Password</a>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-nav" onclick="logout()">🚪 Logout</button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header" style="display:flex;align-items:center;justify-content:space-between;">
+            <a href="landing.html" class="sidebar-logo" style="text-decoration:none;">📚 LMS</a>
+            <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">«</button>
+        </div>
+        <nav class="sidebar-nav" id="sidebarNav"></nav>
+        <div class="sidebar-footer">
+            <button class="btn btn-danger btn-full" onclick="logout()">🚪 <span class="sidebar-btn-text">Logout</span></button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+
+            <!-- Breadcrumb -->
+            <div class="page-breadcrumb">
+                <a href="courses.html">📚 Courses</a>
+                <span>›</span>
+                <span id="bcTitle">Course Details</span>
+            </div>
+
+            <!-- Course Hero -->
+            <div class="course-hero" id="courseHero" style="position:relative;overflow:hidden;">
+                <div style="position:absolute;inset:0;background-image:url('financial_literacy_bg.png');background-size:cover;background-position:center;opacity:0.18;border-radius:var(--radius-xl);pointer-events:none;"></div>
+                <div style="position:relative;z-index:1;">
+                <h1 id="heroTitle">Loading...</h1>
+                <p id="heroDesc">Please wait</p>
+                <div class="hero-meta">
+                    <span class="hero-meta-item">⏱️ <span id="heroDuration">—</span></span>
+                    <span class="hero-meta-item">📖 <span id="heroModules">—</span> Modules</span>
+                    <span class="hero-meta-item">📂 <span id="heroCategory">—</span></span>
+                </div>
+                </div>
+
+            </div>
+
+            <!-- Progress Card -->
+            <div class="progress-card">
+                <div>
+                    <div class="progress-card-label">📈 Your Progress</div>
+                    <div style="font-size:var(--text-sm);color:var(--gray-500);margin-top:4px;" id="progressText">0 of 0 steps completed</div>
+                </div>
+                <div class="progress-bar-wrap">
+                    <div class="progress-bar-fill" id="progressFill"></div>
+                </div>
+                <span class="next-step-badge" id="nextBadge">➡️ Start Pre-Test</span>
+            </div>
+
+            <!-- Timeline -->
+            <div class="timeline-section">
+                <div class="timeline-rail"></div>
+                <div id="timelineContainer">
+                    <!-- Rendered by JS -->
+                </div>
+            </div>
+
+            <!-- Certificate Banner -->
+            <div class="cert-banner" id="certBanner">
+                <div class="cert-banner-left">
+                    <span class="cert-icon">🎓</span>
+                    <div>
+                        <h3 style="color:#92400e; margin-bottom:4px;">Earn Your Certificate</h3>
+                        <p style="color:#b45309; font-size:var(--text-sm);">Pass the post-test to unlock your digital certificate of completion.</p>
+                    </div>
+                </div>
+                <div id="certAction">
+                    <span class="badge badge-secondary">🔒 Locked</span>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        // ---- Load Course ----
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseId = parseInt(urlParams.get('courseId')) || 1;
+        const currentCourse = demoData.courses.find(c => c.id === courseId) || demoData.courses[0];
+        
+        document.title = `${currentCourse.title} · Course Details`;
+
+        // Hero
+        document.getElementById('bcTitle').textContent        = currentCourse.title;
+        document.getElementById('heroTitle').textContent      = currentCourse.title;
+        document.getElementById('heroDesc').textContent       = currentCourse.description;
+        document.getElementById('heroDuration').textContent   = currentCourse.duration || '—';
+        document.getElementById('heroModules').textContent    = (currentCourse.modules || []).length;
+        document.getElementById('heroCategory').textContent   = currentCourse.category || 'General';
+
+        // Data helpers
+        const modules   = currentCourse.modules || [];
+        const progress  = getCourseProgress(courseId);
+        const completedCount = modules.filter(m => progress[m.id]).length;
+
+        const preExam  = currentCourse.preExamId  ? demoData.exams.find(e => e.id === currentCourse.preExamId)  : null;
+        const postExam = currentCourse.postExamId ? demoData.exams.find(e => e.id === currentCourse.postExamId) : null;
+
+        const preTestDone   = preExam ? hasCompletedExam(preExam.id, courseId) : true;
+        const preTestScore  = preExam ? getLatestExamScore(preExam.id, courseId) : null;
+        const postPassMark  = postExam ? (postExam.passMark || 50) : 50;
+        const postTestPassed = postExam ? hasPassedExam(postExam.id, courseId, postPassMark) : false;
+        const postTestScore  = postExam ? getLatestExamScore(postExam.id, courseId) : null;
+        const allModsDone   = completedCount === modules.length && modules.length > 0;
+
+        // ---- Build Timeline HTML ----
+        const html = [];
+        let nextLabel = '';
+
+        // 1. Pre-Test
+        if (preExam) {
+            const done = preTestDone;
+            const dotClass = done ? 'dot-done' : 'dot-active';
+            const scoreStr = preTestScore ? ` &nbsp;—&nbsp; Latest: <strong>${preTestScore.percentage}%</strong>` : '';
+            const attempts = getExamAttempts(preExam.id, courseId);
+            if (!done) nextLabel = 'Pre-Test';
+
+            html.push(`
+                <div class="timeline-item">
+                    <div class="timeline-dot ${dotClass}">${done ? '✓' : '📝'}</div>
+                    <div class="timeline-card card-pretest">
+                        <div class="tc-header">
+                            <div class="tc-title">📝 Pre-Test · ${preExam.name || 'Pre-Test'}</div>
+                            <span class="badge ${done ? 'badge-success' : 'badge-primary'}">${done ? '✅ Completed' + (preTestScore ? ' · ' + preTestScore.percentage + '%' : '') : 'Required'}</span>
+                        </div>
+                        <div class="tc-desc">${preExam.description || 'A short quiz to assess your current knowledge before starting the course.'} ${attempts.length > 0 ? `<em>(${attempts.length} attempt${attempts.length > 1 ? 's' : ''})</em>` : ''}</div>
+                        <div class="tc-footer">
+                            <span class="tc-meta">⏱️ ${preExam.timeLimit || 15} min &nbsp;·&nbsp; ${(preExam.questionIds || []).length} questions &nbsp;·&nbsp; No pass mark</span>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                ${attempts.length > 0 ? `<a href="exam-results.html?examId=${preExam.id}&courseId=${courseId}" class="btn btn-sm btn-secondary">📋 View Results (${attempts.length})</a>` : ''}
+                                <a href="exam.html?id=${preExam.id}&courseId=${courseId}&type=pre" class="btn btn-sm ${done ? 'btn-secondary' : 'btn-primary'}">
+                                    ${done ? '🔄 Retake Pre-Test' : '▶ Start Pre-Test'}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+        }
+
+        // 2. Modules
+        modules.forEach((mod, idx) => {
+            const isDone   = progress[mod.id] === true;
+            const prevDone = idx === 0 || progress[modules[idx - 1].id] === true;
+            const locked   = !preTestDone || !prevDone;
+            const active   = !locked && !isDone;
+
+            if (active && !nextLabel) nextLabel = `Module ${idx + 1}`;
+
+            const dotClass  = isDone ? 'dot-done' : (locked ? 'dot-locked' : 'dot-active');
+            const cardClass = locked ? 'card-locked' : '';
+            const dotIcon   = isDone ? '✓' : (locked ? '🔒' : (idx + 1));
+
+            let badgeHtml = isDone  ? '<span class="badge badge-success">✅ Completed</span>'
+                          : locked  ? '<span class="badge badge-secondary">🔒 Locked</span>'
+                          :           '<span class="badge badge-primary">▶ In Progress</span>';
+
+            let btnHtml = locked 
+                ? '<span class="badge badge-secondary" style="padding:8px 16px;">🔒 Complete previous step</span>'
+                : isDone
+                    ? `<a href="module-detail.html?courseId=${courseId}&moduleId=${mod.id}" class="btn btn-sm btn-secondary">🔄 Review</a>`
+                    : `<a href="module-detail.html?courseId=${courseId}&moduleId=${mod.id}" class="btn btn-sm btn-primary">▶ Continue</a>`;
+
+            html.push(`
+                <div class="timeline-item">
+                    <div class="timeline-dot ${dotClass}">${dotIcon}</div>
+                    <div class="timeline-card ${cardClass}">
+                        <div class="tc-header">
+                            <div class="tc-title">Module ${idx + 1} &nbsp;·&nbsp; ${mod.title}</div>
+                            ${badgeHtml}
+                        </div>
+                        <div class="tc-desc">${mod.description || 'Complete this module to unlock the next step.'}</div>
+                        <div class="tc-footer">
+                            <span class="tc-meta">⏱️ ${mod.duration || '—'}</span>
+                            <span class="tc-meta">📌 ${mod.type || 'Video Lesson'}</span>
+                            ${btnHtml}
+                        </div>
+                    </div>
+                </div>
+            `);
+        });
+
+        // 3. Post-Test
+        if (postExam) {
+            const unlocked = allModsDone;
+            const done     = postTestPassed;
+            const dotClass = done ? 'dot-done' : (unlocked ? 'dot-active' : 'dot-locked');
+            const cardClass = unlocked ? 'card-posttest' : 'card-locked';
+            const attempts  = getExamAttempts(postExam.id, courseId);
+            if (unlocked && !done && !nextLabel) nextLabel = 'Post-Test';
+
+            let badgeHtml = done     ? `<span class="badge badge-success">✅ Passed · ${postTestScore.percentage}%</span>`
+                          : unlocked ? `<span class="badge" style="background:#fef3c7;color:#92400e;">Pass Mark: ${postPassMark}%</span>`
+                          :            `<span class="badge badge-secondary">🔒 Locked</span>`;
+
+            let btnHtml = !unlocked 
+                ? '<span class="badge badge-secondary" style="padding:8px 16px;">🔒 Complete all modules first</span>'
+                : `<a href="exam.html?id=${postExam.id}&courseId=${courseId}&type=post" class="btn btn-sm ${done ? 'btn-secondary' : 'btn-primary'}">
+                       ${done ? '🔄 Retake Post-Test' : '▶ Start Post-Test'}
+                   </a>`;
+
+            html.push(`
+                <div class="timeline-item">
+                    <div class="timeline-dot ${dotClass}">${done ? '✓' : '🎓'}</div>
+                    <div class="timeline-card ${cardClass}">
+                        <div class="tc-header">
+                            <div class="tc-title">🎓 Post-Test · ${postExam.name || 'Post-Test'}</div>
+                            ${badgeHtml}
+                        </div>
+                        <div class="tc-desc">${postExam.description || 'Final assessment after completing all modules. Pass to earn your certificate.'} ${attempts.length > 0 ? `<em>(${attempts.length} attempt${attempts.length > 1 ? 's' : ''})</em>` : ''}</div>
+                        <div class="tc-footer">
+                            <span class="tc-meta">⏱️ ${postExam.timeLimit || 25} min &nbsp;·&nbsp; ${(postExam.questionIds || []).length} questions &nbsp;·&nbsp; Pass: ${postPassMark}%</span>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                ${attempts.length > 0 ? `<a href="exam-results.html?examId=${postExam.id}&courseId=${courseId}" class="btn btn-sm btn-secondary">📋 View Results (${attempts.length})</a>` : ''}
+                                ${btnHtml}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+        }
+
+        document.getElementById('timelineContainer').innerHTML = html.join('');
+
+        // ---- Progress Bar ----
+        let total = modules.length;
+        let done  = completedCount;
+        if (preExam)  { total++; if (preTestDone)   done++; }
+        if (postExam) { total++; if (postTestPassed) done++; }
+        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+        document.getElementById('progressFill').style.width = pct + '%';
+        document.getElementById('progressText').textContent = `${done} of ${total} steps completed (${pct}%)`;
+
+        if (pct === 100) {
+            document.getElementById('nextBadge').innerHTML = '✅ Course Complete!';
+            document.getElementById('nextBadge').style.background = 'var(--success-light)';
+            document.getElementById('nextBadge').style.color = '#065f46';
+            // Unlock Certificate
+            document.getElementById('certAction').innerHTML = `<a href="certificate.html?courseId=${courseId}" class="btn btn-primary">📥 Download Certificate</a>`;
+        } else {
+            document.getElementById('nextBadge').innerHTML = `➡️ Next: ${nextLabel || 'Continue'}`;
+        }
+    </script>
+</body>
+
+</html>

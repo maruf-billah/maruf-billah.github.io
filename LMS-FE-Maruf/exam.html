@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam - LMS Solution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: var(--gray-50);
+        }
+
+        .exam-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: var(--space-2xl) var(--space-lg);
+            text-align: center;
+        }
+
+        .exam-header h1 {
+            color: white;
+            margin-bottom: var(--space-md);
+        }
+
+        .exam-container {
+            max-width: 800px;
+            margin: -50px auto 50px auto;
+            position: relative;
+            z-index: 10;
+            padding: 0 var(--space-md);
+        }
+
+        .question-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .question-title {
+            font-size: var(--text-lg);
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+        }
+
+        .option-label {
+            display: block;
+            padding: var(--space-md);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-sm);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .option-label:hover {
+            border-color: var(--primary-500);
+            background: var(--primary-50);
+        }
+
+        .option-label input {
+            margin-right: var(--space-sm);
+        }
+
+        .option-label.correct {
+            background: var(--success-light);
+            border-color: var(--success);
+        }
+
+        .option-label.incorrect {
+            background: var(--error-light);
+            border-color: var(--error);
+        }
+
+        .result-card {
+            display: none;
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--space-2xl);
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--text-4xl);
+            font-weight: 700;
+            margin: 0 auto var(--space-lg);
+        }
+        .score-circle.passed {
+            background: linear-gradient(135deg, #10b981, #34d399);
+        }
+        .score-circle.failed {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+        }
+
+        .progress-diff {
+            font-size: var(--text-xl);
+            font-weight: 600;
+            padding: var(--space-md);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-lg);
+        }
+
+        .progress-diff.positive {
+            background: var(--success-light);
+            color: #065f46;
+        }
+
+        .progress-diff.negative {
+            background: var(--error-light);
+            color: #991b1b;
+        }
+
+        .progress-diff.neutral {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .attempt-info {
+            background: var(--gray-50);
+            border-radius: var(--radius-lg);
+            padding: var(--space-md);
+            margin-bottom: var(--space-lg);
+            font-size: var(--text-sm);
+            color: var(--gray-600);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="exam-header">
+        <h1 id="examTitle">Loading Exam...</h1>
+        <p id="examSubtitle">Please wait</p>
+        <div id="attemptInfo" class="attempt-info" style="display:none;max-width:400px;margin:var(--space-md) auto 0;background:rgba(255,255,255,0.15);color:white;"></div>
+    </div>
+
+    <div class="exam-container" id="mainContainer">
+        <div class="result-card" id="resultCard" style="display: none; margin-bottom: 2rem;">
+            <h2 id="resultTitle">Exam Completed! 🎉</h2>
+            <div class="score-circle" id="scoreDisplay">0/0</div>
+            <p id="passStatus" style="font-size:var(--text-lg);font-weight:700;margin-bottom:var(--space-md);"></p>
+            <div id="progressDiffContainer" style="display: none;"></div>
+            <p style="margin-bottom: var(--space-xl);" class="text-muted">You can review your answers below.</p>
+            <div style="display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap;">
+                <button class="btn btn-secondary" id="backBtn" onclick="goBackToCourse()">📚 Back to Course</button>
+                <button class="btn btn-primary" id="retakeBtn" onclick="retakeExam()">🔄 Retake Exam</button>
+                <a class="btn btn-secondary" href="exam-results.html" id="historyBtn" style="display:none;">📋 View History</a>
+            </div>
+        </div>
+
+        <div id="questionsContainer">
+            <!-- Questions populated dynamically -->
+        </div>
+
+        <button id="submitBtn" class="btn btn-primary" style="width: 100%; display: none;" onclick="submitExam()">📝 Submit
+            Exam</button>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const examId = parseInt(urlParams.get('id')) || urlParams.get('id');
+        const courseId = urlParams.get('courseId');
+        const examType = urlParams.get('type') || 'pre';
+
+        let currentExam = null;
+        let examQuestions = [];
+        let selectedAnswers = {};
+
+        function init() {
+            if (!examId) {
+                document.getElementById('examTitle').textContent = "Error: No Exam specified";
+                return;
+            }
+
+            // Look up exam from demoData
+            currentExam = demoData.exams.find(e => e.id == examId);
+
+            if (!currentExam) {
+                // Fallback demo
+                currentExam = {
+                    id: examId,
+                    name: 'Demo Exam',
+                    type: examType,
+                    questionIds: [1, 2, 3],
+                    timeLimit: 15,
+                    passMark: examType === 'post' ? 50 : 0,
+                    canRetake: true
+                };
+            }
+
+            // Load questions from question bank
+            examQuestions = (currentExam.questionIds || []).map(qId => {
+                return demoData.questions.find(q => q.id === qId);
+            }).filter(Boolean);
+
+            if (examQuestions.length === 0) {
+                examQuestions = [
+                    { id: 99, text: 'Sample Question', options: ['A', 'B', 'C', 'D'], correct: 0 }
+                ];
+            }
+
+            const typeLabel = currentExam.type === 'post' ? 'Post-Test' : 'Pre-Test';
+            document.getElementById('examTitle').textContent = currentExam.name || typeLabel;
+            document.getElementById('examSubtitle').textContent = `${typeLabel} · ${examQuestions.length} Questions · ${currentExam.timeLimit || '?'} min`;
+
+            // Show previous attempts
+            const attempts = getExamAttempts(currentExam.id, courseId);
+            if (attempts.length > 0) {
+                const infoEl = document.getElementById('attemptInfo');
+                infoEl.style.display = 'block';
+                infoEl.textContent = `Previous attempts: ${attempts.length} · Latest score: ${attempts[0].percentage}%`;
+            }
+
+            renderQuestions();
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = examQuestions.map((q, index) => `
+                <div class="question-card" id="qcard-${index}">
+                    <div class="question-title">${index + 1}. ${q.text}</div>
+                    <div class="options-container">
+                        ${q.options.map((opt, optIndex) => `
+                            <label class="option-label" id="lbl-${index}-${optIndex}">
+                                <input type="radio" name="q${index}" value="${optIndex}" onchange="selectAnswer(${index}, ${optIndex})">
+                                ${opt}
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('submitBtn').style.display = 'block';
+        }
+
+        function selectAnswer(qIndex, optIndex) {
+            selectedAnswers[qIndex] = optIndex;
+        }
+
+        function submitExam() {
+            if (Object.keys(selectedAnswers).length < examQuestions.length) {
+                if (!confirm("You have unanswered questions. Are you sure you want to submit?")) {
+                    return;
+                }
+            }
+
+            document.getElementById('submitBtn').style.display = 'none';
+            let score = 0;
+
+            // Evaluate answers and highlight
+            examQuestions.forEach((q, index) => {
+                const userAns = selectedAnswers[index];
+                const correctAns = q.correct;
+
+                if (userAns !== undefined) {
+                    const lblUser = document.getElementById(`lbl-${index}-${userAns}`);
+                    if (userAns === correctAns) {
+                        score++;
+                        lblUser.classList.add('correct');
+                    } else {
+                        lblUser.classList.add('incorrect');
+                        document.getElementById(`lbl-${index}-${correctAns}`).classList.add('correct');
+                    }
+                } else {
+                    document.getElementById(`lbl-${index}-${correctAns}`).classList.add('correct');
+                }
+
+                // Disable inputs
+                document.querySelectorAll(`input[name="q${index}"]`).forEach(input => input.disabled = true);
+            });
+
+            // Calculate percentage
+            const pct = Math.round((score / examQuestions.length) * 100);
+            const passMark = currentExam.passMark || 0;
+            const passed = passMark === 0 ? true : pct >= passMark;
+
+            // Show result
+            const scoreEl = document.getElementById('scoreDisplay');
+            scoreEl.textContent = `${pct}%`;
+            scoreEl.className = 'score-circle ' + (passed ? 'passed' : 'failed');
+
+            const passEl = document.getElementById('passStatus');
+            if (passMark > 0) {
+                passEl.textContent = passed ? '✅ Passed!' : `❌ Not Passed (${passMark}% required)`;
+                passEl.style.color = passed ? 'var(--success)' : 'var(--error)';
+            } else {
+                passEl.textContent = `Score: ${score}/${examQuestions.length}`;
+                passEl.style.color = 'var(--gray-700)';
+            }
+
+            document.getElementById('resultCard').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Save to history
+            saveResult(score, examQuestions.length, pct, passed);
+
+            // Update the history button
+            const hBtn = document.getElementById('historyBtn');
+            if (hBtn) { hBtn.href = `exam-results.html?courseId=${courseId}`; hBtn.style.display = 'inline-flex'; }
+
+            // Show progress diff for post-test
+            if (currentExam.type === 'post' && courseId) {
+                showProgressDiff(pct);
+            }
+        }
+
+        function saveResult(score, maxScore, percentage, passed) {
+            let history = JSON.parse(localStorage.getItem('examHistory') || '[]');
+            history.push({
+                courseId: courseId || 'unknown',
+                examId: currentExam.id,
+                title: currentExam.name,
+                type: currentExam.type,
+                score: score,
+                maxScore: maxScore,
+                percentage: percentage,
+                passed: passed,
+                date: new Date().toISOString()
+            });
+            localStorage.setItem('examHistory', JSON.stringify(history));
+
+            // Also update examResults for backward compatibility
+            let examResults = JSON.parse(localStorage.getItem('examResults') || '{}');
+            examResults[currentExam.id] = { passed: passed, percentage: percentage, score: score, maxScore: maxScore };
+            localStorage.setItem('examResults', JSON.stringify(examResults));
+        }
+
+        function retakeExam() {
+            // Reset state and re-render
+            selectedAnswers = {};
+            document.getElementById('resultCard').style.display = 'none';
+
+            // Update attempt info
+            const attempts = getExamAttempts(currentExam.id, courseId);
+            const infoEl = document.getElementById('attemptInfo');
+            infoEl.style.display = 'block';
+            infoEl.textContent = `Previous attempts: ${attempts.length} · Latest score: ${attempts[0].percentage}%`;
+
+            renderQuestions();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goBackToCourse() {
+            if (courseId) {
+                window.location.href = `course_details.html?courseId=${courseId}`;
+            } else {
+                window.location.href = 'courses.html';
+            }
+        }
+
+        function showProgressDiff(postPct) {
+            const history = JSON.parse(localStorage.getItem('examHistory') || '[]');
+            const preExams = history.filter(h => h.courseId === courseId && h.type === 'pre');
+
+            if (preExams.length > 0) {
+                preExams.sort((a, b) => new Date(b.date) - new Date(a.date));
+                const prePct = preExams[0].percentage;
+
+                const diff = postPct - prePct;
+                const container = document.getElementById('progressDiffContainer');
+                container.style.display = 'block';
+
+                let diffClass = 'neutral';
+                let diffIcon = '⚖️';
+                let diffText = 'Same score as Pre-Test';
+
+                if (diff > 0) {
+                    diffClass = 'positive';
+                    diffIcon = '📈';
+                    diffText = `Improved by ${diff}%`;
+                } else if (diff < 0) {
+                    diffClass = 'negative';
+                    diffIcon = '📉';
+                    diffText = `Decreased by ${Math.abs(diff)}%`;
+                }
+
+                container.innerHTML = `
+                    <div class="progress-diff ${diffClass}">
+                        ${diffIcon} Progress: ${diffText} (Pre-Test: ${prePct}%)
+                    </div>
+                `;
+            }
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

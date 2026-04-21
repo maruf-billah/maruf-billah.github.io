@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate - LMS Solution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: var(--gray-100);
+            padding: var(--space-lg);
+        }
+
+        .certificate-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .certificate {
+            background: white;
+            padding: var(--space-3xl);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-2xl);
+            border: 10px solid transparent;
+            border-image: var(--gradient-primary) 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .certificate::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border: 2px solid var(--gray-200);
+            pointer-events: none;
+        }
+
+        .certificate-header {
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+            position: relative;
+            z-index: 1;
+        }
+
+        .certificate-logo {
+            font-size: var(--text-5xl);
+            margin-bottom: var(--space-md);
+        }
+
+        .certificate-title {
+            font-size: var(--text-4xl);
+            font-family: var(--font-display);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--space-sm);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .certificate-subtitle {
+            font-size: var(--text-lg);
+            color: var(--gray-600);
+            font-style: italic;
+        }
+
+        .certificate-body {
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+            position: relative;
+            z-index: 1;
+        }
+
+        .certificate-text {
+            font-size: var(--text-lg);
+            color: var(--gray-700);
+            margin-bottom: var(--space-xl);
+            line-height: 1.8;
+        }
+
+        .recipient-name {
+            font-size: var(--text-4xl);
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: var(--space-xl) 0;
+            padding: var(--space-lg) 0;
+            border-top: 2px solid var(--gray-200);
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .course-name {
+            font-size: var(--text-2xl);
+            font-weight: 600;
+            color: var(--primary-600);
+            margin: var(--space-lg) 0;
+        }
+
+        .certificate-footer {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-2xl);
+            margin-top: var(--space-3xl);
+            position: relative;
+            z-index: 1;
+        }
+
+        .signature-block {
+            text-align: center;
+        }
+
+        .signature-line {
+            border-top: 2px solid var(--gray-900);
+            margin-bottom: var(--space-sm);
+            padding-top: var(--space-md);
+        }
+
+        .signature-name {
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .signature-title {
+            font-size: var(--text-sm);
+            color: var(--gray-600);
+        }
+
+        .certificate-date {
+            text-align: center;
+            margin-top: var(--space-xl);
+            font-size: var(--text-base);
+            color: var(--gray-600);
+        }
+
+        .certificate-id {
+            text-align: center;
+            margin-top: var(--space-md);
+            font-size: var(--text-sm);
+            color: var(--gray-500);
+            font-family: monospace;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-md);
+            margin-top: var(--space-2xl);
+            flex-wrap: wrap;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 120px;
+            font-weight: 700;
+            color: rgba(102, 126, 234, 0.03);
+            pointer-events: none;
+            z-index: 0;
+            font-family: var(--font-display);
+        }
+
+        .certificate-seal {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            width: 120px;
+            height: 120px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 0 0 10px rgba(102, 126, 234, 0.2);
+            border: 2px dashed rgba(255, 255, 255, 0.8);
+            transform: rotate(-15deg);
+            z-index: 2;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .no-print,
+            .action-buttons,
+            .btn {
+                display: none !important;
+            }
+
+            .certificate {
+                box-shadow: none;
+                page-break-inside: avoid;
+                margin: 0;
+                border: 10px solid #667eea;
+                /* Fallback for print */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .certificate {
+                padding: var(--space-xl);
+            }
+
+            .certificate-title {
+                font-size: var(--text-2xl);
+            }
+
+            .recipient-name {
+                font-size: var(--text-2xl);
+            }
+
+            .course-name {
+                font-size: var(--text-xl);
+            }
+
+            .certificate-footer {
+                grid-template-columns: 1fr;
+                gap: var(--space-xl);
+            }
+
+            .certificate-seal {
+                position: static;
+                margin: var(--space-xl) auto 0;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="certificate-container">
+        <div class="no-print" style="margin-bottom: var(--space-xl); text-align: center;">
+            <a href="landing.html" class="btn btn-secondary"
+                style="position: absolute; left: var(--space-lg); top: var(--space-lg);">
+                ← Back to Dashboard
+            </a>
+            <h2 style="font-family: var(--font-display); font-size: var(--text-2xl); margin-bottom: var(--space-sm);">🏆
+                Your Certificates</h2>
+            <p class="text-muted">Select a completed course to view and download your certificate.</p>
+            <select id="courseSelect" class="form-select" style="max-width: 400px; margin: var(--space-md) auto;"
+                onchange="loadCertificate(this.value)">
+                <option value="">-- Loading Certificates --</option>
+            </select>
+        </div>
+
+        <div class="certificate" id="certificate">
+            <div class="watermark">CERTIFIED</div>
+
+            <div class="certificate-seal">
+                <div>
+                    ⭐<br>
+                    OFFICIAL<br>
+                    CERTIFICATION<br>
+                    ⭐
+                </div>
+            </div>
+
+            <div class="certificate-header">
+                <div class="certificate-logo">🎓</div>
+                <h1 class="certificate-title">Certificate of Completion</h1>
+                <p class="certificate-subtitle">This is to certify that</p>
+            </div>
+
+            <div class="certificate-body">
+                <div class="recipient-name" id="recipientName">Loading...</div>
+
+                <p class="certificate-text">
+                    has successfully completed the comprehensive course
+                </p>
+
+                <div class="course-name" id="courseNameDisplay">Digital Financial Literacy</div>
+
+                <p class="certificate-text">
+                    demonstrating proficiency and meeting all required standards for successful
+                    completion. This achievement reflects dedication to continuous learning and growth.
+                </p>
+
+                <div class="certificate-date">
+                    <strong>Date of Completion:</strong> <span id="completionDate">January 12, 2026</span>
+                </div>
+
+                <div class="certificate-id">
+                    Certificate ID: <span id="certificateId">LMS-2026-XXXXX</span>
+                </div>
+            </div>
+
+            <div class="certificate-footer">
+                <div class="signature-block">
+                    <div class="signature-line">
+                        <div class="signature-name">Dr. Ahmed Rahman</div>
+                    </div>
+                    <div class="signature-title">Program Director</div>
+                    <div class="signature-title">LMS Solution</div>
+                </div>
+                <div class="signature-block">
+                    <div class="signature-line">
+                        <div class="signature-name">Fatima Begum</div>
+                    </div>
+                    <div class="signature-title">Head of Education</div>
+                    <div class="signature-title">LMS Solution</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary btn-lg" onclick="window.print()">
+                🖨️ Print / Save as PDF
+            </button>
+            <button class="btn btn-secondary btn-lg" onclick="shareCertificate()">
+                📤 Share Certificate
+            </button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        const userName = getUserName().split('@')[0];
+        document.getElementById('recipientName').textContent = userName;
+
+        // Derive completed courses from real data
+        function getCompletedCourses() {
+            const progress = getModuleProgress();
+            const examResults = JSON.parse(localStorage.getItem('examResults') || '{}');
+            const completed = [];
+
+            demoData.courses.forEach(course => {
+                const allModulesDone = course.modules.length > 0 &&
+                    course.modules.every(m => progress[course.id + '_' + m.id] === true);
+
+                if (allModulesDone) {
+                    // Check post-exam if mandatory
+                    let canCertify = true;
+                    if (course.postExamMandatory && course.postExamId) {
+                        const postResult = examResults[course.postExamId];
+                        canCertify = postResult && postResult.passed;
+                    }
+                    if (canCertify) {
+                        completed.push({
+                            id: String(course.id),
+                            title: course.title,
+                            date: new Date().toISOString()
+                        });
+                    }
+                }
+            });
+            return completed;
+        }
+
+        function initCertificates() {
+            const completedCourses = getCompletedCourses();
+            const select = document.getElementById('courseSelect');
+            const urlParams = new URLSearchParams(window.location.search);
+            const requestedCourseId = urlParams.get('courseId');
+
+            if (completedCourses.length === 0) {
+                select.innerHTML = '<option value="">No certificates earned yet</option>';
+                select.disabled = true;
+                document.getElementById('certificate').style.opacity = '0.5';
+                document.getElementById('certificate').style.pointerEvents = 'none';
+                return;
+            }
+
+            select.innerHTML = '';
+            completedCourses.forEach((c) => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.text = c.title;
+                if (requestedCourseId && c.id === requestedCourseId) opt.selected = true;
+                select.appendChild(opt);
+            });
+
+            // Load requested or first
+            const loadId = requestedCourseId && completedCourses.find(c => c.id === requestedCourseId)
+                ? requestedCourseId : completedCourses[0].id;
+            loadCertificate(loadId);
+        }
+
+        function loadCertificate(courseId) {
+            const completedCourses = getCompletedCourses();
+            const course = completedCourses.find(c => c.id === String(courseId));
+            if (!course) return;
+
+            // Generate deterministic ID
+            let hash = 0;
+            const seed = userName + course.title;
+            for (let i = 0; i < seed.length; i++) hash = Math.imul(31, hash) + seed.charCodeAt(i) | 0;
+            const certId = 'LMS-' + new Date(course.date).getFullYear() + '-' + Math.abs(hash).toString(16).substring(0, 6).toUpperCase();
+
+            document.getElementById('courseNameDisplay').textContent = course.title;
+            document.getElementById('completionDate').textContent = new Date(course.date).toLocaleDateString('en-US', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+            document.getElementById('certificateId').textContent = certId;
+        }
+
+        function shareCertificate() {
+            const certId = document.getElementById('certificateId').textContent;
+            const course = document.getElementById('courseNameDisplay').textContent;
+            const shareText = `I've earned my certificate for ${course} on LMS Solution! Certificate ID: ${certId}`;
+
+            if (navigator.share) {
+                navigator.share({ title: 'My Certificate', text: shareText, url: window.location.href })
+                    .catch(err => console.log('Error sharing:', err));
+            } else {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    alert('Certificate details copied to clipboard!');
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initCertificates);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - LMS Solution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Navbar Styles */
+        .navbar {
+            background: white;
+            box-shadow: var(--shadow-md);
+            padding: var(--space-md) var(--space-lg);
+            position: sticky;
+            top: 0;
+            z-index: var(--z-sticky);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-md);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            font-family: var(--font-display);
+            font-size: var(--text-xl);
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: var(--text-2xl);
+            cursor: pointer;
+            padding: var(--space-sm);
+            border-radius: var(--radius-md);
+            transition: background var(--transition-fast);
+        }
+
+        .menu-toggle:hover {
+            background: var(--gray-100);
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            cursor: pointer;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-lg);
+            transition: background var(--transition-fast);
+        }
+
+        .navbar-user:hover {
+            background: var(--gray-50);
+        }
+
+        .user-avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: var(--text-lg);
+        }
+
+        .user-info {
+            display: none;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--gray-800);
+            font-size: var(--text-sm);
+        }
+
+        .user-role {
+            font-size: var(--text-xs);
+            color: var(--gray-500);
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: -280px;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: white;
+            box-shadow: var(--shadow-xl);
+            z-index: var(--z-fixed);
+            transition: left var(--transition-base);
+            overflow-y: auto;
+            padding: var(--space-lg);
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            padding: var(--space-lg) 0;
+            border-bottom: 2px solid var(--gray-100);
+            margin-bottom: var(--space-lg);
+        }
+
+        .sidebar-logo {
+            font-family: var(--font-display);
+            font-size: var(--text-2xl);
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md) var(--space-lg);
+            border-radius: var(--radius-lg);
+            color: var(--gray-700);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+        }
+
+        .sidebar-link:hover {
+            background: var(--gray-50);
+            color: var(--primary-600);
+            transform: translateX(4px);
+        }
+
+        .sidebar-link.active {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .sidebar-icon {
+            font-size: var(--text-xl);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: var(--space-lg);
+            border-top: 2px solid var(--gray-100);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-lg);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow-md);
+            border-left: 4px solid var(--primary-500);
+            transition: all var(--transition-base);
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-4px);
+        }
+
+        .stat-card.success {
+            border-left-color: var(--success);
+        }
+
+        .stat-card.warning {
+            border-left-color: var(--warning);
+        }
+
+        .stat-card.info {
+            border-left-color: var(--info);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-md);
+        }
+
+        .stat-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--text-2xl);
+            background: var(--primary-50);
+        }
+
+        .stat-icon.success {
+            background: var(--success-light);
+        }
+
+        .stat-icon.warning {
+            background: var(--warning-light);
+        }
+
+        .stat-icon.info {
+            background: var(--info-light);
+        }
+
+        .stat-label {
+            font-size: var(--text-sm);
+            color: var(--gray-600);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: var(--text-4xl);
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: var(--space-sm);
+        }
+
+        .stat-change {
+            font-size: var(--text-sm);
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .stat-change.negative {
+            color: var(--error);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-md);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-lg);
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            text-decoration: none;
+            color: var(--gray-800);
+        }
+
+        .action-btn:hover {
+            border-color: var(--primary-500);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .action-icon {
+            font-size: var(--text-3xl);
+        }
+
+        .action-content h4 {
+            margin: 0 0 var(--space-xs) 0;
+            font-size: var(--text-lg);
+        }
+
+        .action-content p {
+            margin: 0;
+            font-size: var(--text-sm);
+            color: var(--gray-600);
+        }
+
+        /* Responsive */
+        @media (min-width: 640px) {
+            .user-info {
+                display: block;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .sidebar {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 280px;
+            }
+
+            .menu-toggle {
+                display: none;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .quick-actions {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">☰</button>
+        <a href="index.html" class="navbar-brand">
+            📚 LMS Solution
+        </a>
+        <div class="navbar-actions">
+            <select class="form-select" style="font-size: var(--text-sm); padding: 0.5rem;"
+                onchange="switchRole(this.value)" id="roleSwitcher">
+                <option value="">🔄 Switch Role</option>
+                <option value="admin">Admin</option>
+                <option value="headoffice">Head Office</option>
+                <option value="territorymanager">Territory Manager</option>
+                <option value="unitmanager">Unit Manager</option>
+                <option value="ro">RO</option>
+                <option value="beneficiary">Beneficiary</option>
+            </select>
+            <div class="navbar-user" onclick="toggleUserDropdown(event)">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">User</div>
+                    <div class="user-role" id="userRole">Beneficiary</div>
+                </div>
+                <div class="user-dropdown">
+                    <a href="profile.html" class="dropdown-item">👤 My Profile</a>
+                    <a href="change-password.html" class="dropdown-item">🔒 Change Password</a>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-secondary" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header" style="display:flex;align-items:center;justify-content:space-between;">
+            <a href="landing.html" class="sidebar-logo" style="text-decoration:none;">📚 LMS</a>
+            <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">«</button>
+        </div>
+        <nav class="sidebar-nav" id="sidebarNav">
+            <!-- Menu items will be populated by JavaScript -->
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn btn-danger btn-full" onclick="logout()">
+                🚪 <span class="sidebar-btn-text">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <h1>Welcome to Your Dashboard</h1>
+            <p class="text-muted">Track your learning progress and manage your activities</p>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid" id="statsGrid">
+                <!-- Stats will be populated by JavaScript based on role -->
+            </div>
+
+            <!-- Quick Actions -->
+            <h2>Quick Actions</h2>
+            <div class="quick-actions" id="quickActions">
+                <!-- Quick actions will be populated by JavaScript based on role -->
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Recent Activity</h3>
+                    <p class="card-subtitle">Your latest learning activities</p>
+                </div>
+                <div class="card-body">
+                    <div id="recentActivity">
+                        <p class="text-muted">No recent activity to display</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        // Role switcher function
+        function switchRole(newRole) {
+            if (newRole) {
+                localStorage.setItem('userRole', newRole);
+                localStorage.setItem('userName', newRole.charAt(0).toUpperCase() + newRole.slice(1));
+                window.location.reload();
+            }
+        }
+
+        // Populate dashboard based on user role
+        function populateDashboard() {
+            const role = getUserRole();
+            const statsGrid = document.getElementById('statsGrid');
+            const quickActions = document.getElementById('quickActions');
+
+            // Update user avatar
+            const userName = getUserName();
+            document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
+
+            if (role === 'beneficiary') {
+                // Beneficiary Dashboard
+                const progress = getModuleProgress();
+                const completedModules = Object.values(progress).filter(v => v === true).length;
+                const totalModules = demoData.modules.length;
+                const completionPercentage = calculateProgress(completedModules, totalModules);
+
+                statsGrid.innerHTML = `
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon">📚</div>
+            </div>
+            <div class="stat-label">Total Modules</div>
+            <div class="stat-value">${totalModules}</div>
+          </div>
+          <div class="stat-card success">
+            <div class="stat-header">
+              <div class="stat-icon success">✅</div>
+            </div>
+            <div class="stat-label">Completed</div>
+            <div class="stat-value">${completedModules}</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-header">
+              <div class="stat-icon warning">⏳</div>
+            </div>
+            <div class="stat-label">In Progress</div>
+            <div class="stat-value">${totalModules - completedModules}</div>
+          </div>
+          <div class="stat-card info">
+            <div class="stat-header">
+              <div class="stat-icon info">📊</div>
+            </div>
+            <div class="stat-label">Progress</div>
+            <div class="stat-value">${completionPercentage}%</div>
+          </div>
+        `;
+
+                quickActions.innerHTML = `
+          <a href="contents.html" class="action-btn">
+            <div class="action-icon">📚</div>
+            <div class="action-content">
+              <h4>Continue Learning</h4>
+              <p>Resume your modules</p>
+            </div>
+          </a>
+          <a href="profile.html" class="action-btn">
+            <div class="action-icon">👤</div>
+            <div class="action-content">
+              <h4>My Profile</h4>
+              <p>Update your information</p>
+            </div>
+          </a>
+          ${completionPercentage === 100 ? `
+          <a href="contents.html#certificate" class="action-btn">
+            <div class="action-icon">🎓</div>
+            <div class="action-content">
+              <h4>Get Certificate</h4>
+              <p>Download your certificate</p>
+            </div>
+          </a>
+          ` : ''}
+        `;
+            } else {
+                // Admin/Manager Dashboard
+                statsGrid.innerHTML = `
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon">👥</div>
+            </div>
+            <div class="stat-label">Total Beneficiaries</div>
+            <div class="stat-value">1,248</div>
+            <div class="stat-change">↑ 12% this month</div>
+          </div>
+          <div class="stat-card success">
+            <div class="stat-header">
+              <div class="stat-icon success">✅</div>
+            </div>
+            <div class="stat-label">Completed Courses</div>
+            <div class="stat-value">856</div>
+            <div class="stat-change">↑ 8% this month</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-header">
+              <div class="stat-icon warning">📅</div>
+            </div>
+            <div class="stat-label">Active Sessions</div>
+            <div class="stat-value">24</div>
+          </div>
+          <div class="stat-card info">
+            <div class="stat-header">
+              <div class="stat-icon info">🎓</div>
+            </div>
+            <div class="stat-label">Certificates Issued</div>
+            <div class="stat-value">742</div>
+            <div class="stat-change">↑ 15% this month</div>
+          </div>
+        `;
+
+                quickActions.innerHTML = `
+          <a href="sessions.html" class="action-btn">
+            <div class="action-icon">➕</div>
+            <div class="action-content">
+              <h4>Add New Session</h4>
+              <p>Create a training session</p>
+            </div>
+          </a>
+          <a href="analytics.html" class="action-btn">
+            <div class="action-icon">📈</div>
+            <div class="action-content">
+              <h4>View Analytics</h4>
+              <p>Check performance metrics</p>
+            </div>
+          </a>
+          <a href="reports.html" class="action-btn">
+            <div class="action-icon">📄</div>
+            <div class="action-content">
+              <h4>Generate Reports</h4>
+              <p>Download Excel reports</p>
+            </div>
+          </a>
+          <a href="contents.html" class="action-btn">
+            <div class="action-icon">📚</div>
+            <div class="action-content">
+              <h4>Manage Contents</h4>
+              <p>Upload and configure modules</p>
+            </div>
+          </a>
+          ${role === 'admin' ? `
+          <a href="users.html" class="action-btn">
+            <div class="action-icon">👥</div>
+            <div class="action-content">
+              <h4>Manage Users</h4>
+              <p>Add or edit users</p>
+            </div>
+          </a>
+          ` : ''}
+        `;
+            }
+        }
+
+        // Initialize dashboard
+        populateDashboard();
+    </script>
+</body>
+
+</html>
