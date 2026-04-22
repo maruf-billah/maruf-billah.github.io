@@ -56,6 +56,8 @@ const DOM = {
     excelUpload: document.getElementById('excelUpload'),
     uploadStatus: document.getElementById('uploadStatus'),
     downloadJsonBtn: document.getElementById('downloadJsonBtn'),
+    chartModal: document.getElementById('chartModal'),
+    modalTitle: document.getElementById('modalTitle'),
     modalChart: document.getElementById('modalChart'),
     analysisView: document.getElementById('analysisView'),
     themeToggle: document.getElementById('themeToggle')
@@ -65,8 +67,10 @@ let charts = {};
 const chartConfig = {
     colVsCol: { id: '#chartColVsCol', title: 'CLTD vs CLTN %', color: '#6366f1' },
     emiVsCol: { id: '#chartEmiVsCol', title: 'EMI vs CLTN %', color: '#06b6d4' },
-    npl:      { id: '#chartNpl', title: 'NPL %', color: '#ef4444' },
-    par:      { id: '#chartPar', title: 'PAR %', color: '#f59e0b' }
+    npl: { id: '#chartNpl', title: 'NPL %', color: '#ef4444' },
+    par: { id: '#chartPar', title: 'PAR %', color: '#f59e0b' },
+    gap: { id: '#gapChart', title: 'Collection Gap Analysis', color: '#ef4444' },
+    heatmap: { id: '#heatmapChart', title: 'Geo-Performance Heatmap', color: '#6366f1' }
 };
 
 let currentChartLabels = [];
@@ -104,9 +108,30 @@ function initCharts() { for (const [key, cfg] of Object.entries(chartConfig)) { 
 // ============================================
 window.openChartModal = function(chartKey) {
     if (modalChartInstance) modalChartInstance.destroy();
-    DOM.chartModal.classList.add('active'); const cfg = chartConfig[chartKey]; DOM.modalTitle.textContent = cfg.title;
+    DOM.chartModal.classList.add('active'); 
+    
+    // Support both dashboard and analysis charts
+    const cfg = chartConfig[chartKey]; 
+    if (!cfg) return;
+
+    DOM.modalTitle.textContent = cfg.title;
     modalChartInstance = createBarChart('#modalChart', cfg.title, cfg.color, true);
-    setTimeout(() => { let c = charts[chartKey].w.config; modalChartInstance.updateOptions({ xaxis: c.xaxis, annotations: c.annotations, colors: c.colors }); modalChartInstance.updateSeries(c.series); }, 50);
+    
+    setTimeout(() => { 
+        // Try to get config from either global charts or analysisCharts
+        const sourceChart = charts[chartKey] || window.analysisCharts?.[chartKey];
+        if (!sourceChart) return;
+
+        let c = sourceChart.w.config; 
+        modalChartInstance.updateOptions({ 
+            xaxis: c.xaxis, 
+            annotations: c.annotations, 
+            colors: c.colors,
+            plotOptions: c.plotOptions,
+            tooltip: c.tooltip
+        }); 
+        modalChartInstance.updateSeries(c.series); 
+    }, 50);
 }
 window.closeChartModal = function() { DOM.chartModal.classList.remove('active'); }
 

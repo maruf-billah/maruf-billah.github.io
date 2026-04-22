@@ -177,6 +177,7 @@
                         <p class="analysis-section-desc">Identifying top recovery opportunities</p>
                     </div>
                     <div class="analysis-controls">
+                        <button class="expand-btn" onclick="openChartModal('gap')"><i class="fa-solid fa-expand"></i></button>
                         <select id="gapLevel" class="analysis-select">
                             <option value="zone">By Zone</option>
                             <option value="territory" selected>By Territory</option>
@@ -229,6 +230,7 @@
                         <p class="analysis-section-desc">Distribution of risk and collection across geography</p>
                     </div>
                     <div class="analysis-controls">
+                        <button class="expand-btn" onclick="openChartModal('heatmap')"><i class="fa-solid fa-expand"></i></button>
                         <select id="heatmapMetric" class="analysis-select">
                             <option value="colVsCol">Collection %</option>
                             <option value="parPct">PAR %</option>
