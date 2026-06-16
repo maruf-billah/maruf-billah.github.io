@@ -1,15 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio Monitoring Dashboard</title>
-    <meta name="description" content="Interactive Power BI-style monitoring dashboard for portfolio underwriting analysis">
+    <meta name="description"
+        content="Interactive Power BI-style monitoring dashboard for portfolio underwriting analysis">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
-</head>
+    <link rel="stylesheet" href="styles.css?v=2">
+    <script>
+        // Early guard: if not authenticated, redirect to login
+        if (!localStorage.getItem('authenticated')) {
+            window.location.replace('login.html');
+        }
+    </script>
+
 <body>
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
@@ -22,11 +31,21 @@
             <label class="filter-label"><i class="fa-solid fa-cloud-arrow-up"></i> UPLOAD DATA (.xlsx)</label>
             <input type="file" id="excelUpload" accept=".xlsx, .xls" class="file-input" />
             <div id="uploadStatus" class="upload-status"></div>
-            <button id="downloadJsonBtn" class="download-json-btn" style="display:none;"><i class="fa-solid fa-download"></i> Save as JSON</button>
+            <button id="downloadJsonBtn" class="download-json-btn" style="display:none;"><i
+                    class="fa-solid fa-download"></i> Save as JSON</button>
+            <input type="file" id="jsonUpload" accept=".json" style="display:none;" />
+            <button id="loadJSONBtn" class="load-json-btn" style="display:none;"><i class="fa-solid fa-upload"></i> Load
+                JSON</button>
         </div>
 
         <div class="filter-divider"></div>
 
+        <div class="filter-section">
+            <label class="filter-label">MONTH</label>
+            <select id="monthFilter" class="filter-select">
+                <option value="TOTAL">TOTAL</option>
+            </select>
+        </div>
         <div class="filter-section">
             <label class="filter-label">ZONE</label>
             <select id="zoneFilter" class="filter-select">
@@ -90,14 +109,14 @@
                 <div class="breadcrumb" id="breadCrumb">Country Level</div>
             </div>
             <div class="header-controls">
+                <button id="settingsBtn" class="theme-toggle-btn" title="Display Settings"><i class="fa-solid fa-gear"></i></button>
                 <button id="themeToggle" class="theme-toggle-btn" title="Toggle Light/Dark Mode">
                     <i class="fa-solid fa-moon"></i>
                 </button>
                 <div class="tabs" id="portfolioTabs">
-                    <div class="tab" data-tab="ticket">Ticket Size Portfolio</div>
-                    <div class="tab" data-tab="l12m">Last 12 Months</div>
-                    <div class="tab" data-tab="overall">Overall Portfolio</div>
-                    <div class="tab analysis-tab" data-tab="analysis"><i class="fa-solid fa-microscope"></i> Analysis</div>
+                    <div class="tab" data-tab="overall">Dashboard</div>
+                    <div class="tab" data-tab="analysis"><i class="fa-solid fa-microscope"></i> Analysis</div>
+                    <div class="tab" data-tab="progress"><i class="fa-solid fa-chart-line"></i> Progress</div>
                 </div>
             </div>
         </header>
@@ -109,43 +128,16 @@
                 <!-- Will be dynamically populated -->
             </section>
 
-            <!-- Charts: 4 zone-wise charts -->
-            <section class="charts-grid" id="chartsGrid">
-                <div class="card chart-card" id="chartCardColVsCol">
-                    <div class="chart-header">
-                        <h3 class="card-title">CLTD vs CLTN %</h3>
-                        <button class="expand-btn" onclick="openChartModal('colVsCol')"><i class="fa-solid fa-expand"></i></button>
-                    </div>
-                    <div id="chartColVsCol"></div>
-                </div>
-                <div class="card chart-card" id="chartCardEmiVsCol">
-                    <div class="chart-header">
-                        <h3 class="card-title">EMI vs CLTN %</h3>
-                        <button class="expand-btn" onclick="openChartModal('emiVsCol')"><i class="fa-solid fa-expand"></i></button>
-                    </div>
-                    <div id="chartEmiVsCol"></div>
-                </div>
-                <div class="card chart-card" id="chartCardNpl">
-                    <div class="chart-header">
-                        <h3 class="card-title">NPL %</h3>
-                        <button class="expand-btn" onclick="openChartModal('npl')"><i class="fa-solid fa-expand"></i></button>
-                    </div>
-                    <div id="chartNpl"></div>
-                </div>
-                <div class="card chart-card" id="chartCardPar">
-                    <div class="chart-header">
-                        <h3 class="card-title">PAR %</h3>
-                        <button class="expand-btn" onclick="openChartModal('par')"><i class="fa-solid fa-expand"></i></button>
-                    </div>
-                    <div id="chartPar"></div>
-                </div>
-            </section>
-
             <!-- Data Table -->
             <section class="card table-card">
                 <div class="table-header-row">
                     <h3 class="card-title" id="tableTitle">Breakdown by Zone</h3>
-                    <button class="export-btn" id="exportCsvBtn"><i class="fa-solid fa-file-excel"></i> Export Table</button>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button class="expand-btn" id="expandTableBtn" title="Full Screen"><i
+                                class="fa-solid fa-expand"></i></button>
+                        <button class="export-btn" id="exportCsvBtn"><i class="fa-solid fa-file-excel"></i> Export
+                            Table</button>
+                    </div>
                 </div>
                 <div class="table-wrapper">
                     <table id="dataTable">
@@ -159,98 +151,198 @@
                     </table>
                 </div>
             </section>
+            <!-- Charts: 4 zone-wise charts -->
+            <section class="charts-grid" id="chartsGrid">
+                <div class="card chart-card" id="chartCardCollectablePct">
+                    <div class="chart-header">
+                        <h3 class="card-title"><i class="fa-solid fa-percentage" style="color:var(--accent-purple)"></i>
+                            CLTD %</h3>
+                        <button class="expand-btn" onclick="openChartModal('collectablePct')"><i
+                                class="fa-solid fa-expand"></i></button>
+                    </div>
+                    <div id="chartCollectablePct"></div>
+                </div>
+                <div class="card chart-card" id="chartCardCollectionPct">
+                    <div class="chart-header">
+                        <h3 class="card-title"><i class="fa-solid fa-percentage" style="color:var(--accent-purple)"></i>
+                            COLLECTION %</h3>
+                        <button class="expand-btn" onclick="openChartModal('collectionPct')"><i
+                                class="fa-solid fa-expand"></i></button>
+                    </div>
+                    <div id="chartCollectionPct"></div>
+                </div>
+                <div class="card chart-card" id="chartCardColVsCol">
+                    <div class="chart-header">
+                        <h3 class="card-title"><i class="fa-solid fa-chart-pie" style="color:var(--accent-blue)"></i>
+                            Out VS Col %</h3>
+                        <button class="expand-btn" onclick="openChartModal('colVsCol')"><i
+                                class="fa-solid fa-expand"></i></button>
+                    </div>
+                    <div id="chartColVsCol"></div>
+                </div>
+                <div class="card chart-card" id="chartCardColVsOut">
+                    <div class="chart-header">
+                        <h3 class="card-title"><i class="fa-solid fa-chart-pie" style="color:var(--accent-cyan)"></i>
+                            Col VS Out %</h3>
+                        <button class="expand-btn" onclick="openChartModal('colVsOut')"><i
+                                class="fa-solid fa-expand"></i></button>
+                    </div>
+                    <div id="chartColVsOut"></div>
+                </div>
+                <div class="card chart-card" id="chartCardEmiVsCol">
+                    <div class="chart-header">
+                        <h3 class="card-title"><i class="fa-solid fa-money-bill-trend-up"
+                                style="color:var(--accent-green)"></i> EMI %</h3>
+                        <button class="expand-btn" onclick="openChartModal('emiVsCol')"><i
+                                class="fa-solid fa-expand"></i></button>
+                    </div>
+                    <div id="chartEmiVsCol"></div>
+                </div>
+                <div class="card chart-card" id="chartCardNplPct">
+                    <div class="chart-header">
+                        <h3 class="card-title"><i class="fa-solid fa-triangle-exclamation"
+                                style="color:var(--accent-red)"></i> NPL %</h3>
+                        <button class="expand-btn" onclick="openChartModal('nplPct')"><i
+                                class="fa-solid fa-expand"></i></button>
+                    </div>
+                    <div id="chartNplPct"></div>
+                </div>
+                <div class="card chart-card" id="chartCardParPct">
+                    <div class="chart-header">
+                        <h3 class="card-title"><i class="fa-solid fa-chart-line" style="color:var(--accent-amber)"></i>
+                            PAR %</h3>
+                        <button class="expand-btn" onclick="openChartModal('parPct')"><i
+                                class="fa-solid fa-expand"></i></button>
+                    </div>
+                    <div id="chartParPct"></div>
+                </div>
+            </section>
+
+
         </div>
 
-        <!-- ANALYSIS VIEW (Visible only for analysis tab) -->
-        <div id="analysisView" style="display:none;">
-            <!-- Section 1 removed as per feedback -->
+        <!-- ANALYSIS VIEW -->
+        <div id="analysisView" style="display: none;">
+            <div class="analysis-controls card"
+                style="margin-bottom: 20px; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <h3 class="card-title" style="margin: 0; white-space: nowrap;"><i class="fa-solid fa-microscope"
+                        style="color:var(--accent-purple)"></i> Performance Segmentation</h3>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: nowrap;">
+                    <label class="filter-label" style="margin: 0; white-space: nowrap;">VIEW BY:</label>
+                    <select id="analysisLevelSelect" class="filter-select"
+                        style="min-width: 120px; margin: 0; background: var(--bg-primary); padding: 6px 12px;">
+                        <option value="zone">Zone</option>
+                        <option value="region">Region</option>
+                        <option value="territory">Territory</option>
+                        <option value="unit">Unit</option>
+                    </select>
 
+                    <label class="filter-label" style="margin: 0; margin-left: 10px; white-space: nowrap;">ANALYZE
+                        METRIC:</label>
+                    <select id="analysisMetricSelect" class="filter-select"
+                        style="min-width: 150px; margin: 0; background: var(--bg-primary); padding: 6px 12px;">
+                        <option value="collectionPct">Collection %</option>
+                        <option value="colVsCol">Out vs Col %</option>
+                        <option value="emiVsCol">EMI %</option>
+                        <option value="nplPct" selected>NPL %</option>
+                        <option value="parPct">PAR %</option>
+                    </select>
+                </div>
+            </div>
 
-            <!-- Section 2: Collection Gap Analysis -->
-            <section class="card analysis-section" id="analysisGap">
-                <div class="analysis-section-header">
-                    <div>
-                        <h3 class="analysis-section-title">
-                            <i class="fa-solid fa-chart-bar"></i> Collection Gap Analysis
-                            <span class="info-tag" data-formula="Opportunity Gap: (Collectable - Collection). Shows actual currency lost due to non-collection."><i class="fa-solid fa-circle-info"></i></span>
-                        </h3>
-                        <p class="analysis-section-desc">Identifying top recovery opportunities</p>
+            <div class="gap-kpi-row" id="analysisKpiRow">
+                <!-- Summary KPI Cards -->
+            </div>
+
+            <div class="analysis-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+
+                <!-- GOOD COLUMN -->
+                <div class="card analysis-col good-col" style="display: flex; flex-direction: column;">
+                    <div class="analysis-col-header"
+                        style="background: rgba(16, 185, 129, 0.1); border-bottom: 2px solid var(--accent-green); padding: 15px; border-radius: 8px 8px 0 0;">
+                        <h4
+                            style="color: var(--accent-green); font-size: 1.1rem; margin: 0; display: flex; justify-content: space-between; align-items: center;">
+                            <span><i class="fa-solid fa-shield-check"></i> Good</span>
+                            <span class="badge" id="countGood"
+                                style="background: var(--accent-green); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">0</span>
+                        </h4>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;" id="descGood">Better
+                            than Country Avg</div>
                     </div>
-                    <div class="analysis-controls">
-                        <button class="expand-btn" onclick="openChartModal('gap')"><i class="fa-solid fa-expand"></i></button>
-                        <select id="gapLevel" class="analysis-select">
-                            <option value="zone">By Zone</option>
-                            <option value="territory" selected>By Territory</option>
-                            <option value="region">By Region</option>
-                            <option value="unit">By Unit</option>
-                        </select>
+                    <div class="analysis-col-body" id="listGood"
+                        style="padding: 15px; display: flex; flex-direction: column; gap: 10px; flex: 1; max-height: 600px; overflow-y: auto;">
                     </div>
                 </div>
-                <div class="gap-kpi-row" id="gapKpiRow"></div>
-                <div id="gapChart" style="min-height: 380px;"></div>
-            </section>
 
-            <!-- Section 3: Portfolio Stress Index -->
-            <section class="card analysis-section" id="analysisStress">
-                <div class="analysis-section-header">
-                    <div>
-                        <h3 class="analysis-section-title">
-                            <i class="fa-solid fa-bolt"></i> Portfolio Stress Index
-                            <span class="info-tag" data-formula="Stress Index: 1 - (Collection / EMI). Measures shortfall vs targets. 0.0=No Stress, 0.1=Moderate, >0.2=High Stress."><i class="fa-solid fa-circle-info"></i></span>
-                        </h3>
-                        <p class="analysis-section-desc">Shortfall analysis: Expected EMI vs Actual Collection</p>
+                <!-- BELOW AVERAGE COLUMN -->
+                <div class="card analysis-col warn-col" style="display: flex; flex-direction: column;">
+                    <div class="analysis-col-header"
+                        style="background: rgba(245, 158, 11, 0.1); border-bottom: 2px solid var(--accent-amber); padding: 15px; border-radius: 8px 8px 0 0;">
+                        <h4
+                            style="color: var(--accent-amber); font-size: 1.1rem; margin: 0; display: flex; justify-content: space-between; align-items: center;">
+                            <span><i class="fa-solid fa-circle-exclamation"></i> Below Average</span>
+                            <span class="badge" id="countWarn"
+                                style="background: var(--accent-amber); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">0</span>
+                        </h4>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;" id="descWarn">Up to
+                            15% worse than Avg</div>
                     </div>
-                    <div class="analysis-controls">
-                        <select id="stressLevel" class="analysis-select">
-                            <option value="zone">By Zone</option>
-                            <option value="territory">By Territory</option>
-                            <option value="region">By Region</option>
-                            <option value="unit">By Unit</option>
-                        </select>
+                    <div class="analysis-col-body" id="listWarn"
+                        style="padding: 15px; display: flex; flex-direction: column; gap: 10px; flex: 1; max-height: 600px; overflow-y: auto;">
                     </div>
                 </div>
-                <div class="quadrant-table-wrapper" style="margin-top:0;">
-                    <table class="analysis-table" id="stressTable">
-                        <thead>
-                            <tr id="stressTableHeader"></tr>
-                        </thead>
-                        <tbody id="stressTableBody"></tbody>
-                    </table>
-                </div>
-            </section>
 
-            <!-- Section 4: Geo-Performance Heatmap -->
-            <section class="card analysis-section" id="analysisGeo">
-                <div class="analysis-section-header">
-                    <div>
-                        <h3 class="analysis-section-title">
-                            <i class="fa-solid fa-map-location-dot"></i> Geo-Performance Heatmap
-                            <span class="info-tag" data-formula="Geo Metrics: (NPL or PAR / Portfolio)% or (Collection / Collectable)%. Color coded by performance thresholds."><i class="fa-solid fa-circle-info"></i></span>
-                        </h3>
-                        <p class="analysis-section-desc">Distribution of risk and collection across geography</p>
+                <!-- CRITICAL COLUMN -->
+                <div class="card analysis-col critical-col" style="display: flex; flex-direction: column;">
+                    <div class="analysis-col-header"
+                        style="background: rgba(239, 68, 68, 0.1); border-bottom: 2px solid var(--accent-red); padding: 15px; border-radius: 8px 8px 0 0;">
+                        <h4
+                            style="color: var(--accent-red); font-size: 1.1rem; margin: 0; display: flex; justify-content: space-between; align-items: center;">
+                            <span><i class="fa-solid fa-triangle-exclamation"></i> Critical</span>
+                            <span class="badge" id="countCritical"
+                                style="background: var(--accent-red); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">0</span>
+                        </h4>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;" id="descCritical">
+                            >15% worse than Avg</div>
                     </div>
-                    <div class="analysis-controls">
-                        <button class="expand-btn" onclick="openChartModal('heatmap')"><i class="fa-solid fa-expand"></i></button>
-                        <select id="heatmapMetric" class="analysis-select">
-                            <option value="colVsCol">Collection %</option>
-                            <option value="parPct">PAR %</option>
-                            <option value="nplPct">NPL %</option>
-                            <option value="stressRatio">Stress Ratio</option>
-                        </select>
-                        <select id="heatmapLevel" class="analysis-select">
-                            <option value="zone">By Zone</option>
-                            <option value="territory">By Territory</option>
-                            <option value="region">By Region</option>
-                            <option value="unit">By Unit</option>
-                        </select>
+                    <div class="analysis-col-body" id="listCritical"
+                        style="padding: 15px; display: flex; flex-direction: column; gap: 10px; flex: 1; max-height: 600px; overflow-y: auto;">
                     </div>
                 </div>
-                <div id="heatmapChart" style="min-height: 400px;"></div>
-            </section>
 
+            </div>
+        </div>
+
+        <!-- PROGRESS VIEW -->
+        <div id="progressView" style="display: none;">
+            <div class="card table-card" style="margin-bottom: 24px;">
+                <h3 class="card-title"><i class="fa-solid fa-chart-line" style="color:var(--accent-blue)"></i> Month-wise Progress</h3>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+                    Displaying historical progress across available months.
+                </div>
+                <div class="charts-grid" id="progressChartsGrid">
+                </div>
+            </div>
         </div>
 
     </main>
+
+    
+    <!-- DISPLAY SETTINGS MODAL -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-content card" style="max-width: 400px; height: auto;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fa-solid fa-gear"></i> Display Settings</h3>
+                <button class="close-modal" onclick="closeSettingsModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" style="padding: 10px 0;">
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Select which metrics you want to see on the dashboard.</p>
+                <div id="settingsToggles" style="display: flex; flex-direction: column; gap: 12px;">
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- FULLSCREEN CHART MODAL -->
     <div class="modal-overlay" id="chartModal">
@@ -265,11 +357,25 @@
         </div>
     </div>
 
+    <!-- TIMELINE INSIGHT MODAL -->
+    <div class="modal-overlay" id="insightModal">
+        <div class="modal-content card insight-modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fa-solid fa-bolt" style="color:var(--accent-purple)"></i> Diagnostic
+                    Insights</h3>
+                <button class="close-modal" onclick="closeInsightModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body insight-body" id="insightTimelineContainer">
+            </div>
+        </div>
+    </div>
+
     <!-- Libraries -->
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script src="realData.js"></script>
-    <script src="app.js"></script>
-    <script src="analysis.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="realData.js?v=2"></script>
+    <script src="app.js?v=2"></script>
 </body>
+
 </html>

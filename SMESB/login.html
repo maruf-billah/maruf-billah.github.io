@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Dashboard – Login</title>
+    <meta name="description" content="Secure entry point for the Portfolio Monitoring Dashboard">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css?v=2">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e1e2f, #2a2a44);
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 12px;
+            padding: 2rem;
+            width: 340px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .login-card h2 {
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+        }
+
+        .login-card input {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 0.6rem 0;
+            border: none;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .login-card button {
+            width: 100%;
+            padding: 0.8rem;
+            margin-top: 0.8rem;
+            border: none;
+            border-radius: 6px;
+            background: var(--accent-blue, #4f46e5);
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .login-card button:hover {
+            background: #4338ca;
+        }
+
+        .error {
+            color: #ff6b6b;
+            margin-top: .5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-card">
+        <h2><i class="fa-solid fa-lock"></i> Secure Access</h2>
+        <input type="password" id="pinInput" placeholder="Enter PIN" autocomplete="off" maxlength="8">
+        <button id="loginBtn">Enter Dashboard</button>
+        <div id="msg" class="error"></div>
+    </div>
+
+    <script>
+        // SHA‑256 hash of the allowed PIN (e.g., "1234")
+        const PIN_HASH = "c565fe03ca9b6242e01dfddefe9bba3d98b270e19cd02fd85ceaf75e2b25bf12";
+
+        async function hashString(str) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(str);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const pin = document.getElementById('pinInput').value.trim();
+            if (!pin) {
+                document.getElementById('msg').textContent = 'Please enter the PIN.';
+                return;
+            }
+            const hashed = await hashString(pin);
+            if (hashed === PIN_HASH) {
+                // Persist authentication for the session (or longer if desired)
+                localStorage.setItem('authenticated', 'true');
+                window.location.href = 'index.html';
+            } else {
+                document.getElementById('msg').textContent = 'Invalid PIN – access denied.';
+            }
+        });
+    </script>
+</body>
+
+</html>

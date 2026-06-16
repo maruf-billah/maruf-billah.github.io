@@ -9,48 +9,17 @@ let countryAvg = {};
 let subtotals = {}; // Store exact pre-calculated rows from Excel
 
 // 1. Initial Load: Always fetch fresh data to avoid stale caches
-const defaultMetrics = (typeof dashboardData !== 'undefined' && dashboardData.settings && dashboardData.settings.visibleMetrics) ? dashboardData.settings.visibleMetrics : {
-    collectablePct: true,
-    collectionPct: false,
-    colVsOut: true,
-    colVsCol: true,
-    emiVsCol: true,
-    nplPct: false,
-    parPct: false
-};
-
-const defaultTabs = (typeof dashboardData !== 'undefined' && dashboardData.settings && dashboardData.settings.visibleTabs) ? dashboardData.settings.visibleTabs : {
-    l12m: true,
-    analysis: false,
-    progress: true
-};
-
 const state = {
-    tab: 'overall',
-    month: 'TOTAL',
-    availableMonths: [],
-    ticketSize: 'both',
-    drillLevel: 'zone',
+    tab: 'overall',      // 'overall' | 'l12m' | 'ticket'
+    ticketSize: 'both',  // 'both' | 'below10' | 'ten20'
+    drillLevel: 'zone',  // 'zone' | 'region' | 'territory' | 'unit'
     filters: { zone: 'all', region: 'all', territory: 'all', unit: 'all' },
     theme: localStorage.getItem('portfolioTheme') || 'dark',
     sortCol: '',
-    sortDesc: false,
-    visibleMetrics: JSON.parse(localStorage.getItem('portfolioVisibleMetrics')) || defaultMetrics,
-    visibleTabs: JSON.parse(localStorage.getItem('portfolioVisibleTabs')) || defaultTabs
+    sortDesc: false
 };
 
-const METRICS_CONFIG = [
-    { id: 'collectablePct', label: 'CLTD %', icon: 'fa-percentage', gradient: 'var(--gradient-purple)', color: '#8b5cf6', higherBetter: true },
-    { id: 'collectionPct', label: 'CLTN %', icon: 'fa-percentage', gradient: 'var(--gradient-purple)', color: '#8b5cf6', higherBetter: true },
-    { id: 'colVsOut', label: 'CLTD vs OUT %', icon: 'fa-chart-pie', gradient: 'var(--gradient-cyan)', color: '#06b6d4', higherBetter: true },
-    { id: 'colVsCol', label: 'CLTD vs CLTN %', icon: 'fa-chart-pie', gradient: 'var(--gradient-blue)', color: '#6366f1', higherBetter: true },
-    { id: 'emiVsCol', label: 'EMI %', icon: 'fa-money-bill-trend-up', gradient: 'var(--gradient-green)', color: '#10b981', higherBetter: true },
-    { id: 'nplPct', label: 'NPL %', icon: 'fa-triangle-exclamation', gradient: 'var(--gradient-red)', color: '#ef4444', higherBetter: false },
-    { id: 'parPct', label: 'PAR %', icon: 'fa-chart-line', gradient: 'var(--gradient-amber)', color: '#f59e0b', higherBetter: false }
-];
-
 const DOM = {
-    monthFilter: document.getElementById('monthFilter'),
     zoneFilter: document.getElementById('zoneFilter'),
     regionFilter: document.getElementById('regionFilter'),
     territoryFilter: document.getElementById('territoryFilter'),
@@ -66,8 +35,6 @@ const DOM = {
     tableHeader: document.getElementById('tableHeader'),
     tableBody: document.getElementById('tableBody'),
     dashboardView: document.getElementById('dashboardView'),
-    progressView: document.getElementById('progressView'),
-    analysisView: document.getElementById('analysisView'),
     exportCsvBtn: document.getElementById('exportCsvBtn'),
     excelUpload: document.getElementById('excelUpload'),
     uploadStatus: document.getElementById('uploadStatus'),
@@ -76,22 +43,17 @@ const DOM = {
     modalTitle: document.getElementById('modalTitle'),
     modalChart: document.getElementById('modalChart'),
     themeToggle: document.getElementById('themeToggle'),
-    settingsBtn: document.getElementById('settingsBtn'),
-    settingsModal: document.getElementById('settingsModal'),
-    settingsToggles: document.getElementById('settingsToggles'),
     // Load persisted JSON data if available
     loadJSONBtn: document.getElementById('loadJSONBtn')
 };
 
 let charts = {};
 const chartConfig = {
-    collectablePct: { id: '#chartCollectablePct', title: 'CLTD %', color: '#8b5cf6' },
-    collectionPct: { id: '#chartCollectionPct', title: 'CLTN %', color: '#4f46e5' },
-    colVsCol: { id: '#chartColVsCol', title: 'CLTD vs CLTN %', color: '#3b82f6' },
-    colVsOut: { id: '#chartColVsOut', title: 'CLTD vs OUT %', color: '#06b6d4' },
-    emiVsCol: { id: '#chartEmiVsCol', title: 'EMI %', color: '#10b981' },
-    nplPct: { id: '#chartNplPct', title: 'NPL %', color: '#ef4444' },
-    parPct: { id: '#chartParPct', title: 'PAR %', color: '#f59e0b' }
+    collectionPct: { id: '#chartCollectionPct', title: 'Collection %', color: '#4f46e5' },
+    colVsCol: { id: '#chartColVsCol', title: 'Out vs Col', color: '#6366f1' },
+    emiVsCol: { id: '#chartEmiVsCol', title: 'EMI %', color: '#06b4d4' },
+    npl: { id: '#chartNpl', title: 'NPL %', color: '#ef4444' },
+    par: { id: '#chartPar', title: 'PAR %', color: '#f59e0b' }
 };
 
 let currentChartLabels = [];
@@ -122,113 +84,6 @@ function createBarChart(selector, title, color, isModal = false) {
     const chart = new ApexCharts(el, options);
     chart.render();
     return chart;
-}
-
-
-window.openSettingsModal = function() {
-    DOM.settingsModal.classList.add('active');
-    renderSettingsToggles();
-}
-window.closeSettingsModal = function() {
-    DOM.settingsModal.classList.remove('active');
-}
-
-function renderSettingsToggles() {
-    DOM.settingsToggles.innerHTML = '';
-    const TABS_CONFIG = [
-        { id: 'l12m', label: 'L12M View' },
-        { id: 'analysis', label: 'Analysis View' },
-        { id: 'progress', label: 'Progress View' }
-    ];
-
-    let metricsHeader = document.createElement('h4');
-    metricsHeader.style.marginBottom = '8px';
-    metricsHeader.textContent = 'Visible Metrics';
-    DOM.settingsToggles.appendChild(metricsHeader);
-
-    METRICS_CONFIG.forEach(m => {
-        let isChecked = state.visibleMetrics[m.id];
-        let el = document.createElement('label');
-        el.style.display = 'flex';
-        el.style.alignItems = 'center';
-        el.style.gap = '12px';
-        el.style.cursor = 'pointer';
-        el.style.padding = '8px 12px';
-        el.style.background = 'var(--bg-secondary)';
-        el.style.borderRadius = 'var(--radius-sm)';
-        el.style.border = '1px solid var(--border-color)';
-        el.style.marginBottom = '8px';
-        
-        el.innerHTML = `
-            <input type="checkbox" data-metric="${m.id}" ${isChecked ? 'checked' : ''} style="width:16px; height:16px; cursor:pointer;" />
-            <span style="font-weight: 600; color: var(--text-primary);"><i class="fa-solid ${m.icon}" style="color:${m.color}; margin-right: 6px;"></i> ${m.label}</span>
-        `;
-        
-        let cb = el.querySelector('input');
-        cb.addEventListener('change', (e) => {
-            state.visibleMetrics[m.id] = e.target.checked;
-            localStorage.setItem('portfolioVisibleMetrics', JSON.stringify(state.visibleMetrics));
-            populateAnalysisDropdown();
-            // Handle Insight Modal active tab if needed
-            if (!state.visibleMetrics[currentInsightMetricType]) {
-                const firstVis = METRICS_CONFIG.find(mc => state.visibleMetrics[mc.id]);
-                if (firstVis) currentInsightMetricType = firstVis.id;
-            }
-            if (DOM.settingsModal.classList.contains('active')) {
-                // Settings modal stays open, but update dashboard behind it
-            }
-            updateDashboard();
-            if (document.getElementById('insightModal').classList.contains('active')) {
-                renderInsightTimeline();
-            }
-        });
-        DOM.settingsToggles.appendChild(el);
-    });
-
-    let tabsHeader = document.createElement('h4');
-    tabsHeader.style.marginTop = '16px';
-    tabsHeader.style.marginBottom = '8px';
-    tabsHeader.textContent = 'Visible Views';
-    DOM.settingsToggles.appendChild(tabsHeader);
-
-    TABS_CONFIG.forEach(t => {
-        let isChecked = state.visibleTabs[t.id];
-        let el = document.createElement('label');
-        el.style.display = 'flex';
-        el.style.alignItems = 'center';
-        el.style.gap = '12px';
-        el.style.cursor = 'pointer';
-        el.style.marginBottom = '8px';
-        el.innerHTML = `<input type="checkbox" ${isChecked ? 'checked' : ''} style="width: 16px; height: 16px; accent-color: var(--accent-blue);">
-                        <span style="color: var(--text-color); font-weight: 500;">${t.label}</span>`;
-        let cb = el.querySelector('input');
-        cb.addEventListener('change', (e) => {
-            state.visibleTabs[t.id] = e.target.checked;
-            localStorage.setItem('portfolioVisibleTabs', JSON.stringify(state.visibleTabs));
-            updateTabsVisibility();
-        });
-        DOM.settingsToggles.appendChild(el);
-    });
-}
-
-function updateTabsVisibility() {
-    ['l12m', 'analysis', 'progress'].forEach(tid => {
-        let tabEl = document.querySelector(`.tab[data-tab="${tid}"]`);
-        if (tabEl) {
-            tabEl.style.display = state.visibleTabs[tid] ? 'inline-flex' : 'none';
-        }
-    });
-    // If current tab is hidden, fallback to overall
-    if (!state.visibleTabs[state.tab] && state.tab !== 'overall') {
-        state.tab = 'overall';
-        DOM.tabs.forEach(t => t.classList.remove('active'));
-        document.querySelector(`.tab[data-tab="overall"]`).classList.add('active');
-        updateDashboard();
-    }
-}
-
-if (DOM.settingsBtn) {
-    DOM.settingsBtn.addEventListener('click', openSettingsModal);
 }
 
 function initCharts() { for (const [key, cfg] of Object.entries(chartConfig)) { charts[key] = createBarChart(cfg.id, cfg.title, cfg.color); } }
@@ -269,7 +124,7 @@ window.closeChartModal = function () { DOM.chartModal.classList.remove('active')
 // SHEETJS EXCEL PARSING & L12M FIX
 // ============================================
 function safeFloat(val) { let f = parseFloat(val); return isNaN(f) ? 0 : f; }
-function pct(val) { let v = safeFloat(val); return (v > 0 && v <= 2.5) ? +(v * 100).toFixed(2) : +v.toFixed(2); }
+function pct(val) { let v = safeFloat(val); return (v > 0 && v <= 1.0) ? +(v * 100).toFixed(2) : +v.toFixed(2); }
 function amt(val) { return +safeFloat(val).toFixed(2); }
 
 function parseExcelData(arrayBuffer) {
@@ -300,44 +155,21 @@ function parseExcelData(arrayBuffer) {
             }
 
             let s3_lookup = {}; let s3_avg = null;
-            let parsedMonths = [];
-            if (df3.length > 2) {
-                let row0 = df3[0] || [];
-                for (let c = 1; c < row0.length; c += 13) {
-                    let mName = (row0[c] || "").toString().trim();
-                    if (mName) {
-                        parsedMonths.push({ name: mName, colIdx: c });
-                    }
-                }
-                state.availableMonths = parsedMonths.map(p => p.name);
-            }
-
             for (let i = 2; i < df3.length; i++) {
                 let row = df3[i]; let name = (row[0] || "").toString().trim();
-                let m = {};
-                parsedMonths.forEach(pm => {
-                    let c = pm.colIdx;
-                    m[pm.name] = {
-                        portfolio: amt(row[c]),
-                        emi: amt(row[c+1]),
-                        collection: amt(row[c+2]),
-                        collectable: amt(row[c+3]),
-                        collectableCollection: amt(row[c+4]),
-                        emiVsCol: pct(row[c+5]),
-                        collectablePct: pct(row[c+6]),
-                        collectionPct: 0,
-                        colVsOut: pct(row[c+7]),
-                        colVsCol: pct(row[c+8]),
-                        par: amt(row[c+9]),
-                        parPct: pct(row[c+10]),
-                        npl: amt(row[c+11]),
-                        nplPct: pct(row[c+12])
-                    };
-                });
-                
-                let overallData = m['TOTAL'] || (parsedMonths.length > 0 ? m[parsedMonths[parsedMonths.length-1].name] : { collectable: 0, collection: 0, colVsCol: 0, emi: 0, emiVsCol: 0, portfolio: 0, npl: 0, nplPct: 0, par: 0, parPct: 0, collectionPct: 0, collectablePct: 0, collectableCollection: 0, colVsOut: 0 });
-                m['overall'] = overallData;
-
+                let m = {
+                    portfolio: amt(row[1]),
+                    emi: amt(row[2]),
+                    collectable: amt(row[3]),
+                    collection: amt(row[4]),
+                    emiVsCol: pct(row[5]),
+                    collectionPct: pct(row[6]),
+                    colVsCol: pct(row[7]),
+                    par: amt(row[8]),
+                    parPct: pct(row[9]),
+                    npl: amt(row[10]),
+                    nplPct: pct(row[11])
+                };
                 if (!name || name === "nan" || name === "0") continue;
                 s3_lookup[name] = m;
                 let lowerName = name.toLowerCase();
@@ -387,14 +219,9 @@ function parseExcelData(arrayBuffer) {
                 let metrics = {
                     below10: { collectable: b10_collectable, collection: b10_collection, colVsCol: pct(row[3]), emi: amt(row[4]), emiVsCol: pct(row[5]), portfolio: amt(row[6]), npl: amt(row[7]), nplPct: pct(row[8]), par: amt(row[9]), parPct: pct(row[10]), collectionPct: b10_collectionPct },
                     ten20: { collectable: t20_collectable, collection: t20_collection, colVsCol: pct(row[13]), emi: amt(row[14]), emiVsCol: pct(row[15]), portfolio: t20_portfolio, npl: amt(row[17]), nplPct: pct(row[18]), par: t20_parAmt, parPct: t20_parPct, collectionPct: t20_collectionPct },
-                    l12m: matched_l12m || { collectable: 0, collection: 0, colVsCol: 0, emi: 0, emiVsCol: 0, portfolio: 0, npl: 0, nplPct: 0, par: 0, parPct: 0, collectionPct: 0, collectablePct: 0, colVsOut: 0 },
-                    overall: matched_overall ? matched_overall['overall'] : { collectable: 0, collection: 0, colVsCol: 0, emi: 0, emiVsCol: 0, portfolio: 0, npl: 0, nplPct: 0, par: 0, parPct: 0, collectionPct: 0, collectablePct: 0, collectableCollection: 0, colVsOut: 0 }
+                    l12m: matched_l12m || { collectable: 0, collection: 0, colVsCol: 0, emi: 0, emiVsCol: 0, portfolio: 0, npl: 0, nplPct: 0, par: 0, parPct: 0, collectionPct: 0 },
+                    overall: matched_overall || { collectable: 0, collection: 0, colVsCol: 0, emi: 0, emiVsCol: 0, portfolio: 0, npl: 0, nplPct: 0, par: 0, parPct: 0, collectionPct: 0 }
                 };
-                if (matched_overall) {
-                    for (let k in matched_overall) {
-                        metrics[k] = matched_overall[k];
-                    }
-                }
 
                 let lowerName = name.toLowerCase();
                 if (lowerName.includes("total") || lowerName.includes("average") || lowerName.includes("sub-total")) {
@@ -418,25 +245,21 @@ function parseExcelData(arrayBuffer) {
                 } else { obj.type = "Unit"; unassigned_units.push(obj); }
             }
 
-            // unassigned_regions.forEach(r => { r.territories.forEach(t => { t.units.forEach(u => { if (!u.zone) u.zone = "Unassigned"; u.region = r.name; u.territory = t.name; flat_units.push(u); }); }); });
-            // unassigned_territories.forEach(t => { t.units.forEach(u => { if (!u.zone) u.zone = "Unassigned"; if (!u.region) u.region = "Unassigned"; u.territory = t.name; flat_units.push(u); }); });
-            // unassigned_units.forEach(u => { if (!u.zone) u.zone = "Unassigned"; if (!u.region) u.region = "Unassigned"; if (!u.territory) u.territory = "Unassigned"; flat_units.push(u); });
+            unassigned_regions.forEach(r => { r.territories.forEach(t => { t.units.forEach(u => { if (!u.zone) u.zone = "Unassigned"; u.region = r.name; u.territory = t.name; flat_units.push(u); }); }); });
+            unassigned_territories.forEach(t => { t.units.forEach(u => { if (!u.zone) u.zone = "Unassigned"; if (!u.region) u.region = "Unassigned"; u.territory = t.name; flat_units.push(u); }); });
+            unassigned_units.forEach(u => { if (!u.zone) u.zone = "Unassigned"; if (!u.region) u.region = "Unassigned"; if (!u.territory) u.territory = "Unassigned"; flat_units.push(u); });
 
             // Apply bulletproof L12M & Overall Country Avg patch
             if (!country_avg) {
                 country_avg = {
-                    below10: { collectable: 0, collection: 0, colVsCol: 0, emi: 0, emiVsCol: 0, portfolio: 0, npl: 0, nplPct: 0, par: 0, parPct: 0, collectionPct: 0, collectablePct: 0, colVsOut: 0 },
-                    ten20: { collectable: 0, collection: 0, colVsCol: 0, emi: 0, emiVsCol: 0, portfolio: 0, npl: 0, nplPct: 0, par: 0, parPct: 0, collectionPct: 0, collectablePct: 0, colVsOut: 0 },
-                    l12m: s2_avg || { collectable: 0, collection: 0, colVsCol: 0, emi: 0, emiVsCol: 0, portfolio: 0, npl: 0, nplPct: 0, par: 0, parPct: 0, collectionPct: 0, collectablePct: 0, colVsOut: 0 },
-                    overall: s3_avg ? s3_avg['overall'] : { collectable: 0, collection: 0, colVsCol: 0, emi: 0, emiVsCol: 0, portfolio: 0, npl: 0, nplPct: 0, par: 0, parPct: 0, collectionPct: 0, collectablePct: 0, colVsOut: 0 }
+                    below10: { collectable: 0, collection: 0, colVsCol: 0, emi: 0, emiVsCol: 0, portfolio: 0, npl: 0, nplPct: 0, par: 0, parPct: 0, collectionPct: 0 },
+                    ten20: { collectable: 0, collection: 0, colVsCol: 0, emi: 0, emiVsCol: 0, portfolio: 0, npl: 0, nplPct: 0, par: 0, parPct: 0, collectionPct: 0 },
+                    l12m: s2_avg || { collectable: 0, collection: 0, colVsCol: 0, emi: 0, emiVsCol: 0, portfolio: 0, npl: 0, nplPct: 0, par: 0, parPct: 0, collectionPct: 0 },
+                    overall: s3_avg || { collectable: 0, collection: 0, colVsCol: 0, emi: 0, emiVsCol: 0, portfolio: 0, npl: 0, nplPct: 0, par: 0, parPct: 0, collectionPct: 0 }
                 };
             } else {
                 if (s2_avg) country_avg.l12m = s2_avg;
-            }
-            if (s3_avg) {
-                for (let k in s3_avg) {
-                    country_avg[k] = s3_avg[k];
-                }
+                if (s3_avg) country_avg.overall = s3_avg;
             }
 
             let all_subtotals = {};
@@ -446,9 +269,7 @@ function parseExcelData(arrayBuffer) {
             }
             for (let name in s3_lookup) {
                 if (!all_subtotals[name]) all_subtotals[name] = {};
-                for (let k in s3_lookup[name]) {
-                    all_subtotals[name][k] = s3_lookup[name][k];
-                }
+                all_subtotals[name].overall = s3_lookup[name];
             }
 
             unitData = flat_units.map(u => ({ unit: u.name, territory: u.territory, region: u.region, zone: u.zone, metrics: u.metrics }));
@@ -460,9 +281,8 @@ function parseExcelData(arrayBuffer) {
                 localStorage.setItem('portfolioData_unitData', JSON.stringify(unitData));
                 localStorage.setItem('portfolioData_countryAvg', JSON.stringify(countryAvg));
                 localStorage.setItem('portfolioData_subtotals', JSON.stringify(subtotals));
-                localStorage.setItem('portfolioData_availableMonths', JSON.stringify(state.availableMonths));
                 // Store combined data for quick reload
-                localStorage.setItem('persistedData', JSON.stringify({ unitData, countryAvg, subtotals, availableMonths: state.availableMonths }));
+                localStorage.setItem('persistedData', JSON.stringify({ unitData, countryAvg, subtotals }));
             } catch (e) {
                 console.warn("Could not save to localStorage (quota exceeded?)", e);
             }
@@ -497,11 +317,10 @@ if (DOM.jsonUpload) {
                 countryAvg = data.countryAvg || {};
                 subtotals = data.subtotals || {};
                 // Save back to localStorage for future loads
-                localStorage.setItem('persistedData', JSON.stringify({ unitData, countryAvg, subtotals, availableMonths: state.availableMonths }));
+                localStorage.setItem('persistedData', JSON.stringify({ unitData, countryAvg, subtotals }));
                 localStorage.setItem('portfolioData_unitData', JSON.stringify(unitData));
                 localStorage.setItem('portfolioData_countryAvg', JSON.stringify(countryAvg));
                 localStorage.setItem('portfolioData_subtotals', JSON.stringify(subtotals));
-                localStorage.setItem('portfolioData_availableMonths', JSON.stringify(state.availableMonths));
                 DOM.downloadJsonBtn.style.display = 'block';
                 populateDropdowns();
                 updateDashboard();
@@ -515,14 +334,6 @@ if (DOM.jsonUpload) {
 }
 // Automatically preload persisted data on page load
 const preloadData = () => {
-    const CACHE_VERSION = 'v2';
-    const currentVersion = localStorage.getItem('portfolioData_version');
-    if (currentVersion !== CACHE_VERSION) {
-        localStorage.removeItem('persistedData');
-        localStorage.setItem('portfolioData_version', CACHE_VERSION);
-        return; // Force re-upload to prevent corrupt data
-    }
-
     const saved = localStorage.getItem('persistedData');
     if (saved) {
         try {
@@ -530,11 +341,9 @@ const preloadData = () => {
             unitData = data.unitData || [];
             countryAvg = data.countryAvg || {};
             subtotals = data.subtotals || {};
-            if (data.availableMonths) state.availableMonths = data.availableMonths;
             DOM.downloadJsonBtn.style.display = 'block';
             populateDropdowns();
             updateDashboard();
-            updateProgressView();
         } catch (e) {
             console.warn('Failed to parse persisted data:', e);
         }
@@ -543,7 +352,6 @@ const preloadData = () => {
 // Call preload after DOM ready
 window.addEventListener('DOMContentLoaded', () => {
     applyTheme(state.theme);
-    updateTabsVisibility();
     preloadData();
 });
 DOM.excelUpload.addEventListener('change', (e) => {
@@ -551,8 +359,7 @@ DOM.excelUpload.addEventListener('change', (e) => {
 });
 
 DOM.downloadJsonBtn.addEventListener('click', () => {
-    const settings = { visibleMetrics: state.visibleMetrics, visibleTabs: state.visibleTabs };
-    const dataStr = "data:text/javascript;charset=utf-8," + encodeURIComponent("const dashboardData = " + JSON.stringify({ unitData, countryAvg, subtotals, availableMonths: state.availableMonths, settings }, null, 2) + ";");
+    const dataStr = "data:text/javascript;charset=utf-8," + encodeURIComponent("const dashboardData = " + JSON.stringify({ unitData, countryAvg, subtotals }, null, 2) + ";");
     const dlAnchorElem = document.createElement('a'); dlAnchorElem.setAttribute("href", dataStr); dlAnchorElem.setAttribute("download", "realData.js"); dlAnchorElem.click();
 });
 
@@ -578,17 +385,16 @@ function nplBorder(npl) {
 function getFilteredUnits() {
     if (!unitData.length) return [];
     return unitData.filter(item => {
-        if (item.zone === "Unassigned" || item.region === "Unassigned" || item.territory === "Unassigned" || item.unit === "Unassigned") return false;
         if (state.filters.zone !== 'all' && item.zone !== state.filters.zone) return false;
         if (state.filters.region !== 'all' && item.region !== state.filters.region) return false;
         if (state.filters.territory !== 'all' && item.territory !== state.filters.territory) return false;
         if (state.filters.unit !== 'all' && item.unit !== state.filters.unit) return false; return true;
     });
 }
-function getUniqueValues(data, key) { return [...new Set(data.map(item => item[key]).filter(val => val !== 'Unassigned'))].sort(); }
+function getUniqueValues(data, key) { return [...new Set(data.map(item => item[key]))].sort(); }
 function getMetricKey() {
     if (state.tab === 'l12m') return 'l12m';
-    if (state.tab === 'overall' || state.tab === 'analysis' || state.tab === 'progress') return state.month;
+    if (state.tab === 'overall' || state.tab === 'analysis') return 'overall';
     if (state.ticketSize === 'both') return 'both';
     return state.ticketSize;
 }
@@ -622,44 +428,27 @@ function aggregateMetrics(units, metricKey) {
         npl: t.npl,
         par: t.par,
         colVsCol,
-        colVsOut: t.portfolio > 0 ? +(t.collectable / t.portfolio * 100).toFixed(2) : 0,
         collectionPct,
-        collectablePct: t.portfolio > 0 ? +(t.collectable / t.portfolio * 100).toFixed(2) : 0,
         emiVsCol: (metricKey === 'overall') ? (t.emi > 0 ? +(t.collection / t.emi * 100).toFixed(2) : 0) : (t.collection > 0 ? +(t.emi / t.collection * 100).toFixed(2) : 0),
         nplPct: t.portfolio > 0 ? +(t.npl / t.portfolio * 100).toFixed(2) : 0,
         parPct: t.portfolio > 0 ? +(t.par / t.portfolio * 100).toFixed(2) : 0
     };
 }
-
-function getExactSubtotal(name, month) {
-    if (!name) return null;
-    let possibleNames = [name, "Total " + name, name + " Total", "Total " + name.replace(/Zone/i, "").trim()];
-    for (let p of possibleNames) {
-        if (subtotals[p] && subtotals[p][month]) {
-            return subtotals[p][month];
-        }
-    }
-    for (let key in subtotals) {
-        if (key.toLowerCase().includes(name.toLowerCase()) && subtotals[key][month]) {
-            return subtotals[key][month];
-        }
-    }
-    return null;
-}
-
 function getGroupedData(units, groupKey, metricKey) {
     const groups = {}; units.forEach(u => { const key = u[groupKey]; if (!groups[key]) groups[key] = []; groups[key].push(u); });
     return Object.keys(groups).sort().map(name => {
         let agg = aggregateMetrics(groups[name], metricKey);
 
         // If the exact pre-calculated row exists in the Excel file, OVERRIDE the aggregated math.
-        let exact = getExactSubtotal(name, metricKey);
-        if (exact) {
-            METRICS_CONFIG.forEach(mc => {
-                if (exact[mc.id] !== undefined) {
-                    agg[mc.id] = exact[mc.id];
-                }
-            });
+        if (subtotals[name] && subtotals[name][metricKey]) {
+            let exact = subtotals[name][metricKey];
+            if (exact.colVsCol > 0 || exact.nplPct > 0 || exact.parPct > 0 || exact.collectionPct > 0) {
+                agg.colVsCol = exact.colVsCol;
+                agg.emiVsCol = exact.emiVsCol;
+                agg.collectionPct = exact.collectionPct;
+                agg.nplPct = exact.nplPct;
+                agg.parPct = exact.parPct;
+            }
         }
         return { name, ...agg, unitCount: groups[name].length };
     });
@@ -676,38 +465,7 @@ function handleTableRowClick(name) {
     DOM.drillLevel.value = state.drillLevel; populateDropdowns(); updateBreadcrumb(); updateDashboard();
 }
 
-
-function populateAnalysisDropdown() {
-    const analysisSelect = document.getElementById('analysisMetricSelect');
-    if (!analysisSelect) return;
-    const currentVal = analysisSelect.value;
-    analysisSelect.innerHTML = '';
-    let foundCurrent = false;
-    METRICS_CONFIG.forEach(m => {
-        if (state.visibleMetrics[m.id]) {
-            let opt = document.createElement('option');
-            opt.value = m.id;
-            opt.textContent = m.label;
-            analysisSelect.appendChild(opt);
-            if (m.id === currentVal) foundCurrent = true;
-        }
-    });
-    // If the currently selected option is now hidden, fallback to first available
-    if (!foundCurrent && analysisSelect.options.length > 0) {
-        analysisSelect.value = analysisSelect.options[0].value;
-    }
-}
-
 function populateDropdowns() {
-    populateAnalysisDropdown();
-    if (state.availableMonths && DOM.monthFilter) {
-        DOM.monthFilter.innerHTML = '';
-        state.availableMonths.forEach(m => {
-            let opt = document.createElement('option'); opt.value = m; opt.textContent = m;
-            if (m === state.month) opt.selected = true;
-            DOM.monthFilter.appendChild(opt);
-        });
-    }
     const zones = getUniqueValues(unitData, 'zone'); populateSelect(DOM.zoneFilter, zones, state.filters.zone, 'All Zones');
     let regionPool = state.filters.zone !== 'all' ? unitData.filter(u => u.zone === state.filters.zone) : unitData;
     const regions = getUniqueValues(regionPool, 'region'); populateSelect(DOM.regionFilter, regions, state.filters.region, 'All Regions');
@@ -774,8 +532,7 @@ let currentInsightMetricType = 'nplPct';
 window.openInsightModal = function (name, level) {
     currentInsightTarget = name;
     currentInsightLevel = level;
-    const firstVis = METRICS_CONFIG.find(mc => state.visibleMetrics[mc.id]);
-    currentInsightMetricType = firstVis ? firstVis.id : 'nplPct';
+    currentInsightMetricType = 'nplPct';
     document.getElementById('insightModal').classList.add('active');
     renderInsightTimeline();
 }
@@ -788,26 +545,31 @@ window.renderInsightTimeline = function (overrideMetric) {
     let baseMetricKey = getMetricKey();
     if (baseMetricKey === 'both') baseMetricKey = 'below10'; // Default to Below 10 Lacs for Modal if 'both' is selected
 
-    let cAvg = Object.assign({ nplPct: 0, parPct: 0, colVsCol: 0, emiVsCol: 0, collectionPct: 0, collectablePct: 0, colVsOut: 0 }, countryAvg[baseMetricKey] || {});
+    let cAvg = Object.assign({ nplPct: 0, parPct: 0, colVsCol: 0, emiVsCol: 0, collectionPct: 0 }, countryAvg[baseMetricKey] || {});
 
     let targetData = getFilteredUnits().filter(u => u[level] === name);
     let targetAgg = aggregateMetrics(targetData, baseMetricKey);
 
-    let exact = getExactSubtotal(name, baseMetricKey);
-    if (exact) {
-        METRICS_CONFIG.forEach(mc => {
-            if (exact[mc.id] !== undefined) {
-                targetAgg[mc.id] = exact[mc.id];
-            }
-        });
+    if (subtotals[name] && subtotals[name][baseMetricKey]) {
+        let exact = subtotals[name][baseMetricKey];
+        if (exact.colVsCol > 0 || exact.nplPct > 0 || exact.parPct > 0 || exact.collectionPct > 0) {
+            targetAgg.colVsCol = exact.colVsCol || targetAgg.colVsCol;
+            targetAgg.emiVsCol = exact.emiVsCol || targetAgg.emiVsCol;
+            targetAgg.nplPct = exact.nplPct || targetAgg.nplPct;
+            targetAgg.parPct = exact.parPct || targetAgg.parPct;
+            targetAgg.collectionPct = exact.collectionPct || targetAgg.collectionPct;
+        }
     }
 
     const levelLabels = { zone: 'Zone', region: 'Region', territory: 'Territory', unit: 'Unit' };
 
-    const mConfig = {};
-    METRICS_CONFIG.forEach(mc => {
-        mConfig[mc.id] = { title: mc.label, color: mc.color, higherBetter: mc.higherBetter, label: mc.label };
-    });
+    const mConfig = {
+        collectionPct: { title: 'Collection %', color: 'var(--accent-purple)', higherBetter: true },
+        colVsCol: { title: 'Out vs Col', color: 'var(--accent-blue)', higherBetter: true },
+        emiVsCol: { title: 'EMI', color: 'var(--accent-green)', higherBetter: true },
+        nplPct: { title: 'NPL', color: 'var(--accent-red)', higherBetter: false },
+        parPct: { title: 'PAR', color: 'var(--accent-amber)', higherBetter: false }
+    };
     let mc = mConfig[currentInsightMetricType];
 
     let tabsHtml = `<div class="insight-tabs">
@@ -818,12 +580,12 @@ window.renderInsightTimeline = function (overrideMetric) {
 
     html += `<div class="timeline-node center-node"><div class="node-content">
         <div class="node-title">Country Average</div>
-        <div class="node-value" style="color:${mc.color}">${mc.label}: ${(cAvg[currentInsightMetricType]||0).toFixed(2)}%</div>
+        <div class="node-value" style="color:${mc.color}">${mc.title}: ${cAvg[currentInsightMetricType].toFixed(2)}%</div>
     </div></div>`;
 
     html += `<div class="timeline-node center-node target-node"><div class="node-content" style="border-color:var(--accent-purple); background:rgba(168, 85, 247, 0.1);">
         <div class="node-title">${name} (${levelLabels[level] || level})</div>
-        <div class="node-value" style="color:var(--accent-purple)">${mc.label}: ${(targetAgg[currentInsightMetricType]||0).toFixed(2)}%</div>
+        <div class="node-value" style="color:var(--accent-purple)">${mc.title}: ${targetAgg[currentInsightMetricType].toFixed(2)}%</div>
     </div></div>`;
 
     const renderNodes = (arr, label) => {
@@ -832,7 +594,7 @@ window.renderInsightTimeline = function (overrideMetric) {
         arr.sort((a, b) => b[currentInsightMetricType] - a[currentInsightMetricType]);
         arr.forEach(child => {
             let val = child[currentInsightMetricType];
-            let avgVal = cAvg[currentInsightMetricType] || 0;
+            let avgVal = cAvg[currentInsightMetricType];
             let isGood = mc.higherBetter ? (val >= avgVal) : (val <= avgVal);
             let isLeft = val < avgVal;
 
@@ -843,7 +605,7 @@ window.renderInsightTimeline = function (overrideMetric) {
             res += `<div class="timeline-node ${sideClass} ${qualityClass}">
                 <div class="node-content">
                     <div class="node-title">${child.name}</div>
-                    <div class="node-value ${colorClass}">${mc.label}: ${val.toFixed(2)}%</div>
+                    <div class="node-value ${colorClass}">${mc.title}: ${val.toFixed(2)}%</div>
                     <div style="font-size:0.7rem; color:var(--text-muted);">${isGood ? 'Better than Avg' : 'Worse than Avg'}</div>
                 </div>
             </div>`;
@@ -875,7 +637,7 @@ function renderKPIs(filteredUnits) {
     if (!unitData.length || !countryAvg) return;
     if (state.tab === 'ticket' && state.ticketSize === 'both') {
         const b10 = aggregateMetrics(filteredUnits, 'below10'); const t20 = aggregateMetrics(filteredUnits, 'ten20');
-        const defaultAvg = { colVsCol: 0, emiVsCol: 0, nplPct: 0, parPct: 0, collectionPct: 0, collectablePct: 0, colVsOut: 0 };
+        const defaultAvg = { colVsCol: 0, emiVsCol: 0, nplPct: 0, parPct: 0, collectionPct: 0 };
         const avgB10 = Object.assign({}, defaultAvg, countryAvg.below10 || {}); const avgT20 = Object.assign({}, defaultAvg, countryAvg.ten20 || {});
         const metrics = [
             { label: 'Collection %', b10Key: 'collectionPct', t20Key: 'collectionPct', avgB10: avgB10.collectionPct || 0, avgT20: avgT20.collectionPct || 0, higherBetter: true, icon: 'fa-percentage', gradient: 'var(--gradient-purple)' },
@@ -897,11 +659,11 @@ function renderKPIs(filteredUnits) {
         // because mathematical aggregation of rows will differ from the user's custom Excel formula
         let isCountryLevel = state.filters.zone === 'all';
         if (isCountryLevel) {
-            METRICS_CONFIG.forEach(mc => {
-                if (avg[mc.id] !== undefined) {
-                    agg[mc.id] = avg[mc.id];
-                }
-            });
+            agg.colVsCol = avg.colVsCol;
+            agg.emiVsCol = avg.emiVsCol;
+            agg.collectionPct = avg.collectionPct;
+            agg.nplPct = avg.nplPct;
+            agg.parPct = avg.parPct;
         } else {
             // Try to lookup exact filter match
             let currentFilterName = state.filters.unit !== 'all' ? state.filters.unit :
@@ -909,16 +671,22 @@ function renderKPIs(filteredUnits) {
                     (state.filters.region !== 'all' ? state.filters.region : state.filters.zone));
             if (subtotals[currentFilterName] && subtotals[currentFilterName][metricKey]) {
                 let exact = subtotals[currentFilterName][metricKey];
-                METRICS_CONFIG.forEach(mc => {
-                    if (exact[mc.id] !== undefined) {
-                        agg[mc.id] = exact[mc.id];
-                    }
-                });
+                agg.colVsCol = exact.colVsCol || agg.colVsCol;
+                agg.emiVsCol = exact.emiVsCol || agg.emiVsCol;
+                agg.nplPct = exact.nplPct || agg.nplPct;
+                agg.parPct = exact.parPct || agg.parPct;
+                agg.collectionPct = exact.collectionPct || agg.collectionPct;
             }
         }
 
-        const kpis = METRICS_CONFIG.map(m => ({ ...m, value: agg[m.id] || 0, avg: avg[m.id] || 0 }));
-        kpis.forEach(k => { if (!state.visibleMetrics[k.id]) return;
+        const kpis = [
+            { label: 'Collection %', value: agg.collectionPct || 0, avg: avg.collectionPct || 0, higherBetter: true, icon: 'fa-percentage', gradient: 'var(--gradient-purple)' },
+            { label: 'Out vs Col %', value: agg.colVsCol || 0, avg: avg.colVsCol || 0, higherBetter: true, icon: 'fa-chart-pie', gradient: 'var(--gradient-blue)' },
+            { label: 'EMI %', value: agg.emiVsCol || 0, avg: avg.emiVsCol || 0, higherBetter: true, icon: 'fa-money-bill-trend-up', gradient: 'var(--gradient-green)' },
+            { label: 'NPL %', value: agg.nplPct || 0, avg: avg.nplPct || 0, higherBetter: false, icon: 'fa-triangle-exclamation', gradient: 'var(--gradient-red)' },
+            { label: 'PAR %', value: agg.parPct || 0, avg: avg.parPct || 0, higherBetter: false, icon: 'fa-chart-line', gradient: 'var(--gradient-amber)' }
+        ];
+        kpis.forEach(k => {
             const diff = k.value - k.avg; const card = document.createElement('div'); card.className = 'kpi-card';
             card.innerHTML = `<div class="kpi-accent-bar" style="background: ${k.gradient}"></div><div class="kpi-header-row"><div class="kpi-icon" style="background: ${k.gradient}"><i class="fa-solid ${k.icon}" style="color:#fff"></i></div><div class="kpi-label">${k.label}</div></div><div class="kpi-value">${k.value.toFixed(2)}%</div><div class="kpi-sub ${isGood(k.value, k.avg, k.higherBetter) ? 'positive' : 'negative'}"><i class="fa-solid ${isGood(k.value, k.avg, k.higherBetter) ? 'fa-arrow-up' : 'fa-arrow-down'}"></i>${Math.abs(diff).toFixed(2)}% vs Avg</div>`; grid.appendChild(card);
         });
@@ -939,46 +707,25 @@ function updateCharts(filteredUnits) {
     const level = state.drillLevel; const labels = getGroupedData(filteredUnits, level, 'below10').map(g => g.name); currentChartLabels = labels;
     if (state.tab === 'ticket' && state.ticketSize === 'both') {
         const gB10 = getGroupedData(filteredUnits, level, 'below10'); const gT20 = getGroupedData(filteredUnits, level, 'ten20');
-        const defaultAvg = { colVsCol: 0, emiVsCol: 0, nplPct: 0, parPct: 0, collectionPct: 0, collectablePct: 0, colVsOut: 0 };
+        const defaultAvg = { colVsCol: 0, emiVsCol: 0, nplPct: 0, parPct: 0, collectionPct: 0 };
         const aB10 = Object.assign({}, defaultAvg, countryAvg.below10 || {}); const aT20 = Object.assign({}, defaultAvg, countryAvg.ten20 || {});
 
-
-        // Show/Hide chart cards based on visibility
-        METRICS_CONFIG.forEach(m => {
-            let cardId = 'chartCard' + m.id.charAt(0).toUpperCase() + m.id.slice(1);
-            let el = document.getElementById(cardId);
-            if (el) {
-                el.style.display = state.visibleMetrics[m.id] ? 'block' : 'none';
-            }
-        });
-        charts.collectablePct?.updateOptions({ ...getChartOptions(labels, aB10.collectablePct, '#8b5cf6', Math.max(getMax(gB10, aB10, 'collectablePct'), getMax(gT20, aT20, 'collectablePct'))), series: [{ name: 'Below 10 Lacs', data: gB10.map(g => g.collectablePct) }, { name: '10-20 Lacs', data: gT20.map(g => g.collectablePct) }] }, false, true, true);
         charts.collectionPct?.updateOptions({ ...getChartOptions(labels, aB10.collectionPct, '#8b5cf6', Math.max(getMax(gB10, aB10, 'collectionPct'), getMax(gT20, aT20, 'collectionPct'))), series: [{ name: 'Below 10 Lacs', data: gB10.map(g => g.collectionPct) }, { name: '10-20 Lacs', data: gT20.map(g => g.collectionPct) }] }, false, true, true);
         charts.colVsCol?.updateOptions({ ...getChartOptions(labels, aB10.colVsCol, '#818cf8', Math.max(getMax(gB10, aB10, 'colVsCol'), getMax(gT20, aT20, 'colVsCol'))), series: [{ name: 'Below 10 Lacs', data: gB10.map(g => g.colVsCol) }, { name: '10-20 Lacs', data: gT20.map(g => g.colVsCol) }] }, false, true, true);
         charts.emiVsCol?.updateOptions({ ...getChartOptions(labels, aB10.emiVsCol, '#22d3ee', Math.max(getMax(gB10, aB10, 'emiVsCol'), getMax(gT20, aT20, 'emiVsCol'))), series: [{ name: 'Below 10 Lacs', data: gB10.map(g => g.emiVsCol) }, { name: '10-20 Lacs', data: gT20.map(g => g.emiVsCol) }] }, false, true, true);
-        charts.nplPct?.updateOptions({ ...getChartOptions(labels, aB10.nplPct, '#f87171', Math.max(getMax(gB10, aB10, 'nplPct'), getMax(gT20, aT20, 'nplPct'))), series: [{ name: 'Below 10 Lacs', data: gB10.map(g => g.nplPct) }, { name: '10-20 Lacs', data: gT20.map(g => g.nplPct) }] }, false, true, true);
-        charts.parPct?.updateOptions({ ...getChartOptions(labels, aB10.parPct, '#fbbf24', Math.max(getMax(gB10, aB10, 'parPct'), getMax(gT20, aT20, 'parPct'))), series: [{ name: 'Below 10 Lacs', data: gB10.map(g => g.parPct) }, { name: '10-20 Lacs', data: gT20.map(g => g.parPct) }] }, false, true, true);
+        charts.npl?.updateOptions({ ...getChartOptions(labels, aB10.nplPct, '#f87171', Math.max(getMax(gB10, aB10, 'nplPct'), getMax(gT20, aT20, 'nplPct'))), series: [{ name: 'Below 10 Lacs', data: gB10.map(g => g.nplPct) }, { name: '10-20 Lacs', data: gT20.map(g => g.nplPct) }] }, false, true, true);
+        charts.par?.updateOptions({ ...getChartOptions(labels, aB10.parPct, '#fbbf24', Math.max(getMax(gB10, aB10, 'parPct'), getMax(gT20, aT20, 'parPct'))), series: [{ name: 'Below 10 Lacs', data: gB10.map(g => g.parPct) }, { name: '10-20 Lacs', data: gT20.map(g => g.parPct) }] }, false, true, true);
     } else {
         const metricKey = getMetricKey(); const grouped = getGroupedData(filteredUnits, level, metricKey); 
-        const defaultAvg = { colVsCol: 0, emiVsCol: 0, nplPct: 0, parPct: 0, collectionPct: 0, collectablePct: 0, colVsOut: 0 };
+        const defaultAvg = { colVsCol: 0, emiVsCol: 0, nplPct: 0, parPct: 0, collectionPct: 0 };
         const avg = Object.assign({}, defaultAvg, countryAvg[metricKey] || {});
         const activeLabels = grouped.map(g => g.name);
 
-
-        // Show/Hide chart cards based on visibility
-        METRICS_CONFIG.forEach(m => {
-            let cardId = 'chartCard' + m.id.charAt(0).toUpperCase() + m.id.slice(1);
-            let el = document.getElementById(cardId);
-            if (el) {
-                el.style.display = state.visibleMetrics[m.id] ? 'block' : 'none';
-            }
-        });
-        charts.collectablePct?.updateOptions({ ...getChartOptions(activeLabels, avg.collectablePct, '#8b5cf6', getMax(grouped, avg, 'collectablePct')), series: [{ name: 'CLTD %', data: grouped.map(g => g.collectablePct) }] }, false, true, true);
         charts.collectionPct?.updateOptions({ ...getChartOptions(activeLabels, avg.collectionPct, '#8b5cf6', getMax(grouped, avg, 'collectionPct')), series: [{ name: 'Collection %', data: grouped.map(g => g.collectionPct) }] }, false, true, true);
         charts.colVsCol?.updateOptions({ ...getChartOptions(activeLabels, avg.colVsCol, '#6366f1', getMax(grouped, avg, 'colVsCol')), series: [{ name: 'Out vs Col %', data: grouped.map(g => g.colVsCol) }] }, false, true, true);
-        charts.colVsOut?.updateOptions({ ...getChartOptions(activeLabels, avg.colVsOut, '#06b6d4', getMax(grouped, avg, 'colVsOut')), series: [{ name: 'Col vs Out %', data: grouped.map(g => g.colVsOut) }] }, false, true, true);
         charts.emiVsCol?.updateOptions({ ...getChartOptions(activeLabels, avg.emiVsCol, '#06b6d4', getMax(grouped, avg, 'emiVsCol')), series: [{ name: 'EMI %', data: grouped.map(g => g.emiVsCol) }] }, false, true, true);
-        charts.nplPct?.updateOptions({ ...getChartOptions(activeLabels, avg.nplPct, '#ef4444', getMax(grouped, avg, 'nplPct')), series: [{ name: 'NPL %', data: grouped.map(g => g.nplPct) }] }, false, true, true);
-        charts.parPct?.updateOptions({ ...getChartOptions(activeLabels, avg.parPct, '#f59e0b', getMax(grouped, avg, 'parPct')), series: [{ name: 'PAR %', data: grouped.map(g => g.parPct) }] }, false, true, true);
+        charts.npl?.updateOptions({ ...getChartOptions(activeLabels, avg.nplPct, '#ef4444', getMax(grouped, avg, 'nplPct')), series: [{ name: 'NPL %', data: grouped.map(g => g.nplPct) }] }, false, true, true);
+        charts.par?.updateOptions({ ...getChartOptions(activeLabels, avg.parPct, '#f59e0b', getMax(grouped, avg, 'parPct')), series: [{ name: 'PAR %', data: grouped.map(g => g.parPct) }] }, false, true, true);
     }
 }
 
@@ -995,7 +742,7 @@ function updateTable(filteredUnits) {
 
     if (state.tab === 'ticket' && state.ticketSize === 'both') {
         let groupedB10 = getGroupedData(filteredUnits, level, 'below10'); let groupedT20 = getGroupedData(filteredUnits, level, 'ten20');
-        const defaultAvg = { colVsCol: 0, emiVsCol: 0, nplPct: 0, parPct: 0, collectionPct: 0, collectablePct: 0, colVsOut: 0 };
+        const defaultAvg = { colVsCol: 0, emiVsCol: 0, nplPct: 0, parPct: 0, collectionPct: 0 };
         const avgB10 = Object.assign({}, defaultAvg, countryAvg.below10 || {}); const avgT20 = Object.assign({}, defaultAvg, countryAvg.ten20 || {});
         const t20Map = {}; groupedT20.forEach(g => t20Map[g.name] = g);
 
@@ -1020,33 +767,19 @@ function updateTable(filteredUnits) {
         }
 
         groupedB10.forEach(b10Row => {
-            const t20Row = t20Map[b10Row.name] || { colVsCol: 0, emiVsCol: 0, nplPct: 0, parPct: 0, collectionPct: 0, collectablePct: 0, colVsOut: 0 };
+            const t20Row = t20Map[b10Row.name] || { colVsCol: 0, emiVsCol: 0, nplPct: 0, parPct: 0, collectionPct: 0 };
             const tr = document.createElement('tr'); tr.className = level !== 'unit' ? 'clickable-row' : '';
             tr.innerHTML = `<td class="cell-name border-right" onclick="if('${level}' !== 'unit') handleTableRowClick('${b10Row.name}')">${b10Row.name}${level !== 'unit' ? ' <i class="fa-solid fa-chevron-right"></i>' : ''}</td><td class="${cellClass(b10Row.colVsCol, avgB10.colVsCol, true)}" onclick="if('${level}' !== 'unit') handleTableRowClick('${b10Row.name}')">${b10Row.colVsCol.toFixed(2)}%</td><td class="${cellClass(b10Row.emiVsCol, avgB10.emiVsCol, true)}" onclick="if('${level}' !== 'unit') handleTableRowClick('${b10Row.name}')">${b10Row.emiVsCol.toFixed(2)}%</td><td class="${cellClass(b10Row.collectionPct, avgB10.collectionPct, true)}" onclick="if('${level}' !== 'unit') handleTableRowClick('${b10Row.name}')">${b10Row.collectionPct.toFixed(2)}%</td><td class="${cellClass(b10Row.nplPct, avgB10.nplPct, false)}" onclick="if('${level}' !== 'unit') handleTableRowClick('${b10Row.name}')">${b10Row.nplPct.toFixed(2)}%</td><td class="${cellClass(b10Row.parPct, avgB10.parPct, false)} border-right" onclick="if('${level}' !== 'unit') handleTableRowClick('${b10Row.name}')">${b10Row.parPct.toFixed(2)}%</td><td class="${cellClass(t20Row.colVsCol, avgT20.colVsCol, true)}" onclick="if('${level}' !== 'unit') handleTableRowClick('${b10Row.name}')">${t20Row.colVsCol.toFixed(2)}%</td><td class="${cellClass(t20Row.emiVsCol, avgT20.emiVsCol, true)}" onclick="if('${level}' !== 'unit') handleTableRowClick('${b10Row.name}')">${t20Row.emiVsCol.toFixed(2)}%</td><td class="${cellClass(t20Row.collectionPct, avgT20.collectionPct, true)}" onclick="if('${level}' !== 'unit') handleTableRowClick('${b10Row.name}')">${t20Row.collectionPct.toFixed(2)}%</td><td class="${cellClass(t20Row.nplPct, avgT20.nplPct, false)}" onclick="if('${level}' !== 'unit') handleTableRowClick('${b10Row.name}')">${t20Row.nplPct.toFixed(2)}%</td><td class="${cellClass(t20Row.parPct, avgT20.parPct, false)} border-right" onclick="if('${level}' !== 'unit') handleTableRowClick('${b10Row.name}')">${t20Row.parPct.toFixed(2)}%</td><td class="action-cell"><button class="btn-insight" onclick="event.stopPropagation(); openInsightModal('${b10Row.name}', '${level}')"><i class="fa-solid fa-eye"></i> View</button></td>`;
             DOM.tableBody.appendChild(tr);
         });
     } else {
         let grouped = getGroupedData(filteredUnits, level, metricKey); 
-        const defaultAvg = { colVsCol: 0, emiVsCol: 0, nplPct: 0, parPct: 0, collectionPct: 0, collectablePct: 0, colVsOut: 0 };
+        const defaultAvg = { colVsCol: 0, emiVsCol: 0, nplPct: 0, parPct: 0, collectionPct: 0 };
         const avg = Object.assign({}, defaultAvg, countryAvg[metricKey] || {});
         const subRow = DOM.tableHeader.parentElement.querySelector('.sub-header-row'); if (subRow) subRow.remove();
-                let headersHTML = `<th class="border-right sortable" onclick="sortTable('name')">${levelLabels[level]} ${sortIcon('name')}</th>`;
-        METRICS_CONFIG.forEach(m => {
-            if (state.visibleMetrics[m.id]) {
-                headersHTML += `<th class="sortable" onclick="sortTable('${m.id}')">${m.label} ${sortIcon(m.id)}</th>`;
-            }
-        });
-        headersHTML += `<th>Action</th>`;
-        DOM.tableHeader.innerHTML = headersHTML; DOM.tableBody.innerHTML = '';
+        DOM.tableHeader.innerHTML = ` <th class="border-right sortable" onclick="sortTable('name')">${levelLabels[level]} ${sortIcon('name')}</th> <th class="sortable" onclick="sortTable('colVsCol')">Out vs Col % ${sortIcon('colVsCol')}</th> <th class="sortable" onclick="sortTable('emiVsCol')">EMI % ${sortIcon('emiVsCol')}</th> <th class="sortable" onclick="sortTable('collectionPct')">Collection % ${sortIcon('collectionPct')}</th> <th class="sortable" onclick="sortTable('nplPct')">NPL % ${sortIcon('nplPct')}</th> <th class="border-right sortable" onclick="sortTable('parPct')">PAR % ${sortIcon('parPct')}</th> <th>Action</th> `; DOM.tableBody.innerHTML = '';
         const avgRow = document.createElement('tr'); avgRow.className = 'row-avg';
-                let avgCellsHTML = `<td class="border-right">Total Small Business</td>`;
-        METRICS_CONFIG.forEach(m => {
-            if (state.visibleMetrics[m.id]) {
-                avgCellsHTML += `<td>${(avg[m.id]||0).toFixed(2)}%</td>`;
-            }
-        });
-        avgCellsHTML += `<td class="action-cell">-</td>`;
-        avgRow.innerHTML = avgCellsHTML; DOM.tableBody.appendChild(avgRow);
+        avgRow.innerHTML = `<td class="border-right">Total Small Business</td><td>${avg.colVsCol.toFixed(2)}%</td><td>${avg.emiVsCol.toFixed(2)}%</td><td>${avg.collectionPct.toFixed(2)}%</td><td>${avg.nplPct.toFixed(2)}%</td><td class="border-right">${avg.parPct.toFixed(2)}%</td><td class="action-cell">-</td>`; DOM.tableBody.appendChild(avgRow);
 
         if (state.sortCol) {
             grouped.sort((a, b) => {
@@ -1059,14 +792,7 @@ function updateTable(filteredUnits) {
 
         grouped.forEach(row => {
             const tr = document.createElement('tr'); tr.className = level !== 'unit' ? 'clickable-row' : '';
-            let trCellsHTML = `<td class="cell-name border-right" onclick="if('${level}' !== 'unit') handleTableRowClick('${row.name}')">${row.name}${level !== 'unit' ? ' <i class="fa-solid fa-chevron-right"></i>' : ''}</td>`;
-            METRICS_CONFIG.forEach(m => {
-                if (state.visibleMetrics[m.id]) {
-                    trCellsHTML += `<td class="${cellClass(row[m.id], avg[m.id], m.higherBetter)}" onclick="if('${level}' !== 'unit') handleTableRowClick('${row.name}')">${(row[m.id]||0).toFixed(2)}%</td>`;
-                }
-            });
-            trCellsHTML += `<td class="action-cell"><button class="btn-insight" onclick="event.stopPropagation(); openInsightModal('${row.name}', '${level}')"><i class="fa-solid fa-eye"></i> View</button></td>`;
-            tr.innerHTML = trCellsHTML;
+            tr.innerHTML = `<td class="cell-name border-right" onclick="if('${level}' !== 'unit') handleTableRowClick('${row.name}')">${row.name}${level !== 'unit' ? ' <i class="fa-solid fa-chevron-right"></i>' : ''}</td><td class="${cellClass(row.colVsCol, avg.colVsCol, true)}" onclick="if('${level}' !== 'unit') handleTableRowClick('${row.name}')">${row.colVsCol.toFixed(2)}%</td><td class="${cellClass(row.emiVsCol, avg.emiVsCol, true)}" onclick="if('${level}' !== 'unit') handleTableRowClick('${row.name}')">${row.emiVsCol.toFixed(2)}%</td><td class="${cellClass(row.collectionPct, avg.collectionPct, true)}" onclick="if('${level}' !== 'unit') handleTableRowClick('${row.name}')">${row.collectionPct.toFixed(2)}%</td><td class="${cellClass(row.nplPct, avg.nplPct, false)}" onclick="if('${level}' !== 'unit') handleTableRowClick('${row.name}')">${row.nplPct.toFixed(2)}%</td><td class="${cellClass(row.parPct, avg.parPct, false)} border-right" onclick="if('${level}' !== 'unit') handleTableRowClick('${row.name}')">${row.parPct.toFixed(2)}%</td><td class="action-cell"><button class="btn-insight" onclick="event.stopPropagation(); openInsightModal('${row.name}', '${level}')"><i class="fa-solid fa-eye"></i> View</button></td>`;
             DOM.tableBody.appendChild(tr);
         });
     }
@@ -1116,89 +842,6 @@ DOM.exportCsvBtn.addEventListener('click', () => {
     downloadLink.href = window.URL.createObjectURL(csvFile); downloadLink.style.display = 'none'; document.body.appendChild(downloadLink); downloadLink.click();
 });
 
-
-let progressChartInstances = [];
-function updateProgressView() {
-    if (!state.availableMonths || !state.availableMonths.length) return;
-    const filteredUnits = getFilteredUnits();
-    const months = state.availableMonths.filter(m => m !== 'TOTAL' && m !== 'overall');
-    if (!months.length) return;
-
-    const grid = document.getElementById('progressChartsGrid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    if (progressChartInstances) {
-        progressChartInstances.forEach(c => { if(c) c.destroy(); });
-    }
-    progressChartInstances = [];
-
-    const requestedMetrics = ['collectablePct', 'colVsOut', 'emiVsCol'];
-
-    METRICS_CONFIG.forEach(m => {
-        if (state.visibleMetrics[m.id] && requestedMetrics.includes(m.id)) {
-            let seriesData = [];
-            const level = state.drillLevel;
-            let groups = getUniqueValues(filteredUnits, level);
-            
-            if (!groups || groups.length === 0 || state.filters.unit !== 'all') {
-                let mData = [];
-                months.forEach(mo => {
-                    let exact = getExactSubtotal(state.filters.unit !== 'all' ? state.filters.unit :
-                        (state.filters.territory !== 'all' ? state.filters.territory :
-                            (state.filters.region !== 'all' ? state.filters.region : state.filters.zone)), mo);
-                    if (exact && exact[m.id] !== undefined) { mData.push(exact[m.id]); }
-                    else { mData.push(aggregateMetrics(filteredUnits, mo)[m.id] || 0); }
-                });
-                seriesData.push({ name: state.filters.unit !== 'all' ? state.filters.unit : 'Current View', data: mData });
-            } else {
-                groups.forEach(gName => {
-                    let mData = [];
-                    months.forEach(mo => {
-                        let exact = getExactSubtotal(gName, mo);
-                        if (exact && exact[m.id] !== undefined) {
-                            mData.push(exact[m.id]);
-                        } else {
-                            let unitsForGroup = filteredUnits.filter(u => u[level] === gName);
-                            let agg = aggregateMetrics(unitsForGroup, mo);
-                            mData.push(agg[m.id] || 0);
-                        }
-                    });
-                    seriesData.push({ name: gName, data: mData });
-                });
-            }
-
-            const card = document.createElement('div');
-            card.className = 'card chart-card';
-            const chartDiv = document.createElement('div');
-            chartDiv.id = 'progressChart_' + m.id;
-            card.appendChild(chartDiv);
-            grid.appendChild(card);
-
-            const options = {
-                series: seriesData,
-                chart: {
-                    type: 'line',
-                    height: 350,
-                    background: state.theme === 'dark' ? '#1a1f2e' : '#ffffff',
-                    toolbar: { show: true }
-                },
-                title: { text: m.label, align: 'left', style: { color: state.theme === 'dark' ? '#fff' : '#333' } },
-                colors: [m.color],
-                stroke: { curve: 'smooth', width: 3 },
-                markers: { size: 5 },
-                xaxis: { categories: months, labels: { style: { colors: state.theme === 'dark' ? 'rgba(255,255,255,0.7)' : '#334155' } } },
-                yaxis: { min: 0, labels: { formatter: val => val.toFixed(1) + "%", style: { colors: state.theme === 'dark' ? 'rgba(255,255,255,0.7)' : '#334155' } } },
-                grid: { borderColor: state.theme === 'dark' ? 'rgba(255,255,255,0.1)' : '#e2e8f0', strokeDashArray: 4 },
-                tooltip: { theme: state.theme, y: { formatter: val => val.toFixed(2) + "%" } }
-            };
-
-            const chart = new ApexCharts(chartDiv, options);
-            chart.render();
-            progressChartInstances.push(chart);
-        }
-    });
-}
-
 function updateDashboard() {
     if (!unitData.length) { DOM.uploadStatus.innerHTML = "<span style='color:var(--accent-red)'>Awaiting Excel Upload...</span>"; return; }
     const filteredUnits = getFilteredUnits();
@@ -1206,21 +849,15 @@ function updateDashboard() {
     DOM.dashboardView.style.display = 'block';
     DOM.ticketSizeFilterSection.style.display = (state.tab === 'ticket') ? 'block' : 'none';
 
-    DOM.dashboardView.style.display = 'none';
-    if (DOM.analysisView) DOM.analysisView.style.display = 'none';
-    if (DOM.progressView) DOM.progressView.style.display = 'none';
-
     if (state.tab === 'analysis') {
-        DOM.analysisView.style.display = 'block';
+        document.getElementById('dashboardView').style.display = 'none';
+        document.getElementById('analysisView').style.display = 'block';
         document.getElementById('analysisLevelSelect').value = state.drillLevel;
         updateAnalysisView();
         return;
-    } else if (state.tab === 'progress') {
-        DOM.progressView.style.display = 'block';
-        updateProgressView();
-        return;
     } else {
-        DOM.dashboardView.style.display = 'block';
+        document.getElementById('dashboardView').style.display = 'block';
+        document.getElementById('analysisView').style.display = 'none';
     }
 
     renderKPIs(filteredUnits);
@@ -1236,16 +873,14 @@ function updateAnalysisView() {
     const metricKey = document.getElementById('analysisMetricSelect').value;
     let baseMetricKey = 'overall';
 
-    let cAvg = Object.assign({ nplPct: 0, parPct: 0, colVsCol: 0, emiVsCol: 0, collectionPct: 0, collectablePct: 0, colVsOut: 0 }, countryAvg[baseMetricKey] || {});
+    let cAvg = Object.assign({ nplPct: 0, parPct: 0, colVsCol: 0, emiVsCol: 0, collectionPct: 0 }, countryAvg[baseMetricKey] || {});
     let avgVal = cAvg[metricKey];
 
     let grouped = getGroupedData(filteredUnits, level, baseMetricKey);
 
     const mConfig = {
-        collectablePct: { title: 'CLTD %', format: '%', higherBetter: true },
         collectionPct: { title: 'Collection', format: '%', higherBetter: true },
-        colVsOut: { title: 'CLTD vs OUT %', format: '%', higherBetter: true },
-        colVsCol: { title: 'CLTD vs CLTN %', format: '%', higherBetter: true },
+        colVsCol: { title: 'Out vs Col', format: '%', higherBetter: true },
         emiVsCol: { title: 'EMI', format: '%', higherBetter: true },
         nplPct: { title: 'NPL', format: '%', higherBetter: false },
         parPct: { title: 'PAR', format: '%', higherBetter: false }
@@ -1280,7 +915,7 @@ function updateAnalysisView() {
     }
 
     document.getElementById('analysisKpiRow').innerHTML = `
-        <div class="gap-kpi"><div class="gap-kpi-label">Country Average</div><div class="gap-kpi-value" style="color:var(--text-primary)">${(avgVal||0).toFixed(2)}%</div></div>
+        <div class="gap-kpi"><div class="gap-kpi-label">Country Average</div><div class="gap-kpi-value" style="color:var(--text-primary)">${avgVal.toFixed(2)}${mc.format}</div></div>
         <div class="gap-kpi"><div class="gap-kpi-label">Performing Well</div><div class="gap-kpi-value" style="color:var(--accent-green)">${goodList.length}</div></div>
         <div class="gap-kpi"><div class="gap-kpi-label">Below Average</div><div class="gap-kpi-value" style="color:var(--accent-amber)">${warnList.length}</div></div>
         <div class="gap-kpi"><div class="gap-kpi-label">Critical Risk</div><div class="gap-kpi-value" style="color:var(--accent-red)">${critList.length}</div></div>
@@ -1299,8 +934,8 @@ function updateAnalysisView() {
                     <div style="font-size: 0.75rem; color: var(--text-muted);">Count: ${item.unitCount || 1} Units</div>
                 </div>
                 <div style="text-align: right;">
-                    <div style="font-weight: 800; font-size: 1.1rem; color: ${colorVar};">${(item[metricKey]||0).toFixed(2)}%</div>
-                    <div style="font-size: 0.7rem; color: var(--text-muted);">${(Math.abs((item[metricKey]||0) - (avgVal||0))).toFixed(2)}% Diff</div>
+                    <div style="font-weight: 800; font-size: 1.1rem; color: ${colorVar};">${item[metricKey].toFixed(2)}${mc.format}</div>
+                    <div style="font-size: 0.7rem; color: var(--text-muted);">${(Math.abs(item[metricKey] - avgVal)).toFixed(2)}${mc.format} Diff</div>
                 </div>
             </div>
         `).join('');
@@ -1318,7 +953,6 @@ document.getElementById('analysisLevelSelect').addEventListener('change', (e) =>
     updateDashboard();
 });
 
-if (DOM.monthFilter) DOM.monthFilter.addEventListener('change', (e) => { state.month = e.target.value; updateDashboard(); });
 DOM.zoneFilter.addEventListener('change', (e) => { state.filters.zone = e.target.value; if (e.target.value === 'all') { state.filters.region = 'all'; state.filters.territory = 'all'; state.filters.unit = 'all'; } populateDropdowns(); updateBreadcrumb(); updateDashboard(); });
 DOM.regionFilter.addEventListener('change', (e) => { state.filters.region = e.target.value; if (e.target.value === 'all') { state.filters.territory = 'all'; state.filters.unit = 'all'; } populateDropdowns(); updateBreadcrumb(); updateDashboard(); });
 DOM.territoryFilter.addEventListener('change', (e) => { state.filters.territory = e.target.value; if (e.target.value === 'all') { state.filters.unit = 'all'; } populateDropdowns(); updateBreadcrumb(); updateDashboard(); });
@@ -1332,39 +966,25 @@ initCharts();
 
 // Try to load from localStorage first, then fallback to dashboardData
 let loadedFromLocal = false;
-// Force cache invalidation to prevent stale/corrupt data
-const CACHE_VERSION = 'v3';
-const currentVersion = localStorage.getItem('portfolioData_version');
-if (currentVersion !== CACHE_VERSION) {
-    localStorage.removeItem('persistedData');
-    localStorage.removeItem('portfolioData_unitData');
-    localStorage.removeItem('portfolioData_countryAvg');
-    localStorage.removeItem('portfolioData_subtotals');
-    localStorage.removeItem('portfolioData_availableMonths');
-    localStorage.setItem('portfolioData_version', CACHE_VERSION);
-} else {
-    try {
-        const storedUnitData = localStorage.getItem('portfolioData_unitData');
-        if (storedUnitData) {
-            let parsedData = JSON.parse(storedUnitData);
-            if (parsedData && parsedData.length > 0) {
-                unitData = parsedData;
-                countryAvg = JSON.parse(localStorage.getItem('portfolioData_countryAvg') || '{}');
-                subtotals = JSON.parse(localStorage.getItem('portfolioData_subtotals') || '{}');
-                state.availableMonths = JSON.parse(localStorage.getItem('portfolioData_availableMonths') || '[]');
-                loadedFromLocal = true;
-            }
+try {
+    const storedUnitData = localStorage.getItem('portfolioData_unitData');
+    if (storedUnitData) {
+        let parsedData = JSON.parse(storedUnitData);
+        if (parsedData && parsedData.length > 0) {
+            unitData = parsedData;
+            countryAvg = JSON.parse(localStorage.getItem('portfolioData_countryAvg') || '{}');
+            subtotals = JSON.parse(localStorage.getItem('portfolioData_subtotals') || '{}');
+            loadedFromLocal = true;
         }
-    } catch (e) {
-        console.error("Error loading from localStorage", e);
     }
+} catch (e) {
+    console.error("Error loading from localStorage", e);
 }
 
 if (!loadedFromLocal && typeof dashboardData !== 'undefined' && dashboardData && dashboardData.unitData && dashboardData.unitData.length) {
     unitData = dashboardData.unitData;
     countryAvg = dashboardData.countryAvg || {};
     subtotals = dashboardData.subtotals || {};
-    if (dashboardData.availableMonths) state.availableMonths = dashboardData.availableMonths;
 }
 
 if (unitData.length) {
