@@ -1666,3 +1666,73 @@ tr.clickable-row:hover td.cell-name i {
     color: #fff;
     border-color: var(--accent-purple);
 }
+
+/* ============================================
+   TREND ANALYSIS
+   ============================================ */
+/* Custom Scrollbar for Tree */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Dropdown transition */
+.export-dropdown {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+}
+.export-menu-container:hover .export-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Tree Styles */
+.tree-children { display: none; }
+.tree-children.open { display: block; animation: slideDown 0.2s ease-out; }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+.chevron { transition: transform 0.2s ease; }
+.chevron.open { transform: rotate(90deg); }
+
+
+/* Trend Analysis specific styles */
+.export-dropdown {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+}
+.export-menu-container:hover .export-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+.tree-children { display: none; }
+.tree-children.open { display: block; animation: slideDown 0.2s ease-out; }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+.chevron { transition: transform 0.2s ease; }
+.chevron.open { transform: rotate(90deg); }
+
+.custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+
+
+/* Layout changes for Trend Analysis */
+body.trend-active #sidebar { display: none !important; }
+body.trend-active .main-content { margin-left: 0 !important; }
+
+/* Dark mode mappings for Trend Analysis */
+.trend-card { background: var(--bg-card) !important; border-color: var(--border-color) !important; color: var(--text-primary) !important; }
+.trend-secondary { background: var(--bg-secondary) !important; border-color: var(--border-color) !important; color: var(--text-primary) !important; }
+.trend-text { color: var(--text-primary) !important; }
+.trend-text-muted { color: var(--text-muted) !important; }
+.trend-border { border-color: var(--border-color) !important; }
+.trend-icon-bg { background: var(--bg-hover) !important; }
+
+
+.hover-trend:hover { background-image: linear-gradient(var(--bg-hover), var(--bg-hover)) !important; }

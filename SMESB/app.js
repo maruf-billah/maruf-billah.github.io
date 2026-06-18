@@ -22,7 +22,8 @@ const defaultMetrics = (typeof dashboardData !== 'undefined' && dashboardData.se
 const defaultTabs = (typeof dashboardData !== 'undefined' && dashboardData.settings && dashboardData.settings.visibleTabs) ? dashboardData.settings.visibleTabs : {
     l12m: true,
     analysis: false,
-    progress: true
+    progress: true,
+    trend: true
 };
 
 const state = {
@@ -38,6 +39,12 @@ const state = {
     visibleMetrics: JSON.parse(localStorage.getItem('portfolioVisibleMetrics')) || defaultMetrics,
     visibleTabs: JSON.parse(localStorage.getItem('portfolioVisibleTabs')) || defaultTabs
 };
+
+
+if (state.visibleTabs.trend === undefined) {
+    state.visibleTabs.trend = true;
+    localStorage.setItem('portfolioVisibleTabs', JSON.stringify(state.visibleTabs));
+}
 
 const METRICS_CONFIG = [
     { id: 'collectablePct', label: 'CLTD %', icon: 'fa-percentage', gradient: 'var(--gradient-purple)', color: '#8b5cf6', higherBetter: true },
@@ -68,6 +75,7 @@ const DOM = {
     dashboardView: document.getElementById('dashboardView'),
     progressView: document.getElementById('progressView'),
     analysisView: document.getElementById('analysisView'),
+    trendAnalysisView: document.getElementById('trendAnalysisView'),
     exportCsvBtn: document.getElementById('exportCsvBtn'),
     excelUpload: document.getElementById('excelUpload'),
     uploadStatus: document.getElementById('uploadStatus'),
@@ -138,7 +146,8 @@ function renderSettingsToggles() {
     const TABS_CONFIG = [
         { id: 'l12m', label: 'L12M View' },
         { id: 'analysis', label: 'Analysis View' },
-        { id: 'progress', label: 'Progress View' }
+        { id: 'progress', label: 'Progress View' },
+        { id: 'trend', label: 'Trend Analysis' }
     ];
 
     let metricsHeader = document.createElement('h4');
@@ -212,7 +221,7 @@ function renderSettingsToggles() {
 }
 
 function updateTabsVisibility() {
-    ['l12m', 'analysis', 'progress'].forEach(tid => {
+    ['l12m', 'analysis', 'progress', 'trend'].forEach(tid => {
         let tabEl = document.querySelector(`.tab[data-tab="${tid}"]`);
         if (tabEl) {
             tabEl.style.display = state.visibleTabs[tid] ? 'inline-flex' : 'none';
@@ -461,16 +470,31 @@ function parseExcelData(arrayBuffer) {
                 localStorage.setItem('portfolioData_countryAvg', JSON.stringify(countryAvg));
                 localStorage.setItem('portfolioData_subtotals', JSON.stringify(subtotals));
                 localStorage.setItem('portfolioData_availableMonths', JSON.stringify(state.availableMonths));
-                // Store combined data for quick reload
-                localStorage.setItem('persistedData', JSON.stringify({ unitData, countryAvg, subtotals, availableMonths: state.availableMonths }));
             } catch (e) {
                 console.warn("Could not save to localStorage (quota exceeded?)", e);
             }
 
-            DOM.uploadStatus.innerHTML = `<i class="fa-solid fa-check" style="color:var(--accent-green)"></i> Loaded ${unitData.length} units!`;
+            DOM.uploadStatus.innerHTML = `<i class="fa-solid fa-check" style="color:var(--accent-green)"></i> Loaded ${unitData.length} units! Saving...`;
             DOM.downloadJsonBtn.style.display = 'block';
 
             populateDropdowns(); updateDashboard();
+
+            // Attempt to save permanently via local server
+            fetch('/save_data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    unitData, countryAvg, subtotals, availableMonths: state.availableMonths,
+                    settings: { visibleMetrics: state.visibleMetrics, visibleTabs: state.visibleTabs }
+                })
+            }).then(res => res.json()).then(data => {
+                if (data.status === 'success') {
+                    DOM.uploadStatus.innerHTML += " <span style='color:var(--accent-green)'><i class='fa-solid fa-hard-drive'></i> Permanently saved to realData.js!</span>";
+                }
+            }).catch(e => {
+                // Ignore error, it just means they didn't run the server
+                DOM.uploadStatus.innerHTML += " <br><small style='color:var(--text-muted)'>(Note: run start_dashboard.bat to auto-save permanently)</small>";
+            });
         } catch (err) { console.error(err); DOM.uploadStatus.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:var(--accent-red)"></i> ${err.message}`; }
     }, 100);
 }
@@ -497,7 +521,6 @@ if (DOM.jsonUpload) {
                 countryAvg = data.countryAvg || {};
                 subtotals = data.subtotals || {};
                 // Save back to localStorage for future loads
-                localStorage.setItem('persistedData', JSON.stringify({ unitData, countryAvg, subtotals, availableMonths: state.availableMonths }));
                 localStorage.setItem('portfolioData_unitData', JSON.stringify(unitData));
                 localStorage.setItem('portfolioData_countryAvg', JSON.stringify(countryAvg));
                 localStorage.setItem('portfolioData_subtotals', JSON.stringify(subtotals));
@@ -505,6 +528,22 @@ if (DOM.jsonUpload) {
                 DOM.downloadJsonBtn.style.display = 'block';
                 populateDropdowns();
                 updateDashboard();
+
+                // Attempt to save permanently via local server
+                fetch('/save_data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        unitData, countryAvg, subtotals, availableMonths: state.availableMonths,
+                        settings: { visibleMetrics: state.visibleMetrics, visibleTabs: state.visibleTabs }
+                    })
+                }).then(res => res.json()).then(data => {
+                    if (data.status === 'success') {
+                        console.log("JSON permanently saved to realData.js!");
+                    }
+                }).catch(e => {
+                    // Ignore error
+                });
             } catch (err) {
                 console.error('Failed to load JSON:', err);
                 alert('Invalid JSON file. Please select a valid exported JSON.');
@@ -513,38 +552,10 @@ if (DOM.jsonUpload) {
         reader.readAsText(e.target.files[0]);
     });
 }
-// Automatically preload persisted data on page load
-const preloadData = () => {
-    const CACHE_VERSION = 'v2';
-    const currentVersion = localStorage.getItem('portfolioData_version');
-    if (currentVersion !== CACHE_VERSION) {
-        localStorage.removeItem('persistedData');
-        localStorage.setItem('portfolioData_version', CACHE_VERSION);
-        return; // Force re-upload to prevent corrupt data
-    }
-
-    const saved = localStorage.getItem('persistedData');
-    if (saved) {
-        try {
-            const data = JSON.parse(saved);
-            unitData = data.unitData || [];
-            countryAvg = data.countryAvg || {};
-            subtotals = data.subtotals || {};
-            if (data.availableMonths) state.availableMonths = data.availableMonths;
-            DOM.downloadJsonBtn.style.display = 'block';
-            populateDropdowns();
-            updateDashboard();
-            updateProgressView();
-        } catch (e) {
-            console.warn('Failed to parse persisted data:', e);
-        }
-    }
-};
-// Call preload after DOM ready
+// Call after DOM ready
 window.addEventListener('DOMContentLoaded', () => {
     applyTheme(state.theme);
     updateTabsVisibility();
-    preloadData();
 });
 DOM.excelUpload.addEventListener('change', (e) => {
     if (!e.target.files[0]) return; const reader = new FileReader(); reader.onload = (evt) => parseExcelData(evt.target.result); reader.readAsArrayBuffer(e.target.files[0]);
@@ -1118,9 +1129,11 @@ DOM.exportCsvBtn.addEventListener('click', () => {
 
 
 let progressChartInstances = [];
+let progressCombinedChartInstances = [];
 function updateProgressView() {
     if (!state.availableMonths || !state.availableMonths.length) return;
     const filteredUnits = getFilteredUnits();
+    document.body.classList.toggle('trend-active', state.tab === 'trend');
     const months = state.availableMonths.filter(m => m !== 'TOTAL' && m !== 'overall');
     if (!months.length) return;
 
@@ -1132,7 +1145,16 @@ function updateProgressView() {
     }
     progressChartInstances = [];
 
-    const requestedMetrics = ['collectablePct', 'colVsOut', 'emiVsCol'];
+    const combinedGrid = document.getElementById('progressCombinedChartsGrid');
+    if (combinedGrid) {
+        combinedGrid.innerHTML = '';
+        if (progressCombinedChartInstances) {
+            progressCombinedChartInstances.forEach(c => { if(c) c.destroy(); });
+        }
+        progressCombinedChartInstances = [];
+    }
+
+    const requestedMetrics = ['collectablePct', 'colVsCol', 'colVsOut', 'emiVsCol'];
 
     METRICS_CONFIG.forEach(m => {
         if (state.visibleMetrics[m.id] && requestedMetrics.includes(m.id)) {
@@ -1195,6 +1217,60 @@ function updateProgressView() {
             const chart = new ApexCharts(chartDiv, options);
             chart.render();
             progressChartInstances.push(chart);
+
+            // Combined Bar + Line Chart
+            if (combinedGrid) {
+                let avgData = [];
+                months.forEach(mo => {
+                    let exact = getExactSubtotal(state.filters.unit !== 'all' ? state.filters.unit :
+                        (state.filters.territory !== 'all' ? state.filters.territory :
+                            (state.filters.region !== 'all' ? state.filters.region : state.filters.zone)), mo);
+                    if (exact && exact[m.id] !== undefined) { avgData.push(exact[m.id]); }
+                    else { avgData.push(aggregateMetrics(filteredUnits, mo)[m.id] || 0); }
+                });
+
+                let combinedSeries = seriesData.map(s => ({
+                    name: s.name,
+                    type: 'column',
+                    data: s.data
+                }));
+                
+                if (groups && groups.length > 0 && state.filters.unit === 'all') {
+                    combinedSeries.push({
+                        name: 'Overall ' + m.label,
+                        type: 'line',
+                        data: avgData
+                    });
+                }
+
+                const combinedCard = document.createElement('div');
+                combinedCard.className = 'card chart-card';
+                const combinedChartDiv = document.createElement('div');
+                combinedChartDiv.id = 'progressCombinedChart_' + m.id;
+                combinedCard.appendChild(combinedChartDiv);
+                combinedGrid.appendChild(combinedCard);
+
+                const combinedOptions = {
+                    series: combinedSeries,
+                    chart: {
+                        height: 350,
+                        type: 'line',
+                        background: state.theme === 'dark' ? '#1a1f2e' : '#ffffff',
+                        toolbar: { show: true }
+                    },
+                    title: { text: m.label + ' (Combined)', align: 'left', style: { color: state.theme === 'dark' ? '#fff' : '#333' } },
+                    stroke: { width: combinedSeries.map(s => s.type === 'line' ? 3 : 0), curve: 'smooth' },
+                    plotOptions: { bar: { columnWidth: '50%' } },
+                    xaxis: { categories: months, labels: { style: { colors: state.theme === 'dark' ? 'rgba(255,255,255,0.7)' : '#334155' } } },
+                    yaxis: { min: 0, labels: { formatter: val => val.toFixed(1) + "%", style: { colors: state.theme === 'dark' ? 'rgba(255,255,255,0.7)' : '#334155' } } },
+                    grid: { borderColor: state.theme === 'dark' ? 'rgba(255,255,255,0.1)' : '#e2e8f0', strokeDashArray: 4 },
+                    tooltip: { theme: state.theme, shared: true, intersect: false, y: { formatter: val => val.toFixed(2) + "%" } }
+                };
+
+                const combinedChart = new ApexCharts(combinedChartDiv, combinedOptions);
+                combinedChart.render();
+                progressCombinedChartInstances.push(combinedChart);
+            }
         }
     });
 }
@@ -1202,6 +1278,7 @@ function updateProgressView() {
 function updateDashboard() {
     if (!unitData.length) { DOM.uploadStatus.innerHTML = "<span style='color:var(--accent-red)'>Awaiting Excel Upload...</span>"; return; }
     const filteredUnits = getFilteredUnits();
+    document.body.classList.toggle('trend-active', state.tab === 'trend');
 
     DOM.dashboardView.style.display = 'block';
     DOM.ticketSizeFilterSection.style.display = (state.tab === 'ticket') ? 'block' : 'none';
@@ -1209,6 +1286,7 @@ function updateDashboard() {
     DOM.dashboardView.style.display = 'none';
     if (DOM.analysisView) DOM.analysisView.style.display = 'none';
     if (DOM.progressView) DOM.progressView.style.display = 'none';
+    if (DOM.trendAnalysisView) DOM.trendAnalysisView.style.display = 'none';
 
     if (state.tab === 'analysis') {
         DOM.analysisView.style.display = 'block';
@@ -1218,6 +1296,14 @@ function updateDashboard() {
     } else if (state.tab === 'progress') {
         DOM.progressView.style.display = 'block';
         updateProgressView();
+        return;
+    } else if (state.tab === 'trend') {
+        if (DOM.trendAnalysisView) DOM.trendAnalysisView.style.display = 'block';
+        if (typeof buildTrendHierarchy === 'function' && !window.trendHierarchyBuilt) {
+            buildTrendHierarchy();
+            window.trendHierarchyBuilt = true;
+        }
+        if (typeof updateTrendDashboard === 'function') updateTrendDashboard();
         return;
     } else {
         DOM.dashboardView.style.display = 'block';
@@ -1433,3 +1519,524 @@ if (DOM.themeToggle) {
     DOM.themeToggle.addEventListener('click', toggleTheme);
 }
 window.addEventListener('DOMContentLoaded', () => applyTheme(state.theme));
+
+/* ============================================
+   TREND ANALYSIS LOGIC
+   ============================================ */
+let trendMonths = [];
+let trendHierarchyTree = [];
+let trendChartInstance = null;
+const trendStandardColors = [
+    '#2563eb', '#059669', '#d97706', '#7c3aed', '#0891b2', '#db2777', '#ea580c', '#4f46e5', '#16a34a', '#dc2626',
+    '#8b5cf6', '#0ea5e9', '#10b981', '#f59e0b', '#f43f5e', '#3b82f6', '#84cc16', '#06b6d4', '#ec4899', '#f97316'
+];
+
+function buildTrendHierarchy() {
+    trendMonths = state.availableMonths.filter(m => m !== 'TOTAL');
+    trendHierarchyTree = [];
+
+    let treeMap = {};
+    unitData.forEach(u => {
+        if(!treeMap[u.zone]) treeMap[u.zone] = {};
+        if(!treeMap[u.zone][u.region]) treeMap[u.zone][u.region] = {};
+        if(!treeMap[u.zone][u.region][u.territory]) treeMap[u.zone][u.region][u.territory] = [];
+        if(!treeMap[u.zone][u.region][u.territory].includes(u.unit)) {
+            treeMap[u.zone][u.region][u.territory].push(u.unit);
+        }
+    });
+
+    Object.keys(treeMap).forEach(zName => {
+        let zoneNode = { name: zName, type: 'zone', children: [] };
+        Object.keys(treeMap[zName]).forEach(rName => {
+            let regionNode = { name: rName, type: 'region', children: [] };
+            Object.keys(treeMap[zName][rName]).forEach(tName => {
+                let terrNode = { name: tName, type: 'territory', children: [] };
+                treeMap[zName][rName][tName].forEach(uName => {
+                    terrNode.children.push({ name: uName, type: 'unit', children: [] });
+                });
+                regionNode.children.push(terrNode);
+            });
+            zoneNode.children.push(regionNode);
+        });
+        trendHierarchyTree.push(zoneNode);
+    });
+
+    const container = document.getElementById('trendTreeContainer');
+    if (container) {
+        container.innerHTML = renderTrendTreeHTML(trendHierarchyTree);
+        
+        // Initial setup for Tree - check first Zone and cascade down
+        const initialCheck = document.querySelector('.entity-checkbox[data-level="zone"]');
+        if(initialCheck) {
+            initialCheck.checked = true;
+            const li = initialCheck.closest('li');
+            if (li) {
+                li.querySelectorAll('.tree-children .entity-checkbox').forEach(cb => { cb.checked = true; cb.indeterminate = false; });
+            }
+        }
+    }
+}
+
+function renderTrendTreeHTML(nodes, isRoot = true) {
+    let html = `<ul class="${isRoot ? '' : 'pl-5 border-l trend-border ml-2 mt-1 space-y-1'}">`;
+    nodes.forEach(node => {
+        const hasChildren = node.children && node.children.length > 0;
+        const targetId = 'trend-' + node.name.replace(/[^a-zA-Z0-9]/g, '-');
+        html += `
+            <li class="relative mt-1">
+                <div class="flex items-center gap-2 py-1 px-1 rounded hover-trend transition-colors group">
+                    ${hasChildren ? `
+                        <button type="button" class="tree-toggle flex-shrink-0 w-5 h-5 flex items-center justify-center trend-text-muted hover:text-blue-600 transition-colors" data-target="${targetId}">
+                            <svg class="chevron w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
+                    ` : `<div class="w-5 h-5 flex-shrink-0"></div>`}
+                    <input type="checkbox" data-level="${node.type}" class="entity-checkbox w-4 h-4 text-blue-600 trend-secondary border trend-border rounded focus:ring-blue-500 cursor-pointer" value="${node.name}">
+                    <span class="text-sm font-medium trend-text cursor-pointer select-none hover:text-blue-500" onclick="this.previousElementSibling.click()">${node.name}</span>
+                </div>
+                ${hasChildren ? `<div id="${targetId}" class="tree-children">${renderTrendTreeHTML(node.children, false)}</div>` : ''}
+            </li>
+        `;
+    });
+    html += '</ul>';
+    return html;
+}
+
+// Bind Tree Events once DOM is ready
+window.addEventListener('DOMContentLoaded', () => {
+    const treeContainer = document.getElementById('trendTreeContainer');
+    if (treeContainer) {
+        treeContainer.addEventListener('click', (e) => {
+            const toggleBtn = e.target.closest('.tree-toggle');
+            if (toggleBtn) {
+                const targetId = toggleBtn.getAttribute('data-target');
+                const targetEl = document.getElementById(targetId);
+                const chevron = toggleBtn.querySelector('.chevron');
+                if(targetEl) {
+                    targetEl.classList.toggle('open');
+                    chevron.classList.toggle('open');
+                }
+            }
+        });
+
+        treeContainer.addEventListener('change', (e) => {
+            if (e.target.classList.contains('entity-checkbox')) {
+                const cb = e.target;
+                const li = cb.closest('li');
+                
+                const childCbs = li.querySelectorAll('.tree-children .entity-checkbox');
+                childCbs.forEach(childCb => {
+                    childCb.checked = cb.checked;
+                    childCb.indeterminate = false;
+                });
+                
+                let currentLi = li.parentElement.closest('li');
+                while (currentLi) {
+                    const parentCb = currentLi.querySelector('.entity-checkbox');
+                    const treeChildren = currentLi.querySelector('.tree-children');
+                    if (treeChildren) {
+                        const childLis = treeChildren.querySelector('ul').children;
+                        const siblingCbs = Array.from(childLis).map(child => child.querySelector('.entity-checkbox'));
+                        
+                        const allChecked = siblingCbs.length > 0 && siblingCbs.every(c => c.checked);
+                        const someChecked = siblingCbs.some(c => c.checked || c.indeterminate);
+                        
+                        if (allChecked) {
+                            parentCb.checked = true;
+                            parentCb.indeterminate = false;
+                        } else if (someChecked) {
+                            parentCb.checked = false;
+                            parentCb.indeterminate = true;
+                        } else {
+                            parentCb.checked = false;
+                            parentCb.indeterminate = false;
+                        }
+                    }
+                    currentLi = currentLi.parentElement.closest('li');
+                }
+                if (typeof updateTrendDashboard === 'function') updateTrendDashboard();
+            }
+        });
+    }
+
+    const clearBtn = document.getElementById('trendClearTreeBtn');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            document.querySelectorAll('#trendTreeContainer .entity-checkbox').forEach(cb => {
+                cb.checked = false;
+                cb.indeterminate = false;
+            });
+            if (typeof updateTrendDashboard === 'function') updateTrendDashboard();
+        });
+    }
+
+    const metricSel = document.getElementById('trendMetricSelect');
+    const dispSel = document.getElementById('trendDisplayLevelSelect');
+    const perfSel = document.getElementById('trendPerformanceSelect');
+    const tableToggle = document.getElementById('trendTableToggle');
+
+    if(metricSel) metricSel.addEventListener('change', updateTrendDashboard);
+    if(dispSel) dispSel.addEventListener('change', updateTrendDashboard);
+    if(perfSel) perfSel.addEventListener('change', updateTrendDashboard);
+    
+    if(tableToggle) {
+        tableToggle.addEventListener('change', () => {
+            const tblContainer = document.getElementById('trendDataTableContainer');
+            const chrtContainer = document.getElementById('trendChartContainer');
+            if (tblContainer) tblContainer.classList.toggle('hidden', !tableToggle.checked);
+            if (chrtContainer) chrtContainer.classList.toggle('hidden', tableToggle.checked);
+        });
+    }
+
+    const expCsv = document.getElementById('trendExportCSVBtn');
+    const expImg = document.getElementById('trendExportImageBtn');
+    const expPdf = document.getElementById('trendExportPDFBtn');
+    if(expCsv) expCsv.addEventListener('click', exportTrendCSV);
+    if(expImg) expImg.addEventListener('click', exportTrendImage);
+    if(expPdf) expPdf.addEventListener('click', exportTrendPDF);
+});
+
+function getTrendActiveEntities() {
+    const metric = document.getElementById('trendMetricSelect').value;
+    const perfFilter = document.getElementById('trendPerformanceSelect').value;
+    const displayLevel = document.getElementById('trendDisplayLevelSelect').value;
+    
+    const currentMonth = trendMonths[trendMonths.length - 1];
+    const currentAvg = getTrendMetricValue(countryAvg[currentMonth], metric) || 0;
+
+    const checkedBoxes = Array.from(document.querySelectorAll(`#trendTreeContainer .entity-checkbox[data-level="${displayLevel}"]:checked`)).map(cb => cb.value);
+    let filteredEntities = {};
+
+    checkedBoxes.forEach(name => {
+        let dataArray = trendMonths.map(m => {
+            let exact = getExactSubtotal(name, m);
+            if (exact) {
+                let v = getTrendMetricValue(exact, metric);
+                if (v !== undefined) return v;
+            }
+            
+            // fallback if exact not found
+            let entityUnits = [];
+            if (displayLevel === 'zone') entityUnits = unitData.filter(u => u.zone === name);
+            else if (displayLevel === 'region') entityUnits = unitData.filter(u => u.region === name);
+            else if (displayLevel === 'territory') entityUnits = unitData.filter(u => u.territory === name);
+            else if (displayLevel === 'unit') entityUnits = unitData.filter(u => u.unit === name);
+            
+            let aggr = aggregateMetrics(entityUnits, m);
+            return aggr[metric] || 0;
+        });
+
+        const val = dataArray[dataArray.length - 1]; // current month
+        let keep = false;
+        if (perfFilter === 'all') keep = true;
+        else if (perfFilter === 'above' && val >= currentAvg) keep = true;
+        else if (perfFilter === 'below' && val < currentAvg) keep = true;
+        else if (perfFilter === 'critical' && val <= currentAvg - 5) keep = true;
+
+        if (keep) {
+            filteredEntities[name] = dataArray;
+        }
+    });
+
+    return filteredEntities;
+}
+
+function getTrendMetricValue(obj, metric) {
+    if (!obj) return undefined;
+    if (metric === 'colVsCol') {
+        if (obj[metric]) return obj[metric];
+        if (obj.collectable) return +(obj.collection / obj.collectable * 100).toFixed(2);
+    }
+    return obj[metric];
+}
+
+function updateTrendDashboard() {
+    if (!trendMonths || trendMonths.length === 0) return;
+    const metric = document.getElementById('trendMetricSelect').value;
+    const activeEntities = getTrendActiveEntities();
+    const displayLevel = document.getElementById('trendDisplayLevelSelect').value;
+    
+    const count = Object.keys(activeEntities).length;
+    const checkedCount = document.querySelectorAll(`#trendTreeContainer .entity-checkbox[data-level="${displayLevel}"]:checked`).length;
+    let subText = `Displaying ${count} Entit${count === 1 ? 'y' : 'ies'}`;
+    if(checkedCount > count) subText += ` (Filtered from ${checkedCount})`;
+    
+    const subTextEl = document.getElementById('trendChartSubtext');
+    if (subTextEl) subTextEl.innerText = subText;
+
+    renderTrendKPIs(metric, activeEntities);
+    renderTrendChart(metric, activeEntities);
+    renderTrendTable(metric, activeEntities);
+}
+
+function renderTrendKPIs(metric, activeEntities) {
+    const currentMonthIdx = trendMonths.length - 1; 
+    const currentMonth = trendMonths[currentMonthIdx];
+    const currentAvg = getTrendMetricValue(countryAvg[currentMonth], metric) || 0;
+    const kpiContainer = document.getElementById('trendKpiContainer');
+    if (!kpiContainer) return;
+    
+    let html = '';
+    const iconWrap = (color, svg) => `<div class="p-3 trend-icon-bg rounded-xl"><svg class="w-6 h-6 text-${color}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">${svg}</svg></div>`;
+    
+    html += `
+        <div class="trend-card p-5 rounded-2xl shadow-sm border trend-border flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="text-xs font-bold trend-text-muted uppercase tracking-wider mb-1">Country Average</h3>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold trend-secondary trend-text-muted">${currentMonth}</span>
+                </div>
+                ${iconWrap('indigo', '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>')}
+            </div>
+            <div class="mt-4 flex items-baseline text-3xl font-extrabold trend-text">${currentAvg ? currentAvg.toFixed(1) : 0}%</div>
+        </div>
+    `;
+
+    let count = Object.keys(activeEntities).length;
+    if (count === 0) {
+        html += `<div class="col-span-3 bg-slate-50 p-6 rounded-2xl border border-slate-200 flex items-center justify-center text-slate-500 font-medium text-sm">Please select entities from the tree to view KPIs.</div>`;
+    } else if (count === 1) {
+        const name = Object.keys(activeEntities)[0];
+        const val = activeEntities[name][currentMonthIdx];
+        const variance = val - currentAvg;
+        const isPos = variance >= 0;
+        html += `
+            <div class="trend-card p-5 rounded-2xl shadow-sm border trend-border flex flex-col justify-between hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start">
+                    <div><h3 class="text-xs font-bold trend-text-muted uppercase tracking-wider mb-1 truncate" title="${name}">${name}</h3>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold trend-secondary trend-text-muted">Current</span></div>
+                    ${iconWrap('blue', '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>')}
+                </div>
+                <div class="mt-4 flex items-baseline text-3xl font-extrabold trend-text">${val.toFixed(1)}%</div>
+            </div>
+            <div class="trend-card p-5 rounded-2xl shadow-sm border trend-border flex flex-col justify-between hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start">
+                    <div><h3 class="text-xs font-bold trend-text-muted uppercase tracking-wider mb-1">Gap vs Average</h3>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold trend-secondary trend-text-muted">Variance</span></div>
+                    ${iconWrap(isPos ? 'emerald' : 'rose', isPos ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>' : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>')}
+                </div>
+                <div class="mt-4 flex items-baseline text-3xl font-extrabold ${isPos ? 'text-emerald-600' : 'text-rose-600'}">${isPos ? '+' : ''}${variance.toFixed(1)}%</div>
+            </div>
+            <div class="trend-secondary rounded-2xl border trend-border"></div>
+        `;
+    } else {
+        let bestNames = [], bestVal = -Infinity;
+        let worstNames = [], worstVal = Infinity;
+        let criticalCount = 0;
+        
+        for (const [name, data] of Object.entries(activeEntities)) {
+            const val = data[currentMonthIdx];
+            if (val > bestVal) { bestVal = val; bestNames = [name]; } else if (val === bestVal) { bestNames.push(name); }
+            if (val < worstVal) { worstVal = val; worstNames = [name]; } else if (val === worstVal) { worstNames.push(name); }
+            if (val <= currentAvg - 5) criticalCount++;
+        }
+
+        html += `
+            <div class="trend-card p-5 rounded-2xl shadow-sm border trend-border flex flex-col justify-between hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start">
+                    <div class="pr-2"><h3 class="text-xs font-bold trend-text-muted uppercase tracking-wider mb-1">Top Performer(s)</h3>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold trend-secondary trend-text-muted truncate max-w-[100px]" title="${bestNames.join(', ')}">${bestNames.join(', ')}</span></div>
+                    ${iconWrap('emerald', '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>')}
+                </div>
+                <div class="mt-4 flex items-baseline text-3xl font-extrabold trend-text">${bestVal.toFixed(1)}%</div>
+            </div>
+            ${worstVal >= currentAvg ? `
+            <div class="trend-card p-5 rounded-2xl shadow-sm border trend-border flex flex-col justify-between hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start">
+                    <div class="pr-2"><h3 class="text-xs font-bold trend-text-muted uppercase tracking-wider mb-1">Action Required</h3>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold trend-secondary trend-text-muted">None</span></div>
+                    ${iconWrap('slate', '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>')}
+                </div>
+                <div class="mt-4 flex items-baseline text-3xl font-extrabold text-slate-400">N/A</div>
+            </div>` : `
+            <div class="trend-card p-5 rounded-2xl shadow-sm border trend-border flex flex-col justify-between hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start">
+                    <div class="pr-2"><h3 class="text-xs font-bold trend-text-muted uppercase tracking-wider mb-1">Action Required</h3>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold trend-secondary trend-text-muted truncate max-w-[100px]" title="${worstNames.join(', ')}">${worstNames.join(', ')}</span></div>
+                    ${iconWrap('rose', '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>')}
+                </div>
+                <div class="mt-4 flex items-baseline text-3xl font-extrabold trend-text">${worstVal.toFixed(1)}%</div>
+            </div>`}
+            <div class="trend-card p-5 rounded-2xl shadow-sm border trend-border flex flex-col justify-between hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start">
+                    <div><h3 class="text-xs font-bold trend-text-muted uppercase tracking-wider mb-1">Critical Entities</h3>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold trend-secondary trend-text-muted">> 5% Below Avg</span></div>
+                    ${iconWrap('amber', '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>')}
+                </div>
+                <div class="mt-4 flex items-baseline text-3xl font-extrabold ${criticalCount > 0 ? 'text-amber-600' : 'text-emerald-600'}">${criticalCount} <span class="text-sm font-bold trend-text-muted ml-1">/ ${count}</span></div>
+            </div>
+        `;
+    }
+    kpiContainer.innerHTML = html;
+}
+
+if (window.Chart) {
+    Chart.register({
+        id: 'customCanvasBackgroundColor',
+        beforeDraw: (chart, args, options) => {
+            const {ctx} = chart; ctx.save(); ctx.globalCompositeOperation = 'destination-over';
+            ctx.fillStyle = options.color || '#ffffff'; ctx.fillRect(0, 0, chart.width, chart.height); ctx.restore();
+        }
+    });
+}
+
+function renderTrendChart(metric, activeEntities) {
+    const canvas = document.getElementById('trendPerformanceChart');
+    if (!canvas || !window.Chart) return;
+    const ctx = canvas.getContext('2d');
+    if (trendChartInstance) trendChartInstance.destroy();
+    
+    const entityCount = Object.keys(activeEntities).length;
+    if(entityCount === 0) return;
+
+    const datasets = [];
+    const avgData = trendMonths.map(m => getTrendMetricValue(countryAvg[m], metric) || 0);
+    let globalMin = Math.min(...avgData);
+    
+    const isHighDensity = entityCount > 10;
+
+    datasets.push({
+        label: 'Country Average', data: avgData,
+        borderColor: '#dc2626', backgroundColor: 'transparent',
+        borderWidth: isHighDensity ? 4 : 3, borderDash: [8, 6], 
+        pointRadius: isHighDensity ? 0 : 4, pointHoverRadius: 8, pointBackgroundColor: '#dc2626',
+        tension: 0.4, order: 1, fill: true, backgroundColor: !document.body.classList.contains('light-mode') ? 'rgba(220, 38, 38, 0.1)' : 'rgba(220, 38, 38, 0.05)'
+    });
+
+    let colorIndex = 0;
+    for (const [name, data] of Object.entries(activeEntities)) {
+        globalMin = Math.min(globalMin, ...data);
+        const baseColor = trendStandardColors[colorIndex % trendStandardColors.length];
+        const lineColor = isHighDensity ? baseColor + '99' : baseColor;
+        
+        datasets.push({
+            label: name, data: data,
+            borderColor: lineColor, backgroundColor: 'transparent',
+            borderWidth: isHighDensity ? 1.5 : 2.5, pointRadius: isHighDensity ? 0 : 3, 
+            hoverBorderWidth: 4, hoverBorderColor: baseColor, pointHoverRadius: 6,
+            tension: 0.4, order: 2
+        });
+        colorIndex++;
+    }
+
+    const calculatedMin = Math.max(0, Math.floor(globalMin / 10) * 10 - 5);
+    const isDark = !document.body.classList.contains('light-mode');
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = isDark ? 'rgba(255, 255, 255, 0.7)' : '#64748b';
+
+    trendChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: { labels: trendMonths, datasets: datasets },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: isHighDensity ? 'nearest' : 'index', intersect: isHighDensity ? true : false, axis: 'xy' },
+            plugins: {
+                legend: { display: !isHighDensity, position: 'top', align: 'end', labels: { padding: 20, font: { size: 12, weight: '600' }, usePointStyle: true, boxWidth: 8 } },
+                tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.95)', titleColor: '#fff', bodyColor: '#fff', padding: 12, cornerRadius: 8, callbacks: { label: (c) => ` ${c.dataset.label}: ${c.parsed.y.toFixed(1)}%` } },
+                customCanvasBackgroundColor: { color: isDark ? 'transparent' : 'white' }
+            },
+            scales: {
+                y: { min: calculatedMin, suggestedMax: 100, grid: { color: isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9', drawBorder: false }, ticks: { callback: (val) => val + '%', font: { size: 11, weight: '500' } } },
+                x: { grid: { display: false }, ticks: { font: { size: 11, weight: '500' } } }
+            }
+        }
+    });
+}
+
+window.currentTrendSort = window.currentTrendSort || { key: 'Entity Name', dir: 'asc' };
+
+window.sortTrendTable = function(key) {
+    if (window.currentTrendSort && window.currentTrendSort.key === key) {
+        window.currentTrendSort.dir = window.currentTrendSort.dir === 'asc' ? 'desc' : 'asc';
+    } else {
+        window.currentTrendSort = { key: key, dir: 'asc' };
+    }
+    updateTrendDashboard();
+}
+
+function renderTrendTable(metric, activeEntities) {
+    const tHead = document.getElementById('trendTableHead');
+    const tBody = document.getElementById('trendTableBody');
+    if (!tHead || !tBody) return;
+    
+    if(Object.keys(activeEntities).length === 0) { tHead.innerHTML=''; tBody.innerHTML=''; return; }
+
+    const sortIcon = (key) => window.currentTrendSort.key === key ? (window.currentTrendSort.dir === 'asc' ? ' ↑' : ' ↓') : '';
+
+    let headHTML = `<tr><th class="px-6 py-4 font-bold trend-text trend-secondary border-b trend-border cursor-pointer hover:text-blue-500 transition-colors select-none" onclick="sortTrendTable('Entity Name')">Entity Name${sortIcon('Entity Name')}</th>`;
+    trendMonths.forEach((m, idx) => headHTML += `<th class="px-6 py-4 font-bold trend-text trend-secondary border-b trend-border cursor-pointer hover:text-blue-500 transition-colors select-none" onclick="sortTrendTable(${idx})">${m}${sortIcon(idx)}</th>`);
+    headHTML += `</tr>`;
+    tHead.innerHTML = headHTML;
+    
+    let entries = Object.entries(activeEntities);
+    if (window.currentTrendSort.key === 'Entity Name') {
+        entries.sort((a,b) => window.currentTrendSort.dir === 'asc' ? a[0].localeCompare(b[0]) : b[0].localeCompare(a[0]));
+    } else {
+        const mIdx = window.currentTrendSort.key;
+        entries.sort((a,b) => window.currentTrendSort.dir === 'asc' ? a[1][mIdx] - b[1][mIdx] : b[1][mIdx] - a[1][mIdx]);
+    }
+    
+    const avgData = trendMonths.map(m => getTrendMetricValue(countryAvg[m], metric) || 0);
+    let bodyHTML = `<tr class="trend-icon-bg"><td class="px-6 py-3 font-bold trend-text border-b trend-border">Country Average</td>`;
+    avgData.forEach(val => bodyHTML += `<td class="px-6 py-3 font-bold text-blue-500 border-b trend-border">${val ? val.toFixed(1) : 0}%</td>`);
+    bodyHTML += `</tr>`;
+    
+    for (const [name, data] of entries) {
+        bodyHTML += `<tr class="hover:trend-icon-bg transition-colors"><td class="px-6 py-3 font-semibold trend-text border-b trend-border">${name}</td>`;
+        data.forEach((val, idx) => {
+            const avgVal = avgData[idx] || 0;
+            let colorClass = 'trend-text';
+            if (val <= avgVal - 5) {
+                colorClass = 'text-red-500 font-bold';
+            } else if (val < avgVal) {
+                colorClass = 'text-yellow-500 font-bold';
+            }
+            bodyHTML += `<td class="px-6 py-3 ${colorClass} border-b trend-border">${val ? val.toFixed(1) : 0}%</td>`;
+        });
+        bodyHTML += `</tr>`;
+    }
+    tBody.innerHTML = bodyHTML;
+}
+
+function exportTrendCSV() {
+    const metric = document.getElementById('trendMetricSelect').value;
+    const activeEntities = getTrendActiveEntities();
+    if(Object.keys(activeEntities).length === 0) return alert('No data to export.');
+    
+    let csv = "Entity," + trendMonths.join(",") + "\n";
+    const avgData = trendMonths.map(m => getTrendMetricValue(countryAvg[m], metric) || 0);
+    csv += "Country Average," + avgData.map(n => n ? n.toFixed(2) : 0).join(",") + "\n";
+    for(const [name, data] of Object.entries(activeEntities)) {
+        csv += `"${name}",${data.map(n => n ? n.toFixed(2) : 0).join(",")}\n`;
+    }
+    
+    const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csv);
+    const link = document.createElement("a");
+    link.href = encodedUri;
+    link.download = `Data_Export_${metric}.csv`;
+    document.body.appendChild(link);
+    link.click(); document.body.removeChild(link);
+}
+
+function exportTrendImage() {
+    if(!trendChartInstance) return;
+    const link = document.createElement('a');
+    link.download = 'Chart_Export.png';
+    link.href = document.getElementById('trendPerformanceChart').toDataURL('image/png', 1.0); 
+    link.click();
+}
+
+function exportTrendPDF() {
+    if (!window.html2pdf) {
+        alert('PDF generator library not loaded yet.');
+        return;
+    }
+    const element = document.getElementById('printable-dashboard');
+    const opt = {
+        margin:       0.3, filename: 'Dashboard_Report.pdf', image: { type: 'jpeg', quality: 1.0 },
+        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+    };
+    const originalBg = element.style.backgroundColor;
+    element.style.backgroundColor = '#ffffff'; 
+    html2pdf().set(opt).from(element).save().then(() => element.style.backgroundColor = originalBg);
+}

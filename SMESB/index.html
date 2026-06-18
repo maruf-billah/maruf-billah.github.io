@@ -11,7 +11,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css?v=2">
+    <!-- Tailwind CSS with Preflight Disabled -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            corePlugins: {
+                preflight: false
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="styles.css?v=10">
     <script>
         // Early guard: if not authenticated, redirect to login
         if (!localStorage.getItem('authenticated')) {
@@ -24,7 +33,7 @@
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <i class="fa-solid fa-chart-line logo-icon"></i>
-            <span class="logo-text">Portfolio BI</span>
+            <span class="logo-text">Monitoring Facts</span>
         </div>
 
         <div class="filter-section upload-section">
@@ -117,6 +126,7 @@
                     <div class="tab" data-tab="overall">Dashboard</div>
                     <div class="tab" data-tab="analysis"><i class="fa-solid fa-microscope"></i> Analysis</div>
                     <div class="tab" data-tab="progress"><i class="fa-solid fa-chart-line"></i> Progress</div>
+                    <div class="tab" data-tab="trend"><i class="fa-solid fa-arrow-trend-up"></i> Trend Analysis</div>
                 </div>
             </div>
         </header>
@@ -156,7 +166,7 @@
                 <div class="card chart-card" id="chartCardCollectablePct">
                     <div class="chart-header">
                         <h3 class="card-title"><i class="fa-solid fa-percentage" style="color:var(--accent-purple)"></i>
-                            CLTD %</h3>
+                            Collectable (CLTD) %</h3>
                         <button class="expand-btn" onclick="openChartModal('collectablePct')"><i
                                 class="fa-solid fa-expand"></i></button>
                     </div>
@@ -174,7 +184,7 @@
                 <div class="card chart-card" id="chartCardColVsCol">
                     <div class="chart-header">
                         <h3 class="card-title"><i class="fa-solid fa-chart-pie" style="color:var(--accent-blue)"></i>
-                            Out VS Col %</h3>
+                            COLLECTABLE vs COLLECTION %</h3>
                         <button class="expand-btn" onclick="openChartModal('colVsCol')"><i
                                 class="fa-solid fa-expand"></i></button>
                     </div>
@@ -183,7 +193,7 @@
                 <div class="card chart-card" id="chartCardColVsOut">
                     <div class="chart-header">
                         <h3 class="card-title"><i class="fa-solid fa-chart-pie" style="color:var(--accent-cyan)"></i>
-                            Col VS Out %</h3>
+                            Collection VS Outstanding %</h3>
                         <button class="expand-btn" onclick="openChartModal('colVsOut')"><i
                                 class="fa-solid fa-expand"></i></button>
                     </div>
@@ -324,6 +334,132 @@
                 <div class="charts-grid" id="progressChartsGrid">
                 </div>
             </div>
+            
+            <div class="card table-card" style="margin-bottom: 24px;">
+                <h3 class="card-title"><i class="fa-solid fa-chart-bar" style="color:var(--accent-purple)"></i> Month-on-Month Progress (Combined View)</h3>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+                    Detailed grouped bar chart view with overall progress line overlay.
+                </div>
+                <div class="charts-grid" id="progressCombinedChartsGrid">
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- TREND ANALYSIS VIEW -->
+        <div id="trendAnalysisView" style="display: none;">
+            <!-- Main Workspace (Side Panel + Content) -->
+            <div class="flex-1 flex flex-col lg:flex-row max-w-[1600px] w-full mx-auto gap-6" style="padding: 20px 0;">
+                
+                <!-- LEFT SIDEBAR: FILTERS -->
+                <aside class="w-full lg:w-80 flex-shrink-0 flex flex-col gap-5">
+                    
+                    <!-- Filter Controls -->
+                    <div class="trend-card p-5 rounded-2xl shadow-sm border trend-border space-y-5">
+                        <div>
+                            <label for="trendMetricSelect" class="block text-xs font-bold trend-text-muted uppercase tracking-wider mb-2">1. Data Point</label>
+                            <select id="trendMetricSelect" class="w-full trend-secondary border trend-border trend-text text-sm font-medium rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-2.5 outline-none transition-all cursor-pointer shadow-sm">
+                                <option value="emiVsCol">EMI Progress</option>
+                                <option value="collectablePct">Collectable (%)</option>
+                                <option value="colVsCol">Collection (CLTD vs CLTN %)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="trendDisplayLevelSelect" class="block text-xs font-bold trend-text-muted uppercase tracking-wider mb-2">2. Plot Level</label>
+                            <select id="trendDisplayLevelSelect" class="w-full trend-secondary border trend-border trend-text text-sm font-medium rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-2.5 outline-none transition-all cursor-pointer shadow-sm">
+                                <option value="zone">Zones Only</option>
+                                <option value="region" selected>Regions Only</option>
+                                <option value="territory">Territories Only</option>
+                                <option value="unit">Units Only</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="trendPerformanceSelect" class="block text-xs font-bold text-blue-600 uppercase tracking-wider mb-2">3. Performance Filter</label>
+                            <select id="trendPerformanceSelect" class="w-full trend-secondary border trend-border trend-text text-sm font-medium rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-2.5 outline-none transition-all cursor-pointer shadow-sm">
+                                <option value="all">Show All Selected</option>
+                                <option value="above">Above Country Average</option>
+                                <option value="below">Below Country Average</option>
+                                <option value="critical">Critical (> 5% Below Avg)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Hierarchical Tree Selection -->
+                    <div class="trend-card rounded-2xl shadow-sm border trend-border flex flex-col h-[600px]">
+                        <div class="p-4 border-b trend-border flex justify-between items-center trend-secondary rounded-t-2xl">
+                            <label class="block text-xs font-bold trend-text-muted uppercase tracking-wider">4. Geo Location Tree</label>
+                            <button id="trendClearTreeBtn" class="text-xs font-semibold text-blue-500 hover:text-blue-400">Clear</button>
+                        </div>
+                        <div class="p-4 overflow-y-auto flex-1 custom-scrollbar" id="trendTreeContainer">
+                            <!-- Tree is injected here via JS -->
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- RIGHT MAIN CONTENT -->
+                <div class="flex-1 min-w-0 space-y-6 flex flex-col" id="printable-dashboard">
+                    
+                    <!-- KPI Strip -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="trendKpiContainer">
+                        <!-- KPIs injected via JS -->
+                    </div>
+
+                    <!-- Chart Card -->
+                    <div class="trend-card rounded-2xl shadow-sm border trend-border flex-1 flex flex-col" style="min-height: 500px;">
+                        <div class="px-6 py-4 border-b trend-border flex flex-wrap gap-4 justify-between items-center trend-secondary rounded-t-2xl">
+                            <div class="flex items-center gap-3">
+                                <h2 class="text-base font-bold trend-text tracking-tight" style="margin:0;">Trend Comparison</h2>
+                                <span id="trendChartSubtext" class="text-xs font-medium trend-text-muted trend-card px-2 py-1 rounded-md border trend-border shadow-sm"></span>
+                            </div>
+                            
+                            <div class="flex items-center gap-4">
+                                <!-- Toggle for Data Table -->
+                                <label class="relative inline-flex items-center cursor-pointer" style="margin:0;">
+                                    <input type="checkbox" id="trendTableToggle" class="sr-only peer">
+                                    <div class="w-11 h-6 rounded-full peer-checked:bg-blue-600 transition-colors" style="background-color: var(--bg-hover); border: 1px solid var(--border-color);"></div>
+                                    <div class="absolute left-[2px] top-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-[20px]" style="box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
+                                    <span class="ml-2 text-sm font-semibold trend-text-muted">Show Table</span>
+                                </label>
+
+                                <!-- Export Menu -->
+                                <div class="relative export-menu-container z-10 border-l trend-border pl-4">
+                                    <button class="flex items-center gap-2 px-3 py-1.5 trend-secondary hover-trend trend-text text-sm font-semibold rounded-lg transition-colors border trend-border shadow-sm">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                        Export
+                                    </button>
+                                    <div class="export-dropdown absolute right-0 mt-2 w-40 trend-card rounded-xl shadow-xl border trend-border py-2">
+                                        <button id="trendExportCSVBtn" class="w-full text-left px-4 py-2 text-sm font-medium trend-text hover-trend trend-text hover:text-blue-500 flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> CSV Data
+                                        </button>
+                                        <button id="trendExportImageBtn" class="w-full text-left px-4 py-2 text-sm font-medium trend-text hover-trend trend-text hover:text-blue-500 flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> Image
+                                        </button>
+                                        <button id="trendExportPDFBtn" class="w-full text-left px-4 py-2 text-sm font-medium trend-text hover-trend trend-text hover:text-blue-500 flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> PDF
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="trendChartContainer" class="p-6 flex-1 relative" style="height: 400px; width: 100%;">
+                            <canvas id="trendPerformanceChart"></canvas>
+                        </div>
+
+                        <!-- Data Table Container (Hidden by default) -->
+                        <div id="trendDataTableContainer" class="hidden overflow-x-auto border-t trend-border trend-card flex-1 min-h-[400px] overflow-y-auto relative rounded-b-2xl">
+                            <table class="w-full text-left text-sm trend-text-muted whitespace-nowrap">
+                                <thead class="trend-secondary text-xs uppercase trend-text-muted sticky top-0 shadow-sm" id="trendTableHead">
+                                </thead>
+                                <tbody class="divide-y divide-slate-100" id="trendTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </main>
@@ -374,8 +510,10 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="realData.js?v=2"></script>
-    <script src="app.js?v=2"></script>
+    <script src="app.js?v=13"></script>
 </body>
 
 </html>
